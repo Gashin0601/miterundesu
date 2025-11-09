@@ -80,54 +80,48 @@ struct CameraPreviewWithZoom: View {
             // カメラズームコントロール（シアターモードでも表示）
             VStack(spacing: 12) {
                 // ズームイン
-                Button(action: {
-                    zoomIn()
-                }) {
-                    ZStack {
-                        Circle()
-                            .fill(Color.black.opacity(0.6))
-                            .frame(width: 44, height: 44)
+                ZStack {
+                    Circle()
+                        .fill(Color.black.opacity(0.6))
+                        .frame(width: 44, height: 44)
 
-                        Image(systemName: "plus")
-                            .font(.system(size: 20, weight: .medium))
-                            .foregroundColor(.white)
-                    }
+                    Image(systemName: "plus")
+                        .font(.system(size: 20, weight: .medium))
+                        .foregroundColor(.white)
                 }
-                .simultaneousGesture(
-                    LongPressGesture(minimumDuration: 0.3)
-                        .onChanged { _ in
-                            startContinuousZoom(direction: .in)
-                        }
-                        .onEnded { _ in
-                            stopContinuousZoom()
-                        }
-                )
+                .onTapGesture {
+                    zoomIn()
+                }
+                .onLongPressGesture(minimumDuration: 0.5, pressing: { pressing in
+                    if pressing {
+                        startContinuousZoom(direction: .in)
+                    } else {
+                        stopContinuousZoom()
+                    }
+                }, perform: {})
                 .accessibilityLabel("ズームイン")
                 .accessibilityHint("タップで1.5倍拡大、長押しで連続拡大します")
 
                 // ズームアウト
-                Button(action: {
-                    zoomOut()
-                }) {
-                    ZStack {
-                        Circle()
-                            .fill(Color.black.opacity(0.6))
-                            .frame(width: 44, height: 44)
+                ZStack {
+                    Circle()
+                        .fill(Color.black.opacity(0.6))
+                        .frame(width: 44, height: 44)
 
-                        Image(systemName: "minus")
-                            .font(.system(size: 20, weight: .medium))
-                            .foregroundColor(.white)
-                    }
+                    Image(systemName: "minus")
+                        .font(.system(size: 20, weight: .medium))
+                        .foregroundColor(.white)
                 }
-                .simultaneousGesture(
-                    LongPressGesture(minimumDuration: 0.3)
-                        .onChanged { _ in
-                            startContinuousZoom(direction: .out)
-                        }
-                        .onEnded { _ in
-                            stopContinuousZoom()
-                        }
-                )
+                .onTapGesture {
+                    zoomOut()
+                }
+                .onLongPressGesture(minimumDuration: 0.5, pressing: { pressing in
+                    if pressing {
+                        startContinuousZoom(direction: .out)
+                    } else {
+                        stopContinuousZoom()
+                    }
+                }, perform: {})
                 .accessibilityLabel("ズームアウト")
                 .accessibilityHint("タップで縮小、長押しで連続縮小します")
 
