@@ -139,17 +139,20 @@ class SecurityManager: ObservableObject {
 
 // MARK: - Secure View Modifier (スクリーンショット・画面録画対策)
 // UITextFieldのisSecureTextEntryを活用した実装
+// 参考: https://qiita.com/mittsu/items/4c6437222e759fb9329c
 
 extension UIView {
-    static var secureView: UIView {
-        let textField = UITextField()
-        textField.isSecureTextEntry = true
-        textField.isUserInteractionEnabled = false
-        guard let secureView = textField.layer.sublayers?.first?.delegate as? UIView else {
-            return .init()
+    func makeSecure() {
+        DispatchQueue.main.async {
+            let field = UITextField()
+            field.isSecureTextEntry = true
+            self.addSubview(field)
+            field.translatesAutoresizingMaskIntoConstraints = false
+            field.centerYAnchor.constraint(equalTo: self.centerYAnchor).isActive = true
+            field.centerXAnchor.constraint(equalTo: self.centerXAnchor).isActive = true
+            self.layer.superlayer?.addSublayer(field.layer)
+            field.layer.sublayers?.first?.addSublayer(self.layer)
         }
-        secureView.subviews.forEach { $0.removeFromSuperview() }
-        return secureView
     }
 }
 
@@ -184,40 +187,24 @@ class RestrictCaptureViewController<Content: View>: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        let secureView = UIView.secureView
-        secureView.backgroundColor = .clear
-
-        // ホスティングコントローラーをセキュアビューに追加
+        // ホスティングコントローラーをビュー階層に追加
         hostingController.view.backgroundColor = .clear
         hostingController.view.translatesAutoresizingMaskIntoConstraints = false
 
         addChild(hostingController)
-        secureView.addSubview(hostingController.view)
+        view.addSubview(hostingController.view)
 
         NSLayoutConstraint.activate([
-            hostingController.view.topAnchor.constraint(equalTo: secureView.topAnchor),
-            hostingController.view.bottomAnchor.constraint(equalTo: secureView.bottomAnchor),
-            hostingController.view.leadingAnchor.constraint(equalTo: secureView.leadingAnchor),
-            hostingController.view.trailingAnchor.constraint(equalTo: secureView.trailingAnchor)
+            hostingController.view.topAnchor.constraint(equalTo: view.topAnchor),
+            hostingController.view.bottomAnchor.constraint(equalTo: view.bottomAnchor),
+            hostingController.view.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            hostingController.view.trailingAnchor.constraint(equalTo: view.trailingAnchor)
         ])
 
         hostingController.didMove(toParent: self)
 
-        // セキュアビューをビュー階層に追加
-        view.addSubview(secureView)
-        secureView.translatesAutoresizingMaskIntoConstraints = false
-
-        NSLayoutConstraint.activate([
-            secureView.topAnchor.constraint(equalTo: view.topAnchor),
-            secureView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
-            secureView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            secureView.trailingAnchor.constraint(equalTo: view.trailingAnchor)
-        ])
-
-        // ユーザーインタラクションを有効化
-        secureView.isUserInteractionEnabled = true
-        hostingController.view.isUserInteractionEnabled = true
-        view.isUserInteractionEnabled = true
+        // Qiitaの記事に基づいてmakeSecure()を呼び出す
+        view.makeSecure()
     }
 }
 

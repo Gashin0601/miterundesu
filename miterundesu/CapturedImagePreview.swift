@@ -25,6 +25,7 @@ struct CapturedImagePreview: View {
     @State private var continuousZoomCount: Int = 0
     @State private var showSettings = false
     @State private var showExplanation = false
+    @State private var isContentVisible = false // 最初のフレーム保護用（遅延表示）
 
     let timer = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
 
@@ -45,6 +46,7 @@ struct CapturedImagePreview: View {
             ZStack(alignment: .bottomTrailing) {
                 GeometryReader { geometry in
                     Image(uiImage: capturedImage.image)
+                        .opacity(isContentVisible ? 1.0 : 0.0) // 遅延表示
                         .resizable()
                         .aspectRatio(contentMode: .fit)
                         .frame(width: geometry.size.width, height: geometry.size.height)
@@ -312,6 +314,14 @@ struct CapturedImagePreview: View {
         }
         .fullScreenCover(isPresented: $showExplanation) {
             ExplanationView(settingsManager: settingsManager)
+        }
+        .onAppear {
+            // 最初のフレーム保護：0.15秒後にコンテンツを表示
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.15) {
+                withAnimation(.easeIn(duration: 0.1)) {
+                    isContentVisible = true
+                }
+            }
         }
         .onReceive(timer) { _ in
             remainingTime = capturedImage.remainingTime
