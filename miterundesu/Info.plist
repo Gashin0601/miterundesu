@@ -8,5 +8,9 @@
 	</array>
 	<key>NSCameraUsageDescription</key>
 	<string>このアプリは、文字や物を拡大して見やすくするためにカメラを使用します。撮影した画像は保存されず、10分後に自動的に削除されます。</string>
+	<key>UISupportedInterfaceOrientations</key>
+	<array>
+		<string>UIInterfaceOrientationPortrait</string>
+	</array>
 </dict>
 </plist>

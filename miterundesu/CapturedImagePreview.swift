@@ -42,8 +42,8 @@ struct CapturedImagePreview: View {
                 .ignoresSafeArea()
 
             // 画像表示エリア
-            ZStack {
-                    GeometryReader { geometry in
+            ZStack(alignment: .bottomTrailing) {
+                GeometryReader { geometry in
                         Image(uiImage: capturedImage.image)
                             .resizable()
                             .aspectRatio(contentMode: .fit)
@@ -117,132 +117,108 @@ struct CapturedImagePreview: View {
                             )
                         }
 
-                        // 右側：ズームコントロール
-                        VStack {
-                            Spacer()
+                // 右側：ズームコントロールと倍率表示
+                VStack(alignment: .trailing, spacing: 8) {
+                    // ズームコントロールボタン
+                    VStack(spacing: 12) {
+                        // ズームイン
+                        ZStack {
+                            Circle()
+                                .fill(Color.black.opacity(0.6))
+                                .frame(width: 44, height: 44)
 
-                            HStack {
-                                Spacer()
+                            Image(systemName: "plus")
+                                .font(.system(size: 20, weight: .medium))
+                                .foregroundColor(.white)
+                        }
+                        .onTapGesture {
+                            zoomIn()
+                        }
+                        .onLongPressGesture(minimumDuration: 0.3, pressing: { pressing in
+                            if pressing {
+                                startContinuousZoom(direction: .in)
+                            } else {
+                                stopContinuousZoom()
+                            }
+                        }, perform: {})
+                        .accessibilityLabel("ズームイン")
+                        .accessibilityHint("タップで1.5倍拡大、長押しで連続拡大します")
 
-                                VStack(spacing: 12) {
-                                    // ズームイン
-                                    ZStack {
-                                        Circle()
-                                            .fill(Color.black.opacity(0.6))
-                                            .frame(width: 44, height: 44)
+                        // ズームアウト
+                        ZStack {
+                            Circle()
+                                .fill(Color.black.opacity(0.6))
+                                .frame(width: 44, height: 44)
 
-                                        Image(systemName: "plus")
-                                            .font(.system(size: 20, weight: .medium))
-                                            .foregroundColor(.white)
-                                    }
-                                    .onTapGesture {
-                                        zoomIn()
-                                    }
-                                    .onLongPressGesture(minimumDuration: 0.3, pressing: { pressing in
-                                        if pressing {
-                                            startContinuousZoom(direction: .in)
-                                        } else {
-                                            stopContinuousZoom()
-                                        }
-                                    }, perform: {})
-                                    .accessibilityLabel("ズームイン")
-                                    .accessibilityHint("タップで1.5倍拡大、長押しで連続拡大します")
+                            Image(systemName: "minus")
+                                .font(.system(size: 20, weight: .medium))
+                                .foregroundColor(.white)
+                        }
+                        .onTapGesture {
+                            zoomOut()
+                        }
+                        .onLongPressGesture(minimumDuration: 0.3, pressing: { pressing in
+                            if pressing {
+                                startContinuousZoom(direction: .out)
+                            } else {
+                                stopContinuousZoom()
+                            }
+                        }, perform: {})
+                        .accessibilityLabel("ズームアウト")
+                        .accessibilityHint("タップで縮小、長押しで連続縮小します")
 
-                                    // ズームアウト
-                                    ZStack {
-                                        Circle()
-                                            .fill(Color.black.opacity(0.6))
-                                            .frame(width: 44, height: 44)
+                        // リセットボタン（1.circleアイコン）
+                        Button(action: {
+                            stopContinuousZoom()
+                            withAnimation {
+                                scale = 1.0
+                                offset = .zero
+                                lastOffset = .zero
+                            }
+                        }) {
+                            ZStack {
+                                Circle()
+                                    .fill(Color.black.opacity(0.6))
+                                    .frame(width: 44, height: 44)
 
-                                        Image(systemName: "minus")
-                                            .font(.system(size: 20, weight: .medium))
-                                            .foregroundColor(.white)
-                                    }
-                                    .onTapGesture {
-                                        zoomOut()
-                                    }
-                                    .onLongPressGesture(minimumDuration: 0.3, pressing: { pressing in
-                                        if pressing {
-                                            startContinuousZoom(direction: .out)
-                                        } else {
-                                            stopContinuousZoom()
-                                        }
-                                    }, perform: {})
-                                    .accessibilityLabel("ズームアウト")
-                                    .accessibilityHint("タップで縮小、長押しで連続縮小します")
-
-                                    // リセットボタン（1.circleアイコン）
-                                    Button(action: {
-                                        stopContinuousZoom()
-                                        withAnimation {
-                                            scale = 1.0
-                                            offset = .zero
-                                            lastOffset = .zero
-                                        }
-                                    }) {
-                                        ZStack {
-                                            Circle()
-                                                .fill(Color.black.opacity(0.6))
-                                                .frame(width: 44, height: 44)
-
-                                            Image(systemName: "1.circle")
-                                                .font(.system(size: 20, weight: .medium))
-                                                .foregroundColor(.white)
-                                        }
-                                    }
-                                    .accessibilityLabel("ズームリセット")
-                                    .accessibilityHint("画像の拡大を元に戻します")
-                                }
-                                .padding(.trailing, 12)
-                                .padding(.bottom, 12)
+                                Image(systemName: "1.circle")
+                                    .font(.system(size: 20, weight: .medium))
+                                    .foregroundColor(.white)
                             }
                         }
+                        .accessibilityLabel("ズームリセット")
+                        .accessibilityHint("画像の拡大を元に戻します")
+                    }
 
-                        // 倍率表示（右下）
-                        VStack {
-                            Spacer()
-
-                            HStack {
-                                Spacer()
-
-                                Text("×\(String(format: "%.1f", scale))")
-                                    .font(.system(size: 16, weight: .bold, design: .monospaced))
-                                    .foregroundColor(.white)
-                                    .padding(.horizontal, 12)
-                                    .padding(.vertical, 8)
-                                    .background(
-                                        RoundedRectangle(cornerRadius: 10)
-                                            .fill(Color.white.opacity(0.2))
-                                    )
-                                    .padding(.trailing, 16)
-                                    .padding(.bottom, 16)
-                            }
+                    // 倍率表示
+                    Text("×\(String(format: "%.1f", scale))")
+                        .font(.system(size: 16, weight: .bold, design: .monospaced))
+                        .foregroundColor(.white)
+                        .padding(.horizontal, 12)
+                        .padding(.vertical, 8)
+                        .background(
+                            RoundedRectangle(cornerRadius: 10)
+                                .fill(Color.white.opacity(0.2))
+                        )
                 }
+                .padding(.trailing, 12)
+                .padding(.bottom, 12)
+            }
 
                 // 上部コントロール（オーバーレイ）
                 VStack {
                     HStack {
-                        // 左：設定ボタン
-                        Button(action: {
-                            showSettings = true
-                        }) {
-                            HStack(spacing: 6) {
-                                Image(systemName: "gearshape.fill")
-                                    .font(.system(size: 16))
-                                Text("設定")
-                                    .font(.system(size: 13, weight: .medium))
-                            }
+                        // 左：残り時間表示
+                        Text(formattedRemainingTime)
+                            .font(.system(size: 14, weight: .medium, design: .monospaced))
                             .foregroundColor(.white)
                             .padding(.horizontal, 12)
-                            .padding(.vertical, 6)
+                            .padding(.vertical, 8)
                             .background(
-                                RoundedRectangle(cornerRadius: 8)
-                                    .fill(Color.white.opacity(0.25))
+                                RoundedRectangle(cornerRadius: 10)
+                                    .fill(Color.red.opacity(0.7))
                             )
-                        }
-                        .padding(.leading, 20)
-                        .accessibilityLabel("設定")
-                        .accessibilityHint("アプリの設定画面を開きます")
+                            .padding(.leading, 20)
 
                         Spacer()
 
@@ -269,17 +245,27 @@ struct CapturedImagePreview: View {
 
                         Spacer()
 
-                        // 右：残り時間表示
-                        Text(formattedRemainingTime)
-                            .font(.system(size: 14, weight: .medium, design: .monospaced))
+                        // 右：設定ボタン
+                        Button(action: {
+                            showSettings = true
+                        }) {
+                            HStack(spacing: 6) {
+                                Image(systemName: "gearshape.fill")
+                                    .font(.system(size: 16))
+                                Text("設定")
+                                    .font(.system(size: 13, weight: .medium))
+                            }
                             .foregroundColor(.white)
                             .padding(.horizontal, 12)
-                            .padding(.vertical, 8)
+                            .padding(.vertical, 6)
                             .background(
-                                RoundedRectangle(cornerRadius: 10)
-                                    .fill(Color.red.opacity(0.7))
+                                RoundedRectangle(cornerRadius: 8)
+                                    .fill(Color.white.opacity(0.25))
                             )
-                            .padding(.trailing, 20)
+                        }
+                        .padding(.trailing, 20)
+                        .accessibilityLabel("設定")
+                        .accessibilityHint("アプリの設定画面を開きます")
                     }
                     .padding(.top, 8)
 
