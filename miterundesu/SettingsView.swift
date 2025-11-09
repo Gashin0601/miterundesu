@@ -134,6 +134,14 @@ struct SettingsView: View {
             .navigationTitle(settingsManager.localizationManager.localizedString("settings"))
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
+                ToolbarItem(placement: .navigationBarLeading) {
+                    TheaterModeToggle(
+                        isTheaterMode: $settingsManager.isTheaterMode,
+                        onToggle: {},
+                        settingsManager: settingsManager
+                    )
+                }
+
                 ToolbarItem(placement: .navigationBarTrailing) {
                     Button(action: {
                         dismiss()

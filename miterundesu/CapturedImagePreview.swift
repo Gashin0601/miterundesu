@@ -310,7 +310,7 @@ struct CapturedImagePreview: View {
             SettingsView(settingsManager: settingsManager, isTheaterMode: false)
         }
         .fullScreenCover(isPresented: $showExplanation) {
-            ExplanationView(isTheaterMode: false)
+            ExplanationView(settingsManager: settingsManager)
         }
         .onReceive(timer) { _ in
             remainingTime = capturedImage.remainingTime

@@ -195,7 +195,7 @@ struct ContentView: View {
             SettingsView(settingsManager: settingsManager, isTheaterMode: settingsManager.isTheaterMode)
         }
         .fullScreenCover(isPresented: $showExplanation) {
-            ExplanationView(isTheaterMode: settingsManager.isTheaterMode)
+            ExplanationView(settingsManager: settingsManager)
         }
         .fullScreenCover(item: $selectedImage) { capturedImage in
             ImageGalleryView(

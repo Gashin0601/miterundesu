@@ -8,30 +8,79 @@
 import SwiftUI
 
 struct ExplanationView: View {
-    let isTheaterMode: Bool
+    @ObservedObject var settingsManager: SettingsManager
     @Environment(\.dismiss) var dismiss
+    @State private var showSettings = false
 
     var body: some View {
         ZStack {
             // 背景色
-            (isTheaterMode ? Color("TheaterOrange") : Color("MainGreen"))
+            (settingsManager.isTheaterMode ? Color("TheaterOrange") : Color("MainGreen"))
                 .ignoresSafeArea()
 
-            ScrollView {
-                VStack(alignment: .leading, spacing: 32) {
-                    // 閉じるボタン
-                    HStack {
-                        Spacer()
+            VStack(spacing: 0) {
+                // 上部固定ヘッダー
+                HStack(alignment: .center, spacing: 0) {
+                    // 左：シアターモードトグル
+                    TheaterModeToggle(
+                        isTheaterMode: $settingsManager.isTheaterMode,
+                        onToggle: {},
+                        settingsManager: settingsManager
+                    )
+                    .padding(.leading, 20)
+
+                    Spacer()
+
+                    // 中央：ロゴ
+                    Text(settingsManager.localizationManager.localizedString("app_name"))
+                        .font(.system(size: 20, weight: .bold, design: .default))
+                        .foregroundColor(.white)
+
+                    Spacer()
+
+                    // 右：設定ボタンとバツボタン
+                    HStack(spacing: 12) {
+                        // 設定ボタン
+                        Button(action: {
+                            showSettings = true
+                        }) {
+                            HStack(spacing: 6) {
+                                Image(systemName: "gearshape.fill")
+                                    .font(.system(size: 16))
+                                    .foregroundColor(.white)
+
+                                Text(settingsManager.localizationManager.localizedString("settings"))
+                                    .font(.system(size: 13, weight: .medium))
+                                    .foregroundColor(.white)
+                                    .lineLimit(1)
+                            }
+                            .padding(.horizontal, 12)
+                            .padding(.vertical, 6)
+                            .background(
+                                RoundedRectangle(cornerRadius: 8)
+                                    .fill(Color.white.opacity(0.25))
+                            )
+                        }
+
+                        // 閉じるボタン
                         Button(action: {
                             dismiss()
                         }) {
                             Image(systemName: "xmark.circle.fill")
-                                .font(.system(size: 30))
-                                .foregroundColor(.white.opacity(0.8))
+                                .font(.system(size: 28))
+                                .foregroundColor(.white)
                         }
-                        .padding(.top, 20)
-                        .padding(.trailing, 20)
                     }
+                    .padding(.trailing, 20)
+                }
+                .padding(.top, 8)
+                .padding(.bottom, 8)
+
+            ScrollView {
+                VStack(alignment: .leading, spacing: 32) {
+                    // スペーサー（ヘッダー分）
+                    Spacer()
+                        .frame(height: 8)
 
                     // タイトル
                     Text("撮影しているわけではなく、\n拡大して見ているんです。")
@@ -48,7 +97,7 @@ struct ExplanationView: View {
                         .padding(.horizontal, 24)
 
                     // イラストセクション
-                    if isTheaterMode {
+                    if settingsManager.isTheaterMode {
                         TheaterModeIllustrations()
                     } else {
                         NormalModeIllustrations()
@@ -122,12 +171,16 @@ struct ExplanationView: View {
                     .padding(.bottom, 40)
                 }
             }
+            }
+        }
+        .fullScreenCover(isPresented: $showSettings) {
+            SettingsView(settingsManager: settingsManager, isTheaterMode: settingsManager.isTheaterMode)
         }
         .preferredColorScheme(.dark)
     }
 
     private var bodyText: String {
-        if isTheaterMode {
+        if settingsManager.isTheaterMode {
             return "このアプリは写真や映像を撮るためのものではありません。明るさを抑えた画面で、一時的に文字や作品を\"見やすく\"するために使用しています。保存・録画・共有は一切できません。周囲の方の迷惑にならないよう、光量を落として利用しています。"
         } else {
             return "ミテルンデスは、画像を保存・共有する機能を持たないアプリです。撮影ボタンを押しても写真は端末に保存されず、10分後に自動的に消去されます。プライバシーや著作権を守るための設計であり、あくまで\"見やすくするための補助ツール\"です。"
@@ -256,9 +309,11 @@ struct IllustrationCard: View {
 }
 
 #Preview {
-    ExplanationView(isTheaterMode: false)
+    ExplanationView(settingsManager: SettingsManager())
 }
 
 #Preview("Theater Mode") {
-    ExplanationView(isTheaterMode: true)
+    let settingsManager = SettingsManager()
+    settingsManager.isTheaterMode = true
+    return ExplanationView(settingsManager: settingsManager)
 }

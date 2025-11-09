@@ -199,7 +199,7 @@ struct ImageGalleryView: View {
             }
         }
         .fullScreenCover(isPresented: $showExplanation) {
-            ExplanationView(isTheaterMode: false)
+            ExplanationView(settingsManager: settingsManager)
         }
         .onReceive(timer) { _ in
             if currentIndex < imageManager.capturedImages.count {
