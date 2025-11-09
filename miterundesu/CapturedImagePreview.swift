@@ -46,13 +46,13 @@ struct CapturedImagePreview: View {
             ZStack(alignment: .bottomTrailing) {
                 GeometryReader { geometry in
                     Image(uiImage: capturedImage.image)
-                        .opacity(isContentVisible ? 1.0 : 0.0) // 遅延表示
                         .resizable()
                         .aspectRatio(contentMode: .fit)
                         .frame(width: geometry.size.width, height: geometry.size.height)
                         .scaleEffect(scale)
                         .offset(offset)
                         .clipped()
+                        .opacity(isContentVisible ? 1.0 : 0.0) // 遅延表示
                         .highPriorityGesture(
                             MagnificationGesture(minimumScaleDelta: 0)
                                 .onChanged { value in
