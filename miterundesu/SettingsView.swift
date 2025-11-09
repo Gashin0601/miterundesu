@@ -13,12 +13,12 @@ struct SettingsView: View {
     @Environment(\.dismiss) var dismiss
 
     var body: some View {
-        ZStack {
-            // 背景色
-            (isTheaterMode ? Color("TheaterOrange") : Color("MainGreen"))
-                .ignoresSafeArea()
+        NavigationView {
+            ZStack {
+                // 背景色
+                (isTheaterMode ? Color("TheaterOrange") : Color("MainGreen"))
+                    .ignoresSafeArea()
 
-            NavigationView {
                 Form {
                     // 最大拡大率設定
                     Section(header: Text("カメラ設定").foregroundColor(.white)) {
@@ -26,10 +26,11 @@ struct SettingsView: View {
                             HStack {
                                 Text("最大拡大率")
                                     .font(.body)
+                                    .foregroundColor(.white)
                                 Spacer()
                                 Text("×\(Int(settingsManager.maxZoomFactor))")
                                     .font(.headline)
-                                    .foregroundColor(.green)
+                                    .foregroundColor(.white)
                             }
 
                             Slider(
@@ -37,7 +38,7 @@ struct SettingsView: View {
                                 in: 10...200,
                                 step: 10
                             )
-                            .tint(.green)
+                            .tint(.white)
 
                             HStack {
                                 Text("×10")
@@ -78,6 +79,7 @@ struct SettingsView: View {
                     Section(header: Text("アプリ情報").foregroundColor(.white)) {
                         HStack {
                             Text("バージョン")
+                                .foregroundColor(.white)
                             Spacer()
                             Text("1.0.0")
                                 .foregroundColor(.white.opacity(0.7))
@@ -87,6 +89,7 @@ struct SettingsView: View {
                         Link(destination: URL(string: "https://miterundesu.jp")!) {
                             HStack {
                                 Text("公式サイト")
+                                    .foregroundColor(.white)
                                 Spacer()
                                 Image(systemName: "arrow.up.right.square")
                                     .foregroundColor(.white)
@@ -103,7 +106,7 @@ struct SettingsView: View {
                             HStack {
                                 Spacer()
                                 Text("設定をリセット")
-                                    .foregroundColor(.red)
+                                    .foregroundColor(.white)
                                 Spacer()
                             }
                         }
@@ -113,20 +116,24 @@ struct SettingsView: View {
                 .scrollContentBackground(.hidden)
                 .background(Color.clear)
                 .listStyle(.plain)
-                .navigationTitle("設定")
-                .navigationBarTitleDisplayMode(.inline)
-                .toolbar {
-                    ToolbarItem(placement: .navigationBarTrailing) {
-                        Button("完了") {
-                            dismiss()
-                        }
-                        .foregroundColor(.white)
+            }
+            .navigationTitle("設定")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    Button(action: {
+                        dismiss()
+                    }) {
+                        Image(systemName: "xmark.circle.fill")
+                            .font(.system(size: 28))
+                            .foregroundColor(.white)
                     }
                 }
-                .toolbarBackground(isTheaterMode ? Color("TheaterOrange") : Color("MainGreen"), for: .navigationBar)
-                .toolbarBackground(.visible, for: .navigationBar)
             }
+            .toolbarBackground(isTheaterMode ? Color("TheaterOrange") : Color("MainGreen"), for: .navigationBar)
+            .toolbarBackground(.visible, for: .navigationBar)
         }
+        .navigationViewStyle(.stack)
     }
 }
 
