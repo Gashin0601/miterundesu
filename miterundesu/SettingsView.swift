@@ -90,20 +90,17 @@ struct SettingsView: View {
                                     )
                             }
 
-                            TextField("", text: settingsManager.isTheaterMode ? $settingsManager.scrollingMessageTheater : $settingsManager.scrollingMessageNormal)
-                                .textFieldStyle(.plain)
+                            TextEditor(text: settingsManager.isTheaterMode ? $settingsManager.scrollingMessageTheater : $settingsManager.scrollingMessageNormal)
+                                .frame(minHeight: 60, maxHeight: 120)
                                 .padding(8)
                                 .background(Color.white.opacity(0.1))
                                 .cornerRadius(8)
                                 .foregroundColor(.white)
+                                .scrollContentBackground(.hidden)
                                 .focused($isMessageFieldFocused)
-                                .submitLabel(.done)
-                                .onSubmit {
-                                    isMessageFieldFocused = false
-                                }
                                 .onChange(of: settingsManager.isTheaterMode ? settingsManager.scrollingMessageTheater : settingsManager.scrollingMessageNormal) { oldValue, newValue in
-                                    // 改行文字を削除（ペーストされた場合に対応）
-                                    let cleaned = newValue.replacingOccurrences(of: "\n", with: "")
+                                    // 改行文字を即座に削除（入力・ペースト両方に対応）
+                                    let cleaned = newValue.replacingOccurrences(of: "\n", with: "").replacingOccurrences(of: "\r", with: "")
                                     if settingsManager.isTheaterMode {
                                         if cleaned != newValue {
                                             settingsManager.scrollingMessageTheater = cleaned
@@ -111,6 +108,14 @@ struct SettingsView: View {
                                     } else {
                                         if cleaned != newValue {
                                             settingsManager.scrollingMessageNormal = cleaned
+                                        }
+                                    }
+                                }
+                                .toolbar {
+                                    ToolbarItemGroup(placement: .keyboard) {
+                                        Spacer()
+                                        Button("完了") {
+                                            isMessageFieldFocused = false
                                         }
                                     }
                                 }
