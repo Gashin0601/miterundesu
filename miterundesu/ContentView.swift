@@ -213,6 +213,10 @@ struct ContentView: View {
         }
         .preferredColorScheme(.dark)
         .onAppear {
+            // 画面向きを縦向きに固定
+            AppDelegate.orientationLock = .portrait
+            UIDevice.current.setValue(UIInterfaceOrientation.portrait.rawValue, forKey: "orientation")
+
             cameraManager.setupCamera()
             cameraManager.startSession()
             setupBackgroundNotification()

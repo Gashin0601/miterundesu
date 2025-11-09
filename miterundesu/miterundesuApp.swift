@@ -7,8 +7,20 @@
 
 import SwiftUI
 
+// AppDelegateで画面向きを制御
+class AppDelegate: NSObject, UIApplicationDelegate {
+    static var orientationLock = UIInterfaceOrientationMask.portrait
+
+    func application(_ application: UIApplication,
+                    supportedInterfaceOrientationsFor window: UIWindow?)
+                    -> UIInterfaceOrientationMask {
+        return AppDelegate.orientationLock
+    }
+}
+
 @main
 struct miterundesuApp: App {
+    @UIApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
     @Environment(\.scenePhase) private var scenePhase
 
     var body: some Scene {
