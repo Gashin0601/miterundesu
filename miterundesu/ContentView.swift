@@ -79,8 +79,8 @@ struct ContentView: View {
                     .accessibilityLabel("設定")
                     .accessibilityHint("アプリの設定画面を開きます")
                 }
-                .padding(.top, 10)
-                .padding(.bottom, 10)
+                .padding(.top, 4)
+                .padding(.bottom, 4)
 
                 // ヘッダー部分（無限スクロールと説明ボタンのみ）
                 HeaderView(
@@ -88,8 +88,6 @@ struct ContentView: View {
                     showExplanation: $showExplanation
                 )
                 .opacity(shouldShowUI ? 1 : 0)
-
-                Spacer()
 
                 // カメラプレビュー領域
                 ZStack {
@@ -120,11 +118,9 @@ struct ContentView: View {
                         )
                     }
                 }
-                .frame(maxWidth: .infinity)
-                .frame(height: 500)
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
                 .padding(.horizontal, 20)
-
-                Spacer()
+                .padding(.top, 8)
 
                 // フッター部分
                 FooterView(
@@ -296,12 +292,6 @@ struct HeaderView: View {
 
     var body: some View {
         VStack(spacing: 8) {
-            // ロゴ
-            Text("ミテルンデス")
-                .font(.system(size: 28, weight: .bold, design: .default))
-                .foregroundColor(.white)
-                .padding(.top, 80)
-
             // 無限スクロールテキスト
             InfiniteScrollingText(text: "画像は保存できません。")
                 .frame(height: 30)
@@ -329,6 +319,7 @@ struct HeaderView: View {
             .accessibilityLabel("説明を見る")
             .accessibilityHint("アプリの使い方と注意事項を表示します")
         }
+        .padding(.top, 12)
     }
 }
 
