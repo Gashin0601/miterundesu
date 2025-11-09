@@ -10,7 +10,6 @@ import SwiftUI
 struct ExplanationView: View {
     @ObservedObject var settingsManager: SettingsManager
     @Environment(\.dismiss) var dismiss
-    @State private var showSettings = false
 
     var body: some View {
         ZStack {
@@ -38,38 +37,13 @@ struct ExplanationView: View {
 
                     Spacer()
 
-                    // 右：設定ボタンとバツボタン
-                    HStack(spacing: 12) {
-                        // 設定ボタン
-                        Button(action: {
-                            showSettings = true
-                        }) {
-                            HStack(spacing: 6) {
-                                Image(systemName: "gearshape.fill")
-                                    .font(.system(size: 16))
-                                    .foregroundColor(.white)
-
-                                Text(settingsManager.localizationManager.localizedString("settings"))
-                                    .font(.system(size: 13, weight: .medium))
-                                    .foregroundColor(.white)
-                                    .lineLimit(1)
-                            }
-                            .padding(.horizontal, 12)
-                            .padding(.vertical, 6)
-                            .background(
-                                RoundedRectangle(cornerRadius: 8)
-                                    .fill(Color.white.opacity(0.25))
-                            )
-                        }
-
-                        // 閉じるボタン
-                        Button(action: {
-                            dismiss()
-                        }) {
-                            Image(systemName: "xmark.circle.fill")
-                                .font(.system(size: 28))
-                                .foregroundColor(.white)
-                        }
+                    // 右：閉じるボタン
+                    Button(action: {
+                        dismiss()
+                    }) {
+                        Image(systemName: "xmark.circle.fill")
+                            .font(.system(size: 28))
+                            .foregroundColor(.white)
                     }
                     .padding(.trailing, 20)
                 }
@@ -172,9 +146,6 @@ struct ExplanationView: View {
                 }
             }
             }
-        }
-        .fullScreenCover(isPresented: $showSettings) {
-            SettingsView(settingsManager: settingsManager, isTheaterMode: settingsManager.isTheaterMode)
         }
         .preferredColorScheme(.dark)
     }
