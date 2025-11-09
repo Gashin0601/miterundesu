@@ -1,0 +1,43 @@
+/*
+  Localizable.strings (English)
+  miterundesu
+*/
+
+// App name
+"app_name" = "Miterundesu";
+
+// Main screen
+"header_logo" = "Miterundesu";
+"header_scroll_text" = "Images cannot be saved.";
+"header_explanation_button" = "See Explanation";
+"theater_mode_toggle" = "Theater Mode";
+"zoom_level" = "×%.1f";
+"capture_disabled" = "Capture Disabled";
+
+// Settings screen
+"settings_title" = "Settings";
+"settings_done" = "Done";
+"settings_camera_section" = "Camera Settings";
+"settings_max_zoom" = "Maximum Zoom";
+"settings_max_zoom_description" = "Set the maximum magnification for the camera zoom function.";
+"settings_language_section" = "Language Settings";
+"settings_language" = "Language";
+"settings_language_description" = "Select the display language for the app.";
+"settings_app_info_section" = "App Information";
+"settings_version" = "Version";
+"settings_official_site" = "Official Website";
+"settings_reset" = "Reset Settings";
+
+// Explanation screen
+"explanation_title" = "Not capturing,\njust magnifying to see.";
+"explanation_normal_body" = "Miterundesu is an app without image saving or sharing capabilities. Even if you press the capture button, photos are not saved to the device and are automatically deleted after 10 minutes. It is designed to protect privacy and copyright, and is merely a \"tool to help you see better.\"";
+"explanation_theater_body" = "This app is not for taking photos or videos. It is used to temporarily \"make text or artwork easier to see\" on a dimmed screen. Saving, recording, and sharing are not possible. It is used with reduced brightness to avoid disturbing others.";
+
+// Security warnings
+"security_screenshot_detected" = "Screenshot Detected";
+"security_screenshot_message" = "This app does not allow saving or sharing images.\nScreenshots are not recommended.";
+"security_recording_detected" = "Screen Recording Detected";
+"security_recording_message" = "This app does not allow recording or saving";
+
+// Time display
+"time_remaining" = "%d:%02d left";

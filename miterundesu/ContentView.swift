@@ -12,6 +12,7 @@ struct ContentView: View {
     @StateObject private var cameraManager = CameraManager()
     @StateObject private var imageManager = ImageManager()
     @StateObject private var securityManager = SecurityManager()
+    @StateObject private var settingsManager = SettingsManager()
 
     @State private var isTheaterMode = false
     @State private var showSettings = false
@@ -134,7 +135,7 @@ struct ContentView: View {
             }
         }
         .sheet(isPresented: $showSettings) {
-            SettingsViewPlaceholder()
+            SettingsView(settingsManager: settingsManager)
         }
         .sheet(isPresented: $showExplanation) {
             ExplanationViewPlaceholder(isTheaterMode: isTheaterMode)
@@ -146,6 +147,8 @@ struct ContentView: View {
             cameraManager.setupCamera()
             cameraManager.startSession()
             setupBackgroundNotification()
+            // 設定から最大拡大率を適用
+            cameraManager.setMaxZoomFactor(settingsManager.maxZoomFactor)
         }
         .onDisappear {
             cameraManager.stopSession()
@@ -160,6 +163,10 @@ struct ContentView: View {
                 showUI = true
                 stopUIHideTimer()
             }
+        }
+        .onChange(of: settingsManager.maxZoomFactor) { oldValue, newValue in
+            // 最大拡大率が変更されたらカメラに適用
+            cameraManager.setMaxZoomFactor(newValue)
         }
     }
 
@@ -483,20 +490,6 @@ struct ZoomLevelView: View {
 }
 
 // MARK: - Placeholder Views
-struct SettingsViewPlaceholder: View {
-    var body: some View {
-        NavigationView {
-            VStack {
-                Text("設定画面")
-                    .font(.title)
-                Text("Phase 6で実装")
-                    .foregroundColor(.gray)
-            }
-            .navigationTitle("設定")
-        }
-    }
-}
-
 struct ExplanationViewPlaceholder: View {
     let isTheaterMode: Bool
 

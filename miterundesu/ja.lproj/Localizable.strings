@@ -1,0 +1,43 @@
+/*
+  Localizable.strings (Japanese)
+  miterundesu
+*/
+
+// アプリ名
+"app_name" = "ミテルンデス";
+
+// メイン画面
+"header_logo" = "ミテルンデス";
+"header_scroll_text" = "画像は保存できません。";
+"header_explanation_button" = "説明を見る";
+"theater_mode_toggle" = "シアターモード";
+"zoom_level" = "×%.1f";
+"capture_disabled" = "撮影不可";
+
+// 設定画面
+"settings_title" = "設定";
+"settings_done" = "完了";
+"settings_camera_section" = "カメラ設定";
+"settings_max_zoom" = "最大拡大率";
+"settings_max_zoom_description" = "カメラのズーム機能の最大倍率を設定します。";
+"settings_language_section" = "言語設定";
+"settings_language" = "言語";
+"settings_language_description" = "アプリの表示言語を選択します。";
+"settings_app_info_section" = "アプリ情報";
+"settings_version" = "バージョン";
+"settings_official_site" = "公式サイト";
+"settings_reset" = "設定をリセット";
+
+// 説明画面
+"explanation_title" = "撮影しているわけではなく、\n拡大して見ているんです。";
+"explanation_normal_body" = "ミテルンデスは、画像を保存・共有する機能を持たないアプリです。撮影ボタンを押しても写真は端末に保存されず、10分後に自動的に消去されます。プライバシーや著作権を守るための設計であり、あくまで\"見やすくするための補助ツール\"です。";
+"explanation_theater_body" = "このアプリは写真や映像を撮るためのものではありません。明るさを抑えた画面で、一時的に文字や作品を\"見やすく\"するために使用しています。保存・録画・共有は一切できません。周囲の方の迷惑にならないよう、光量を落として利用しています。";
+
+// セキュリティ警告
+"security_screenshot_detected" = "スクリーンショットが検出されました";
+"security_screenshot_message" = "このアプリでは画像の保存や共有はできません。\nスクリーンショットも推奨されていません。";
+"security_recording_detected" = "画面録画が検出されました";
+"security_recording_message" = "このアプリでは録画・保存はできません";
+
+// 時間表示
+"time_remaining" = "残り%d:%02d";
