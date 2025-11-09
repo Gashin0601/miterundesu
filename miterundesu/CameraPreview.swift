@@ -12,28 +12,15 @@ import AVKit
 struct CameraPreview: UIViewRepresentable {
     @ObservedObject var cameraManager: CameraManager
 
-    func makeUIView(context: Context) -> UIView {
-        let view = UIView(frame: .zero)
-        view.backgroundColor = .black
-
+    func makeUIView(context: Context) -> PreviewView {
+        let view = PreviewView()
+        view.videoPreviewLayer.session = cameraManager.previewLayer.session
+        view.videoPreviewLayer.videoGravity = .resizeAspectFill
         return view
     }
 
-    func updateUIView(_ uiView: UIView, context: Context) {
-        // プレビューレイヤーがまだ追加されていない場合は追加
-        if context.coordinator.previewLayer == nil {
-            let previewLayer = cameraManager.previewLayer
-            context.coordinator.previewLayer = previewLayer
-            uiView.layer.addSublayer(previewLayer)
-        }
-
-        // フレームを更新
-        if let previewLayer = context.coordinator.previewLayer {
-            CATransaction.begin()
-            CATransaction.setDisableActions(true)
-            previewLayer.frame = uiView.bounds
-            CATransaction.commit()
-        }
+    func updateUIView(_ uiView: PreviewView, context: Context) {
+        // 特に何もしない - PreviewViewが自動的にフレームを管理
     }
 
     func makeCoordinator() -> Coordinator {
@@ -41,7 +28,18 @@ struct CameraPreview: UIViewRepresentable {
     }
 
     class Coordinator {
-        var previewLayer: AVCaptureVideoPreviewLayer?
+        // 必要に応じて使用
+    }
+
+    // カスタムUIView - AVCaptureVideoPreviewLayerを直接layerClassとして使用
+    class PreviewView: UIView {
+        override class var layerClass: AnyClass {
+            AVCaptureVideoPreviewLayer.self
+        }
+
+        var videoPreviewLayer: AVCaptureVideoPreviewLayer {
+            layer as! AVCaptureVideoPreviewLayer
+        }
     }
 }
 
