@@ -147,6 +147,7 @@ struct RestrictCaptureView<Content: View>: UIViewRepresentable {
     private let content: () -> Content
 
     init(@ViewBuilder content: @escaping () -> Content) {
+        print("🎯 RestrictCaptureView.init() 呼び出し")
         self.content = content
     }
 
@@ -224,7 +225,8 @@ class SecureContainerView<Content: View>: UIView {
 extension View {
     /// スクリーンショット・画面録画から保護
     func restrictCapture() -> some View {
-        RestrictCaptureView { self }
+        print("🎯 restrictCapture() 呼び出し - Viewの型: \(type(of: self))")
+        return RestrictCaptureView { self }
     }
 }
 
