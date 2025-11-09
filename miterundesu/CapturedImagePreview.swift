@@ -23,6 +23,8 @@ struct CapturedImagePreview: View {
     @State private var zoomTimer: Timer?
     @State private var zoomStartTime: Date?
     @State private var continuousZoomCount: Int = 0
+    @State private var showSettings = false
+    @State private var showExplanation = false
 
     let timer = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
 
@@ -47,6 +49,11 @@ struct CapturedImagePreview: View {
                         .scaleEffect(scale)
                         .offset(offset)
                         .clipped()
+                        .cornerRadius(20)
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 20)
+                                .stroke(Color("MainGreen"), lineWidth: 3)
+                        )
                         .highPriorityGesture(
                             MagnificationGesture(minimumScaleDelta: 0)
                                 .onChanged { value in
@@ -114,11 +121,57 @@ struct CapturedImagePreview: View {
                 }
             }
 
-            // 上部：残り時間表示
+            // 上部コントロール
             VStack {
                 HStack {
+                    // 左：設定ボタン
+                    Button(action: {
+                        showSettings = true
+                    }) {
+                        HStack(spacing: 6) {
+                            Image(systemName: "gearshape.fill")
+                                .font(.system(size: 16))
+                            Text("設定")
+                                .font(.system(size: 13, weight: .medium))
+                        }
+                        .foregroundColor(.white)
+                        .padding(.horizontal, 12)
+                        .padding(.vertical, 6)
+                        .background(
+                            RoundedRectangle(cornerRadius: 8)
+                                .fill(Color.white.opacity(0.25))
+                        )
+                    }
+                    .padding(.leading, 20)
+                    .accessibilityLabel("設定")
+                    .accessibilityHint("アプリの設定画面を開きます")
+
                     Spacer()
 
+                    // 中央：説明を見るボタン
+                    Button(action: {
+                        showExplanation = true
+                    }) {
+                        HStack(spacing: 6) {
+                            Image(systemName: "book.fill")
+                                .font(.system(size: 14))
+                            Text("説明を見る")
+                                .font(.system(size: 14, weight: .medium))
+                        }
+                        .foregroundColor(Color("MainGreen"))
+                        .padding(.horizontal, 16)
+                        .padding(.vertical, 8)
+                        .background(
+                            RoundedRectangle(cornerRadius: 20)
+                                .fill(Color.white)
+                        )
+                    }
+                    .accessibilityLabel("説明を見る")
+                    .accessibilityHint("アプリの使い方と注意事項を表示します")
+
+                    Spacer()
+
+                    // 右：残り時間表示
                     Text(formattedRemainingTime)
                         .font(.system(size: 14, weight: .medium, design: .monospaced))
                         .foregroundColor(.white)
@@ -128,8 +181,9 @@ struct CapturedImagePreview: View {
                             RoundedRectangle(cornerRadius: 10)
                                 .fill(Color.red.opacity(0.7))
                         )
-                        .padding()
+                        .padding(.trailing, 20)
                 }
+                .padding(.top, 8)
 
                 Spacer()
             }
@@ -161,98 +215,112 @@ struct CapturedImagePreview: View {
             }
 
             // 右側：ズームコントロール
-            if scale > 1.0 || scale < CGFloat(settingsManager.maxZoomFactor) {
-                VStack {
+            VStack {
+                Spacer()
+
+                HStack {
                     Spacer()
 
-                    HStack {
-                        Spacer()
+                    VStack(spacing: 12) {
+                        // ズームイン
+                        ZStack {
+                            Circle()
+                                .fill(Color.black.opacity(0.6))
+                                .frame(width: 44, height: 44)
 
-                        VStack(spacing: 16) {
-                            // ズームイン
-                            ZStack {
-                                Circle()
-                                    .fill(Color.black.opacity(0.6))
-                                    .frame(width: 50, height: 50)
-
-                                Image(systemName: "plus")
-                                    .font(.system(size: 24, weight: .medium))
-                                    .foregroundColor(.white)
-                            }
-                            .onTapGesture {
-                                zoomIn()
-                            }
-                            .onLongPressGesture(minimumDuration: 0.3, pressing: { pressing in
-                                if pressing {
-                                    startContinuousZoom(direction: .in)
-                                } else {
-                                    stopContinuousZoom()
-                                }
-                            }, perform: {})
-                            .accessibilityLabel("ズームイン")
-                            .accessibilityHint("タップで1.5倍拡大、長押しで連続拡大します")
-
-                            // 現在の倍率表示
-                            Text("×\(String(format: "%.1f", scale))")
-                                .font(.system(size: 14, weight: .bold, design: .monospaced))
+                            Image(systemName: "plus")
+                                .font(.system(size: 20, weight: .medium))
                                 .foregroundColor(.white)
-                                .padding(.horizontal, 12)
-                                .padding(.vertical, 6)
-                                .background(
-                                    RoundedRectangle(cornerRadius: 8)
-                                        .fill(Color.black.opacity(0.6))
-                                )
+                        }
+                        .onTapGesture {
+                            zoomIn()
+                        }
+                        .onLongPressGesture(minimumDuration: 0.3, pressing: { pressing in
+                            if pressing {
+                                startContinuousZoom(direction: .in)
+                            } else {
+                                stopContinuousZoom()
+                            }
+                        }, perform: {})
+                        .accessibilityLabel("ズームイン")
+                        .accessibilityHint("タップで1.5倍拡大、長押しで連続拡大します")
 
-                            // ズームアウト
+                        // ズームアウト
+                        ZStack {
+                            Circle()
+                                .fill(Color.black.opacity(0.6))
+                                .frame(width: 44, height: 44)
+
+                            Image(systemName: "minus")
+                                .font(.system(size: 20, weight: .medium))
+                                .foregroundColor(.white)
+                        }
+                        .onTapGesture {
+                            zoomOut()
+                        }
+                        .onLongPressGesture(minimumDuration: 0.3, pressing: { pressing in
+                            if pressing {
+                                startContinuousZoom(direction: .out)
+                            } else {
+                                stopContinuousZoom()
+                            }
+                        }, perform: {})
+                        .accessibilityLabel("ズームアウト")
+                        .accessibilityHint("タップで縮小、長押しで連続縮小します")
+
+                        // リセットボタン（1.circleアイコン）
+                        Button(action: {
+                            stopContinuousZoom()
+                            withAnimation {
+                                scale = 1.0
+                                offset = .zero
+                                lastOffset = .zero
+                            }
+                        }) {
                             ZStack {
                                 Circle()
                                     .fill(Color.black.opacity(0.6))
-                                    .frame(width: 50, height: 50)
+                                    .frame(width: 44, height: 44)
 
-                                Image(systemName: "minus")
-                                    .font(.system(size: 24, weight: .medium))
+                                Image(systemName: "1.circle")
+                                    .font(.system(size: 20, weight: .medium))
                                     .foregroundColor(.white)
                             }
-                            .onTapGesture {
-                                zoomOut()
-                            }
-                            .onLongPressGesture(minimumDuration: 0.3, pressing: { pressing in
-                                if pressing {
-                                    startContinuousZoom(direction: .out)
-                                } else {
-                                    stopContinuousZoom()
-                                }
-                            }, perform: {})
-                            .accessibilityLabel("ズームアウト")
-                            .accessibilityHint("タップで縮小、長押しで連続縮小します")
-
-                            // リセットボタン
-                            Button(action: {
-                                stopContinuousZoom()
-                                withAnimation {
-                                    scale = 1.0
-                                    offset = .zero
-                                    lastOffset = .zero
-                                }
-                            }) {
-                                ZStack {
-                                    Circle()
-                                        .fill(Color.black.opacity(0.6))
-                                        .frame(width: 50, height: 50)
-
-                                    Image(systemName: "arrow.counterclockwise")
-                                        .font(.system(size: 20, weight: .medium))
-                                        .foregroundColor(.white)
-                                }
-                            }
-                            .accessibilityLabel("ズームリセット")
-                            .accessibilityHint("画像の拡大を元に戻します")
                         }
-                        .padding(.trailing, 20)
-                        .padding(.bottom, 100)
+                        .accessibilityLabel("ズームリセット")
+                        .accessibilityHint("画像の拡大を元に戻します")
                     }
+                    .padding(.trailing, 12)
+                    .padding(.bottom, 12)
                 }
             }
+
+            // 倍率表示（右下）
+            VStack {
+                Spacer()
+
+                HStack {
+                    Spacer()
+
+                    Text("×\(String(format: "%.1f", scale))")
+                        .font(.system(size: 16, weight: .bold, design: .monospaced))
+                        .foregroundColor(.white)
+                        .padding(.horizontal, 12)
+                        .padding(.vertical, 8)
+                        .background(
+                            RoundedRectangle(cornerRadius: 10)
+                                .fill(Color.white.opacity(0.2))
+                        )
+                        .padding(.trailing, 16)
+                        .padding(.bottom, 16)
+                }
+            }
+        }
+        .fullScreenCover(isPresented: $showSettings) {
+            SettingsView(settingsManager: settingsManager, isTheaterMode: false)
+        }
+        .fullScreenCover(isPresented: $showExplanation) {
+            ExplanationView(isTheaterMode: false)
         }
         .onReceive(timer) { _ in
             remainingTime = capturedImage.remainingTime

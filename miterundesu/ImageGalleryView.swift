@@ -18,6 +18,7 @@ struct ImageGalleryView: View {
     @State private var remainingTime: TimeInterval
     @State private var isZooming: Bool = false
     @State private var scrollPositionID: UUID?
+    @State private var showExplanation = false
 
     let timer = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
 
@@ -118,7 +119,7 @@ struct ImageGalleryView: View {
 
                         // 説明を見るボタン（中央）
                         Button(action: {
-                            // 説明画面を表示
+                            showExplanation = true
                         }) {
                             HStack(spacing: 6) {
                                 Image(systemName: "book.fill")
@@ -185,6 +186,9 @@ struct ImageGalleryView: View {
                     .padding()
                 }
             }
+        }
+        .fullScreenCover(isPresented: $showExplanation) {
+            ExplanationView(isTheaterMode: false)
         }
         .onReceive(timer) { _ in
             if currentIndex < imageManager.capturedImages.count {
