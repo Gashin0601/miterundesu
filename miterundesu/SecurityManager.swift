@@ -153,30 +153,72 @@ extension UIView {
     }
 }
 
-struct RestrictCaptureView<Content: View>: UIViewRepresentable {
+struct RestrictCaptureView<Content: View>: UIViewControllerRepresentable {
     private let content: () -> Content
 
     init(@ViewBuilder content: @escaping () -> Content) {
         self.content = content
     }
 
-    func makeUIView(context: Context) -> UIView {
+    func makeUIViewController(context: Context) -> RestrictCaptureViewController<Content> {
+        RestrictCaptureViewController(rootView: content())
+    }
+
+    func updateUIViewController(_ uiViewController: RestrictCaptureViewController<Content>, context: Context) {
+        uiViewController.hostingController.rootView = content()
+    }
+}
+
+class RestrictCaptureViewController<Content: View>: UIViewController {
+    let hostingController: UIHostingController<Content>
+
+    init(rootView: Content) {
+        self.hostingController = UIHostingController(rootView: rootView)
+        super.init(nibName: nil, bundle: nil)
+    }
+
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+
+    override func viewDidLoad() {
+        super.viewDidLoad()
+
         let secureView = UIView.secureView
-        let hostingController = UIHostingController(rootView: content())
+        secureView.backgroundColor = .clear
+
+        // ホスティングコントローラーをセキュアビューに追加
         hostingController.view.backgroundColor = .clear
         hostingController.view.translatesAutoresizingMaskIntoConstraints = false
 
+        addChild(hostingController)
         secureView.addSubview(hostingController.view)
+
         NSLayoutConstraint.activate([
             hostingController.view.topAnchor.constraint(equalTo: secureView.topAnchor),
             hostingController.view.bottomAnchor.constraint(equalTo: secureView.bottomAnchor),
             hostingController.view.leadingAnchor.constraint(equalTo: secureView.leadingAnchor),
             hostingController.view.trailingAnchor.constraint(equalTo: secureView.trailingAnchor)
         ])
-        return secureView
-    }
 
-    func updateUIView(_ uiView: UIView, context: Context) {}
+        hostingController.didMove(toParent: self)
+
+        // セキュアビューをビュー階層に追加
+        view.addSubview(secureView)
+        secureView.translatesAutoresizingMaskIntoConstraints = false
+
+        NSLayoutConstraint.activate([
+            secureView.topAnchor.constraint(equalTo: view.topAnchor),
+            secureView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
+            secureView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            secureView.trailingAnchor.constraint(equalTo: view.trailingAnchor)
+        ])
+
+        // ユーザーインタラクションを有効化
+        secureView.isUserInteractionEnabled = true
+        hostingController.view.isUserInteractionEnabled = true
+        view.isUserInteractionEnabled = true
+    }
 }
 
 extension View {
