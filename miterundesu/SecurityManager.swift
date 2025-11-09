@@ -145,7 +145,9 @@ extension UIView {
         let textField = UITextField()
         textField.isSecureTextEntry = true
         textField.isUserInteractionEnabled = false
-        guard let secureView = textField.layer.sublayers?.first?.delegate as? UIView else {
+
+        // iOS 17対応：.lastを使用
+        guard let secureView = textField.layer.sublayers?.last?.delegate as? UIView else {
             return .init()
         }
         secureView.subviews.forEach { $0.removeFromSuperview() }
@@ -161,7 +163,14 @@ struct RestrictCaptureView<Content: View>: UIViewControllerRepresentable {
     }
 
     func makeUIViewController(context: Context) -> RestrictCaptureViewController<Content> {
-        RestrictCaptureViewController(rootView: content())
+        let viewController = RestrictCaptureViewController(rootView: content())
+
+        // makeUIViewControllerの時点で保護を試みる
+        DispatchQueue.main.async {
+            viewController.applySecureLayerIfNeeded()
+        }
+
+        return viewController
     }
 
     func updateUIViewController(_ uiViewController: RestrictCaptureViewController<Content>, context: Context) {
@@ -171,6 +180,8 @@ struct RestrictCaptureView<Content: View>: UIViewControllerRepresentable {
 
 class RestrictCaptureViewController<Content: View>: UIViewController {
     let hostingController: UIHostingController<Content>
+    private var secureTextField: UITextField?
+    private var hasAppliedSecureLayer = false
 
     init(rootView: Content) {
         self.hostingController = UIHostingController(rootView: rootView)
@@ -181,43 +192,69 @@ class RestrictCaptureViewController<Content: View>: UIViewController {
         fatalError("init(coder:) has not been implemented")
     }
 
-    override func viewDidLoad() {
-        super.viewDidLoad()
+    // loadView()で保護を適用（viewDidLoadより早いタイミング）
+    override func loadView() {
+        // メインビューを作成
+        let mainView = UIView()
+        mainView.backgroundColor = .clear
+        self.view = mainView
 
-        let secureView = UIView.secureView
-        secureView.backgroundColor = .clear
+        // ホスティングコントローラーをセットアップ
+        setupHostingController(in: mainView)
 
-        // ホスティングコントローラーをセキュアビューに追加
+        // セキュアテキストフィールドを作成して追加
+        let textField = UITextField()
+        textField.isSecureTextEntry = true
+        textField.isUserInteractionEnabled = false
+        textField.backgroundColor = .clear
+        textField.translatesAutoresizingMaskIntoConstraints = false
+
+        self.secureTextField = textField
+        mainView.addSubview(textField)
+
+        // テキストフィールドを中央に配置
+        NSLayoutConstraint.activate([
+            textField.centerYAnchor.constraint(equalTo: mainView.centerYAnchor),
+            textField.centerXAnchor.constraint(equalTo: mainView.centerXAnchor)
+        ])
+    }
+
+    override func viewDidLayoutSubviews() {
+        super.viewDidLayoutSubviews()
+        applySecureLayerIfNeeded()
+    }
+
+    func applySecureLayerIfNeeded() {
+        // レイヤー保護を一度だけ適用（レンダリング前）
+        guard !hasAppliedSecureLayer,
+              let textField = secureTextField,
+              let mainView = self.view,
+              let superlayer = mainView.layer.superlayer else { return }
+
+        hasAppliedSecureLayer = true
+
+        // iOS 17対応：.lastを使用してスクリーンショット保護を適用
+        superlayer.addSublayer(textField.layer)
+        textField.layer.sublayers?.last?.addSublayer(mainView.layer)
+    }
+
+    private func setupHostingController(in containerView: UIView) {
         hostingController.view.backgroundColor = .clear
         hostingController.view.translatesAutoresizingMaskIntoConstraints = false
 
         addChild(hostingController)
-        secureView.addSubview(hostingController.view)
+        containerView.addSubview(hostingController.view)
 
         NSLayoutConstraint.activate([
-            hostingController.view.topAnchor.constraint(equalTo: secureView.topAnchor),
-            hostingController.view.bottomAnchor.constraint(equalTo: secureView.bottomAnchor),
-            hostingController.view.leadingAnchor.constraint(equalTo: secureView.leadingAnchor),
-            hostingController.view.trailingAnchor.constraint(equalTo: secureView.trailingAnchor)
+            hostingController.view.topAnchor.constraint(equalTo: containerView.topAnchor),
+            hostingController.view.bottomAnchor.constraint(equalTo: containerView.bottomAnchor),
+            hostingController.view.leadingAnchor.constraint(equalTo: containerView.leadingAnchor),
+            hostingController.view.trailingAnchor.constraint(equalTo: containerView.trailingAnchor)
         ])
 
         hostingController.didMove(toParent: self)
-
-        // セキュアビューをビュー階層に追加
-        view.addSubview(secureView)
-        secureView.translatesAutoresizingMaskIntoConstraints = false
-
-        NSLayoutConstraint.activate([
-            secureView.topAnchor.constraint(equalTo: view.topAnchor),
-            secureView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
-            secureView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            secureView.trailingAnchor.constraint(equalTo: view.trailingAnchor)
-        ])
-
-        // ユーザーインタラクションを有効化
-        secureView.isUserInteractionEnabled = true
         hostingController.view.isUserInteractionEnabled = true
-        view.isUserInteractionEnabled = true
+        containerView.isUserInteractionEnabled = true
     }
 }
 

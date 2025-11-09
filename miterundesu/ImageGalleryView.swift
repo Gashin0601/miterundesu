@@ -300,6 +300,7 @@ struct ImageGalleryView: View {
                 }
             }
         }
+        .restrictCapture() // スクリーンショット・画面録画対策（最初のフレームから保護）
         .fullScreenCover(isPresented: $showExplanation) {
             ExplanationView(settingsManager: settingsManager)
         }
@@ -512,7 +513,6 @@ struct ZoomableImageView: View {
                     }
                 }
         }
-        .restrictCapture() // スクリーンショット・画面録画対策（GeometryReader全体をラップ）
     }
 
     // 境界制約を適用したオフセットを計算（ベストプラクティスに基づく）
