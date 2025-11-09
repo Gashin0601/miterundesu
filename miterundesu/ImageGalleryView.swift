@@ -439,6 +439,7 @@ struct ZoomableImageView: View {
                     .scaleEffect(scale)
                     .offset(offset)
                     .clipped()
+                    .restrictCapture() // スクリーンショット・画面録画対策
                 .highPriorityGesture(
                     MagnificationGesture(minimumScaleDelta: 0)
                         .onChanged { value in

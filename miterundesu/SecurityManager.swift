@@ -138,8 +138,53 @@ class SecurityManager: ObservableObject {
 }
 
 // MARK: - Secure View Modifier (スクリーンショット・画面録画対策)
-// 注：hideWithScreenshot()は画像が表示されなくなる問題があるため削除
-// 代わりに画面録画検知とblurで対応
+// UITextFieldのisSecureTextEntryを活用した実装
+
+extension UIView {
+    static var secureView: UIView {
+        let textField = UITextField()
+        textField.isSecureTextEntry = true
+        textField.isUserInteractionEnabled = false
+        guard let secureView = textField.layer.sublayers?.first?.delegate as? UIView else {
+            return .init()
+        }
+        secureView.subviews.forEach { $0.removeFromSuperview() }
+        return secureView
+    }
+}
+
+struct RestrictCaptureView<Content: View>: UIViewRepresentable {
+    private let content: () -> Content
+
+    init(@ViewBuilder content: @escaping () -> Content) {
+        self.content = content
+    }
+
+    func makeUIView(context: Context) -> UIView {
+        let secureView = UIView.secureView
+        let hostingController = UIHostingController(rootView: content())
+        hostingController.view.backgroundColor = .clear
+        hostingController.view.translatesAutoresizingMaskIntoConstraints = false
+
+        secureView.addSubview(hostingController.view)
+        NSLayoutConstraint.activate([
+            hostingController.view.topAnchor.constraint(equalTo: secureView.topAnchor),
+            hostingController.view.bottomAnchor.constraint(equalTo: secureView.bottomAnchor),
+            hostingController.view.leadingAnchor.constraint(equalTo: secureView.leadingAnchor),
+            hostingController.view.trailingAnchor.constraint(equalTo: secureView.trailingAnchor)
+        ])
+        return secureView
+    }
+
+    func updateUIView(_ uiView: UIView, context: Context) {}
+}
+
+extension View {
+    /// スクリーンショット・画面録画から保護
+    func restrictCapture() -> some View {
+        RestrictCaptureView { self }
+    }
+}
 
 // MARK: - Screenshot Warning View
 struct ScreenshotWarningView: View {
