@@ -41,9 +41,19 @@ struct ExplanationView: View {
                         Button(action: {
                             dismiss()
                         }) {
-                            Image(systemName: "xmark.circle.fill")
-                                .font(.system(size: 28))
-                                .foregroundColor(.white)
+                            HStack(spacing: 6) {
+                                Image(systemName: "xmark.circle.fill")
+                                    .font(.system(size: 16))
+                                Text(settingsManager.localizationManager.localizedString("close"))
+                                    .font(.system(size: 13, weight: .medium))
+                            }
+                            .foregroundColor(.white)
+                            .padding(.horizontal, 12)
+                            .padding(.vertical, 6)
+                            .background(
+                                RoundedRectangle(cornerRadius: 8)
+                                    .fill(Color.white.opacity(0.25))
+                            )
                         }
                         .padding(.trailing, 20)
                     }
