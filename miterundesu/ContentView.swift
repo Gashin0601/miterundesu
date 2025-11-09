@@ -93,11 +93,14 @@ struct ContentView: View {
                             .font(.system(size: 24))
                             .foregroundColor(.white)
                             .opacity(isTheaterMode ? 0.3 : 1.0)
+                            .frame(minWidth: 44, minHeight: 44)
                     }
                     .disabled(isTheaterMode)
                     .padding(.trailing, 20)
                     .padding(.top, 50)
                     .opacity(shouldShowUI ? 1 : 0)
+                    .accessibilityLabel("設定")
+                    .accessibilityHint("アプリの設定画面を開きます")
                 }
                 Spacer()
             }
@@ -273,6 +276,8 @@ struct HeaderView: View {
                 )
             }
             .padding(.top, 4)
+            .accessibilityLabel("説明を見る")
+            .accessibilityHint("アプリの使い方と注意事項を表示します")
         }
     }
 }
@@ -328,6 +333,8 @@ struct TheaterModeToggle: View {
             }
             .toggleStyle(SwitchToggleStyle(tint: Color.orange))
             .frame(width: 160)
+            .accessibilityLabel("シアターモード")
+            .accessibilityHint(isTheaterMode ? "シアターモードをオフにします" : "映画館や美術館などで使用するシアターモードをオンにします")
         }
         .padding(10)
         .background(
@@ -395,6 +402,9 @@ struct ShutterButton: View {
             }
             .disabled(isTheaterMode)
             .opacity(isTheaterMode ? 0.3 : 1.0)
+            .accessibilityLabel(isTheaterMode ? "撮影不可" : "シャッターボタン")
+            .accessibilityHint(isTheaterMode ? "シアターモードでは撮影できません" : "タップして写真を撮影します。画像は10分後に自動削除されます")
+            .accessibilityAddTraits(.isButton)
 
             if isTheaterMode {
                 Text("撮影不可")
@@ -435,6 +445,8 @@ struct ThumbnailView: View {
                     TimeRemainingBadge(remainingTime: latestImage.remainingTime)
                 }
             }
+            .accessibilityLabel("最新の撮影画像")
+            .accessibilityHint("タップして撮影した画像を表示します。残り時間: \(formattedTime(latestImage.remainingTime))")
             .onReceive(timer) { _ in
                 currentTime = Date()
                 imageManager.removeExpiredImages()
@@ -449,6 +461,12 @@ struct ThumbnailView: View {
                         .foregroundColor(.white.opacity(0.5))
                 )
         }
+    }
+
+    private func formattedTime(_ time: TimeInterval) -> String {
+        let minutes = Int(time) / 60
+        let seconds = Int(time) % 60
+        return String(format: "%d分%02d秒", minutes, seconds)
     }
 }
 

@@ -60,6 +60,8 @@ struct ImageGalleryView: View {
                                 .shadow(radius: 5)
                         }
                         .padding()
+                        .accessibilityLabel("閉じる")
+                        .accessibilityHint("ギャラリーを閉じてメイン画面に戻ります")
 
                         Spacer()
 
@@ -218,6 +220,8 @@ struct ZoomableImageView: View {
                                     .foregroundColor(.white)
                             }
                         }
+                        .accessibilityLabel("ズームイン")
+                        .accessibilityHint("画像を1.5倍拡大します")
 
                         // 現在の倍率表示
                         Text("×\(String(format: "%.1f", scale))")
@@ -229,6 +233,7 @@ struct ZoomableImageView: View {
                                 RoundedRectangle(cornerRadius: 8)
                                     .fill(Color.black.opacity(0.6))
                             )
+                            .accessibilityLabel("現在の倍率: \(String(format: "%.1f", scale))倍")
 
                         // ズームアウト
                         Button(action: {
@@ -244,6 +249,8 @@ struct ZoomableImageView: View {
                                     .foregroundColor(.white)
                             }
                         }
+                        .accessibilityLabel("ズームアウト")
+                        .accessibilityHint("画像を縮小します")
 
                         // リセットボタン
                         Button(action: {
@@ -263,6 +270,8 @@ struct ZoomableImageView: View {
                                     .foregroundColor(.white)
                             }
                         }
+                        .accessibilityLabel("ズームリセット")
+                        .accessibilityHint("画像の拡大を元に戻します")
                     }
                     .padding(.trailing, 20)
                     .padding(.bottom, 80)

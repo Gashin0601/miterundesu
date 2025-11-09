@@ -82,6 +82,8 @@ struct CameraPreviewWithZoom: View {
                                 .foregroundColor(.white)
                         }
                     }
+                    .accessibilityLabel("ズームイン")
+                    .accessibilityHint("カメラを1.5倍拡大します")
 
                     // ズームアウト
                     Button(action: {
@@ -97,6 +99,8 @@ struct CameraPreviewWithZoom: View {
                                 .foregroundColor(.white)
                         }
                     }
+                    .accessibilityLabel("ズームアウト")
+                    .accessibilityHint("カメラを縮小します")
 
                     // リセットボタン
                     Button(action: {
@@ -112,6 +116,8 @@ struct CameraPreviewWithZoom: View {
                                 .foregroundColor(.white)
                         }
                     }
+                    .accessibilityLabel("ズームリセット")
+                    .accessibilityHint("カメラのズームを1倍に戻します")
                 }
                 .padding(.trailing, 12)
                 .padding(.bottom, 12)
