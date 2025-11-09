@@ -264,7 +264,11 @@ struct ZoomableImageView: View {
                             isZooming = true
                             let delta = value / lastScale
                             lastScale = value
-                            scale = min(max(scale * delta, 1), CGFloat(maxZoom))
+                            let newScale = min(max(scale * delta, 1), CGFloat(maxZoom))
+                            scale = newScale
+                            // スケール変更時にオフセットを境界内に制限
+                            offset = boundedOffset(offset, scale: newScale, imageSize: capturedImage.image.size, viewSize: geometry.size)
+                            lastOffset = offset
                         }
                         .onEnded { _ in
                             lastScale = 1.0
@@ -280,10 +284,12 @@ struct ZoomableImageView: View {
                         .onChanged { value in
                             if scale > 1.0 {
                                 isZooming = true
-                                offset = CGSize(
+                                let newOffset = CGSize(
                                     width: lastOffset.width + value.translation.width,
                                     height: lastOffset.height + value.translation.height
                                 )
+                                // ドラッグ時にオフセットを境界内に制限
+                                offset = boundedOffset(newOffset, scale: scale, imageSize: capturedImage.image.size, viewSize: geometry.size)
                             }
                         }
                         .onEnded { _ in
@@ -324,6 +330,10 @@ struct ZoomableImageView: View {
                         isZooming = false
                         offset = .zero
                         lastOffset = .zero
+                    } else {
+                        // スケール変更時にオフセットを境界内に調整
+                        offset = boundedOffset(offset, scale: newValue, imageSize: capturedImage.image.size, viewSize: geometry.size)
+                        lastOffset = offset
                     }
                 }
 
@@ -493,6 +503,40 @@ struct ZoomableImageView: View {
         if scale <= 1.0 {
             isZooming = false
         }
+    }
+
+    // 境界制約を適用したオフセットを計算（ベストプラクティスに基づく）
+    private func boundedOffset(_ offset: CGSize, scale: CGFloat, imageSize: CGSize, viewSize: CGSize) -> CGSize {
+        // スケールが1以下の場合はオフセットなし
+        guard scale > 1.0 else {
+            return .zero
+        }
+
+        // 画像のアスペクト比を維持した表示サイズを計算
+        let imageAspect = imageSize.width / imageSize.height
+        let viewAspect = viewSize.width / viewSize.height
+
+        let displaySize: CGSize
+        if imageAspect > viewAspect {
+            // 画像が横長：幅に合わせる
+            displaySize = CGSize(width: viewSize.width, height: viewSize.width / imageAspect)
+        } else {
+            // 画像が縦長：高さに合わせる
+            displaySize = CGSize(width: viewSize.height * imageAspect, height: viewSize.height)
+        }
+
+        // ズーム後のサイズ
+        let scaledSize = CGSize(width: displaySize.width * scale, height: displaySize.height * scale)
+
+        // 移動可能な最大範囲（拡大された部分の半分）
+        let maxOffsetX = max(0, (scaledSize.width - viewSize.width) / 2)
+        let maxOffsetY = max(0, (scaledSize.height - viewSize.height) / 2)
+
+        // オフセットを範囲内にクランプ
+        return CGSize(
+            width: min(max(offset.width, -maxOffsetX), maxOffsetX),
+            height: min(max(offset.height, -maxOffsetY), maxOffsetY)
+        )
     }
 }
 
