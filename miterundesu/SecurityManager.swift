@@ -142,73 +142,82 @@ class SecurityManager: ObservableObject {
 // UITextFieldのisSecureTextEntryを活用した実装
 // 参考: https://qiita.com/mittsu/items/4c6437222e759fb9329c
 
-extension UIView {
-    func makeSecure() {
-        print("🔐 makeSecure() 呼び出し")
-        DispatchQueue.main.async {
-            let field = UITextField()
-            field.isSecureTextEntry = true
-            self.addSubview(field)
-            field.translatesAutoresizingMaskIntoConstraints = false
-            field.centerYAnchor.constraint(equalTo: self.centerYAnchor).isActive = true
-            field.centerXAnchor.constraint(equalTo: self.centerXAnchor).isActive = true
-            self.layer.superlayer?.addSublayer(field.layer)
-            field.layer.sublayers?.first?.addSublayer(self.layer)
-            print("🔐 makeSecure() 適用完了")
-        }
-    }
-}
-
-struct RestrictCaptureView<Content: View>: UIViewControllerRepresentable {
+// UIViewを直接使った簡易版
+struct RestrictCaptureView<Content: View>: UIViewRepresentable {
     private let content: () -> Content
 
     init(@ViewBuilder content: @escaping () -> Content) {
         self.content = content
     }
 
-    func makeUIViewController(context: Context) -> RestrictCaptureViewController<Content> {
-        RestrictCaptureViewController(rootView: content())
+    func makeUIView(context: Context) -> SecureContainerView<Content> {
+        print("📱 RestrictCaptureView: makeUIView()")
+        let containerView = SecureContainerView(rootView: content())
+        return containerView
     }
 
-    func updateUIViewController(_ uiViewController: RestrictCaptureViewController<Content>, context: Context) {
-        uiViewController.hostingController.rootView = content()
+    func updateUIView(_ uiView: SecureContainerView<Content>, context: Context) {
+        uiView.hostingController.rootView = content()
     }
 }
 
-class RestrictCaptureViewController<Content: View>: UIViewController {
+class SecureContainerView<Content: View>: UIView {
     let hostingController: UIHostingController<Content>
+    private var secureTextField: UITextField?
 
     init(rootView: Content) {
         self.hostingController = UIHostingController(rootView: rootView)
-        super.init(nibName: nil, bundle: nil)
+        super.init(frame: .zero)
+        setupSecureLayer()
     }
 
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
 
-    override func viewDidLoad() {
-        super.viewDidLoad()
-        print("📱 RestrictCaptureViewController: viewDidLoad()")
+    private func setupSecureLayer() {
+        print("🔐 setupSecureLayer() 開始")
 
-        // ホスティングコントローラーをビュー階層に追加
+        // セキュアテキストフィールドを作成
+        let textField = UITextField()
+        textField.isSecureTextEntry = true
+        textField.isUserInteractionEnabled = false
+        textField.backgroundColor = .clear
+        self.secureTextField = textField
+
+        // ホスティングコントローラーのビューを追加
         hostingController.view.backgroundColor = .clear
-        hostingController.view.translatesAutoresizingMaskIntoConstraints = false
+        hostingController.view.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+        hostingController.view.frame = self.bounds
+        addSubview(hostingController.view)
 
-        addChild(hostingController)
-        view.addSubview(hostingController.view)
+        // セキュアテキストフィールドを追加
+        textField.translatesAutoresizingMaskIntoConstraints = false
+        addSubview(textField)
 
         NSLayoutConstraint.activate([
-            hostingController.view.topAnchor.constraint(equalTo: view.topAnchor),
-            hostingController.view.bottomAnchor.constraint(equalTo: view.bottomAnchor),
-            hostingController.view.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            hostingController.view.trailingAnchor.constraint(equalTo: view.trailingAnchor)
+            textField.centerXAnchor.constraint(equalTo: centerXAnchor),
+            textField.centerYAnchor.constraint(equalTo: centerYAnchor)
         ])
 
-        hostingController.didMove(toParent: self)
+        // レイヤー階層を操作（次のレンダリングサイクルで）
+        DispatchQueue.main.async { [weak self] in
+            guard let self = self, let textField = self.secureTextField else { return }
 
-        // Qiitaの記事に基づいてmakeSecure()を呼び出す
-        view.makeSecure()
+            if let superlayer = self.layer.superlayer {
+                print("🔐 レイヤー階層操作中...")
+                superlayer.addSublayer(textField.layer)
+                textField.layer.sublayers?.first?.addSublayer(self.layer)
+                print("🔐 setupSecureLayer() 完了")
+            } else {
+                print("⚠️ superlayer が見つかりません")
+            }
+        }
+    }
+
+    override func layoutSubviews() {
+        super.layoutSubviews()
+        hostingController.view.frame = bounds
     }
 }
 
