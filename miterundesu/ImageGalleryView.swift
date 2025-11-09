@@ -303,11 +303,9 @@ struct ImageGalleryView: View {
             }
         }
         .onAppear {
-            // 最初のフレーム保護：0.15秒後にコンテンツを表示
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.15) {
-                withAnimation(.easeIn(duration: 0.1)) {
-                    isContentVisible = true
-                }
+            // 最初のフレーム保護：0.05秒後にコンテンツを表示（ユーザーには気づかれない程度）
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) {
+                isContentVisible = true
             }
         }
         .fullScreenCover(isPresented: $showExplanation) {
