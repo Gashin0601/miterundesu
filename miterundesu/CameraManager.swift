@@ -129,7 +129,7 @@ class CameraManager: NSObject, ObservableObject {
                 let clampedZoom = min(max(factor, 1.0), min(device.activeFormat.videoMaxZoomFactor, self.maxZoomFactor))
                 device.videoZoomFactor = clampedZoom
 
-                try device.unlockForConfiguration()
+                device.unlockForConfiguration()
 
                 DispatchQueue.main.async {
                     self.currentZoom = clampedZoom

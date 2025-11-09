@@ -173,7 +173,6 @@ struct InfiniteScrollingText: View {
             .offset(x: offset)
             .onAppear {
                 offset = screenWidth
-                let totalDistance = screenWidth + textWidth + 40
                 withAnimation(
                     Animation.linear(duration: 10)
                         .repeatForever(autoreverses: false)
