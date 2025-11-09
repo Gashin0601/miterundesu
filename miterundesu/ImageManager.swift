@@ -191,6 +191,8 @@ class ImageManager: ObservableObject {
     }
 
     deinit {
-        clearAllImages()
+        // アプリ終了時はタイマーのみ停止（画像とメタデータは保持）
+        timers.values.forEach { $0.invalidate() }
+        timers.removeAll()
     }
 }

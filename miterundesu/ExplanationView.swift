@@ -123,6 +123,7 @@ struct ExplanationView: View {
                 }
             }
         }
+        .statusBar(hidden: true)
     }
 
     private var bodyText: String {

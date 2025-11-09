@@ -9,7 +9,7 @@ import AVFoundation
 import SwiftUI
 import Combine
 
-class CameraManager: NSObject, ObservableObject {
+class CameraManager: NSObject, ObservableObject, AVCaptureSessionControlsDelegate {
     @Published var currentZoom: CGFloat = 1.0
     @Published var isSessionRunning = false
     @Published var error: CameraError?
@@ -21,6 +21,7 @@ class CameraManager: NSObject, ObservableObject {
     private let photoOutput = AVCapturePhotoOutput()
     private var videoDeviceInput: AVCaptureDeviceInput?
     private var device: AVCaptureDevice?
+    private var customZoomSlider: AVCaptureSlider?
 
     private let sessionQueue = DispatchQueue(label: "camera.session.queue")
 
@@ -75,6 +76,47 @@ class CameraManager: NSObject, ObservableObject {
                 if self.session.canAddOutput(self.photoOutput) {
                     self.session.addOutput(self.photoOutput)
                     self.photoOutput.maxPhotoQualityPrioritization = .quality
+                }
+
+                // Camera Control用のカスタムズームスライダーを追加
+                if #available(iOS 18.0, *) {
+                    // 既存のコントロールを削除
+                    self.session.controls.forEach { self.session.removeControl($0) }
+
+                    // デバイスの最大ズーム倍率を取得
+                    let deviceMaxZoom = camera.activeFormat.videoMaxZoomFactor
+                    let clampedMaxZoom = min(deviceMaxZoom, self.maxZoomFactor)
+
+                    // カスタムズームスライダーを作成（1倍から設定された最大倍率まで）
+                    let zoomSlider = AVCaptureSlider(
+                        "Zoom",
+                        symbolName: "plus.magnifyingglass",
+                        in: 1.0...Float(clampedMaxZoom)
+                    )
+
+                    // スライダーのアクションを設定
+                    zoomSlider.setActionQueue(self.sessionQueue) { [weak self] zoomValue in
+                        guard let self = self else { return }
+
+                        // スライダーの値をそのまま使用（速度計算を削除）
+                        let targetZoom = CGFloat(zoomValue)
+                        let finalZoom = min(max(targetZoom, 1.0), min(self.maxZoomFactor, CGFloat(clampedMaxZoom)))
+
+                        // ズームを適用
+                        DispatchQueue.main.async {
+                            self.zoom(factor: finalZoom)
+                        }
+                    }
+
+                    self.customZoomSlider = zoomSlider
+
+                    // セッションにコントロールを追加
+                    if self.session.canAddControl(zoomSlider) {
+                        self.session.addControl(zoomSlider)
+                    }
+
+                    // セッションデリゲートを設定
+                    self.session.setControlsDelegate(self, queue: self.sessionQueue)
                 }
 
                 self.session.commitConfiguration()
@@ -155,6 +197,69 @@ class CameraManager: NSObject, ObservableObject {
     // 最大ズーム倍率を設定
     func setMaxZoomFactor(_ factor: CGFloat) {
         maxZoomFactor = factor
+
+        // Camera Controlのズームスライダーも更新
+        if #available(iOS 18.0, *) {
+            sessionQueue.async { [weak self] in
+                guard let self = self, let camera = self.device else { return }
+
+                // 既存のコントロールを削除
+                self.session.controls.forEach { self.session.removeControl($0) }
+
+                // 新しい範囲でズームスライダーを再作成
+                let deviceMaxZoom = camera.activeFormat.videoMaxZoomFactor
+                let clampedMaxZoom = min(deviceMaxZoom, factor)
+
+                let zoomSlider = AVCaptureSlider(
+                    "Zoom",
+                    symbolName: "plus.magnifyingglass",
+                    in: 1.0...Float(clampedMaxZoom)
+                )
+
+                zoomSlider.setActionQueue(self.sessionQueue) { [weak self] zoomValue in
+                    guard let self = self else { return }
+
+                    // スライダーの値をそのまま使用
+                    let targetZoom = CGFloat(zoomValue)
+                    let finalZoom = min(max(targetZoom, 1.0), min(self.maxZoomFactor, clampedMaxZoom))
+
+                    DispatchQueue.main.async {
+                        self.zoom(factor: finalZoom)
+                    }
+                }
+
+                self.customZoomSlider = zoomSlider
+
+                if self.session.canAddControl(zoomSlider) {
+                    self.session.addControl(zoomSlider)
+                }
+            }
+        }
+    }
+
+    // MARK: - AVCaptureSessionControlsDelegate
+    @available(iOS 18.0, *)
+    func sessionControlsDidBecomeActive(_ session: AVCaptureSession) {
+        // Camera Controlがアクティブになったとき
+        print("Camera Controls became active")
+    }
+
+    @available(iOS 18.0, *)
+    func sessionControlsWillEnterFullscreenAppearance(_ session: AVCaptureSession) {
+        // Camera Controlがフルスクリーン表示になるとき
+        print("Camera Controls entering fullscreen")
+    }
+
+    @available(iOS 18.0, *)
+    func sessionControlsWillExitFullscreenAppearance(_ session: AVCaptureSession) {
+        // Camera Controlがフルスクリーン表示から戻るとき
+        print("Camera Controls exiting fullscreen")
+    }
+
+    @available(iOS 18.0, *)
+    func sessionControlsDidBecomeInactive(_ session: AVCaptureSession) {
+        // Camera Controlが非アクティブになったとき
+        print("Camera Controls became inactive")
     }
 }
 

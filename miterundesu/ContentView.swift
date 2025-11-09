@@ -17,7 +17,8 @@ struct ContentView: View {
     @State private var isTheaterMode = false
     @State private var showSettings = false
     @State private var showExplanation = false
-    @State private var selectedImage: CapturedImage?
+    @State private var selectedImage: CapturedImage? // サムネイルから開いた画像
+    @State private var justCapturedImage: CapturedImage? // 撮影直後の画像
 
     // シアターモード用UI管理
     @State private var showUI = true
@@ -88,45 +89,53 @@ struct ContentView: View {
                 .opacity(shouldShowUI ? 1 : 0)
             }
 
-            // 左上：シアターモードトグル
-            VStack {
-                HStack {
-                    TheaterModeToggle(
-                        isTheaterMode: $isTheaterMode,
-                        onToggle: {
-                            handleTheaterModeChange()
-                        }
-                    )
-                    .padding(.leading, 20)
-                    .padding(.top, 50)
-                    .opacity(shouldShowUI ? 1 : 0)
+            // ノッチエリア: 左にシアターモードトグル、右に設定ボタン
+            GeometryReader { geometry in
+                VStack(spacing: 0) {
+                    HStack(spacing: 0) {
+                        // ノッチ左: シアターモードトグル
+                        TheaterModeToggle(
+                            isTheaterMode: $isTheaterMode,
+                            onToggle: {
+                                handleTheaterModeChange()
+                            }
+                        )
+                        .padding(.leading, 16)
+                        .opacity(shouldShowUI ? 1 : 0)
 
-                    Spacer()
-                }
-                Spacer()
-            }
+                        Spacer()
 
-            // 右上：設定アイコン
-            VStack {
-                HStack {
-                    Spacer()
-
-                    Button(action: {
-                        showSettings = true
-                    }) {
-                        Image(systemName: "gearshape.fill")
-                            .font(.system(size: 24))
+                        // ノッチ右: 設定ボタン
+                        Button(action: {
+                            showSettings = true
+                        }) {
+                            HStack(spacing: 6) {
+                                Image(systemName: "gearshape.fill")
+                                    .font(.system(size: 18))
+                                Text("設定")
+                                    .font(.system(size: 14, weight: .medium))
+                            }
                             .foregroundColor(.white)
-                            .frame(minWidth: 44, minHeight: 44)
+                            .padding(.horizontal, 12)
+                            .padding(.vertical, 8)
+                            .background(
+                                RoundedRectangle(cornerRadius: 10)
+                                    .fill(Color.white.opacity(0.15))
+                            )
+                        }
+                        .padding(.trailing, 16)
+                        .opacity(shouldShowUI ? 1 : 0)
+                        .accessibilityLabel("設定")
+                        .accessibilityHint("アプリの設定画面を開きます")
                     }
-                    .padding(.trailing, 20)
-                    .padding(.top, 50)
-                    .opacity(shouldShowUI ? 1 : 0)
-                    .accessibilityLabel("設定")
-                    .accessibilityHint("アプリの設定画面を開きます")
+                    .padding(.top, geometry.safeAreaInsets.top)
+                    .frame(height: 44 + geometry.safeAreaInsets.top)
+                    .background(Color.clear)
+
+                    Spacer()
                 }
-                Spacer()
             }
+            .ignoresSafeArea(edges: .top)
 
             // シアターモード時のタップ領域
             if isTheaterMode && !showUI {
@@ -173,6 +182,14 @@ struct ContentView: View {
                 initialImage: capturedImage
             )
         }
+        .fullScreenCover(item: $justCapturedImage) { capturedImage in
+            CapturedImagePreview(
+                imageManager: imageManager,
+                settingsManager: settingsManager,
+                capturedImage: capturedImage
+            )
+        }
+        .statusBar(hidden: true)
         .onAppear {
             cameraManager.setupCamera()
             cameraManager.startSession()
@@ -246,9 +263,9 @@ struct ContentView: View {
         cameraManager.capturePhoto { image in
             if let image = image {
                 imageManager.addImage(image)
-                // 撮影後、自動的に画像を表示
+                // 撮影後、自動的に撮影直後プレビューを表示
                 if let latestImage = imageManager.capturedImages.first {
-                    selectedImage = latestImage
+                    justCapturedImage = latestImage
                 }
             }
         }
@@ -318,10 +335,13 @@ struct InfiniteScrollingText: View {
     var body: some View {
         GeometryReader { geometry in
             let textWidth = text.widthOfString(usingFont: .systemFont(ofSize: 16))
+            let spacing: CGFloat = 40
+            let itemWidth = textWidth + spacing
             let screenWidth = geometry.size.width
 
-            HStack(spacing: 40) {
-                ForEach(0..<5, id: \.self) { _ in
+            HStack(spacing: spacing) {
+                // 2セット表示して途切れないループを実現
+                ForEach(0..<10, id: \.self) { _ in
                     Text(text)
                         .font(.system(size: 16, weight: .medium))
                         .foregroundColor(.white.opacity(0.8))
@@ -329,12 +349,12 @@ struct InfiniteScrollingText: View {
             }
             .offset(x: offset)
             .onAppear {
-                offset = screenWidth
+                offset = 0
                 withAnimation(
-                    Animation.linear(duration: 10)
+                    Animation.linear(duration: 20)
                         .repeatForever(autoreverses: false)
                 ) {
-                    offset = -(textWidth + 40)
+                    offset = -(itemWidth * 5)
                 }
             }
         }
@@ -347,28 +367,37 @@ struct TheaterModeToggle: View {
     let onToggle: () -> Void
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 4) {
-            Toggle(isOn: Binding(
+        HStack(spacing: 8) {
+            // アイコン
+            Image(systemName: isTheaterMode ? "theatermasks.fill" : "theatermasks")
+                .font(.system(size: 16))
+                .foregroundColor(.white)
+
+            // テキスト
+            Text("シアターモード")
+                .font(.system(size: 12, weight: .medium))
+                .foregroundColor(.white)
+
+            // トグルスイッチ
+            Toggle("", isOn: Binding(
                 get: { isTheaterMode },
                 set: { newValue in
                     isTheaterMode = newValue
                     onToggle()
                 }
-            )) {
-                Text("シアターモード")
-                    .font(.system(size: 12, weight: .medium))
-                    .foregroundColor(.white)
-            }
+            ))
+            .labelsHidden()
             .toggleStyle(SwitchToggleStyle(tint: Color.orange))
-            .frame(width: 160)
-            .accessibilityLabel("シアターモード")
-            .accessibilityHint(isTheaterMode ? "シアターモードをオフにします" : "映画館や美術館などで使用するシアターモードをオンにします")
+            .scaleEffect(0.8)
         }
-        .padding(10)
+        .padding(.horizontal, 10)
+        .padding(.vertical, 6)
         .background(
-            RoundedRectangle(cornerRadius: 12)
+            RoundedRectangle(cornerRadius: 10)
                 .fill(Color.white.opacity(0.15))
         )
+        .accessibilityLabel("シアターモード")
+        .accessibilityHint(isTheaterMode ? "シアターモードをオフにします" : "映画館や美術館などで使用するシアターモードをオンにします")
     }
 }
 
