@@ -12,6 +12,7 @@ struct ImageGalleryView: View {
     @ObservedObject var settingsManager: SettingsManager
     let initialImage: CapturedImage
     @Environment(\.dismiss) var dismiss
+    @StateObject private var securityManager = SecurityManager()
 
     @State private var currentIndex: Int = 0
     @State private var remainingTime: TimeInterval
@@ -35,19 +36,45 @@ struct ImageGalleryView: View {
             Color.black.ignoresSafeArea()
 
             if !imageManager.capturedImages.isEmpty && currentIndex < imageManager.capturedImages.count {
-                TabView(selection: $currentIndex) {
-                    ForEach(Array(imageManager.capturedImages.enumerated()), id: \.element.id) { index, capturedImage in
-                        ZoomableImageView(
-                            capturedImage: capturedImage,
-                            maxZoom: settingsManager.maxZoomFactor
+                ZStack {
+                    TabView(selection: $currentIndex) {
+                        ForEach(Array(imageManager.capturedImages.enumerated()), id: \.element.id) { index, capturedImage in
+                            ZoomableImageView(
+                                capturedImage: capturedImage,
+                                maxZoom: settingsManager.maxZoomFactor
+                            )
+                            .id(capturedImage.id)
+                            .tag(index)
+                        }
+                    }
+                    .tabViewStyle(.page(indexDisplayMode: .never))
+                    .ignoresSafeArea()
+                    .id(currentIndex)
+                    .blur(radius: securityManager.isScreenRecording ? 50 : 0)
+
+                    // 画面録画中の警告オーバーレイ
+                    if securityManager.isScreenRecording {
+                        VStack(spacing: 20) {
+                            Image(systemName: "eye.slash.fill")
+                                .font(.system(size: 80))
+                                .foregroundColor(.white)
+
+                            Text("画面録画中は表示できません")
+                                .font(.title)
+                                .fontWeight(.bold)
+                                .foregroundColor(.white)
+
+                            Text("このアプリでは録画・保存はできません")
+                                .font(.body)
+                                .foregroundColor(.white.opacity(0.8))
+                        }
+                        .padding(40)
+                        .background(
+                            RoundedRectangle(cornerRadius: 20)
+                                .fill(Color.black.opacity(0.8))
                         )
-                        .id(capturedImage.id)
-                        .tag(index)
                     }
                 }
-                .tabViewStyle(.page(indexDisplayMode: .never))
-                .ignoresSafeArea()
-                .id(currentIndex)
 
                 // 上部コントロール
                 VStack {

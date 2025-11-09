@@ -40,13 +40,34 @@ struct ContentView: View {
                 Spacer()
 
                 // カメラプレビュー領域
-                CameraPreviewWithZoom(
-                    cameraManager: cameraManager,
-                    isTheaterMode: $isTheaterMode,
-                    onCapture: {
-                        capturePhoto()
+                ZStack {
+                    CameraPreviewWithZoom(
+                        cameraManager: cameraManager,
+                        isTheaterMode: $isTheaterMode,
+                        onCapture: {
+                            capturePhoto()
+                        }
+                    )
+                    .blur(radius: securityManager.isScreenRecording ? 30 : 0)
+
+                    // 画面録画中の警告
+                    if securityManager.isScreenRecording {
+                        VStack(spacing: 12) {
+                            Image(systemName: "eye.slash.fill")
+                                .font(.system(size: 40))
+                                .foregroundColor(.white)
+
+                            Text("録画中は非表示")
+                                .font(.headline)
+                                .foregroundColor(.white)
+                        }
+                        .padding(20)
+                        .background(
+                            RoundedRectangle(cornerRadius: 12)
+                                .fill(Color.black.opacity(0.7))
+                        )
                     }
-                )
+                }
                 .frame(maxWidth: .infinity)
                 .frame(height: 500)
                 .padding(.horizontal, 20)
@@ -58,6 +79,7 @@ struct ContentView: View {
                     isTheaterMode: isTheaterMode,
                     currentZoom: cameraManager.currentZoom,
                     imageManager: imageManager,
+                    securityManager: securityManager,
                     selectedImage: $selectedImage,
                     onCapture: {
                         capturePhoto()
@@ -356,6 +378,7 @@ struct FooterView: View {
     let isTheaterMode: Bool
     let currentZoom: CGFloat
     @ObservedObject var imageManager: ImageManager
+    @ObservedObject var securityManager: SecurityManager
     @Binding var selectedImage: CapturedImage?
     let onCapture: () -> Void
 
@@ -371,6 +394,7 @@ struct FooterView: View {
                 // サムネイル（左下）
                 ThumbnailView(
                     imageManager: imageManager,
+                    securityManager: securityManager,
                     selectedImage: $selectedImage
                 )
                 .padding(.leading, 20)
@@ -424,6 +448,7 @@ struct ShutterButton: View {
 // MARK: - Thumbnail View
 struct ThumbnailView: View {
     @ObservedObject var imageManager: ImageManager
+    @ObservedObject var securityManager: SecurityManager
     @Binding var selectedImage: CapturedImage?
 
     @State private var currentTime = Date()
@@ -444,6 +469,7 @@ struct ThumbnailView: View {
                             RoundedRectangle(cornerRadius: 10)
                                 .stroke(Color.white, lineWidth: 2)
                         )
+                        .blur(radius: securityManager.isScreenRecording ? 10 : 0)
                         // コンテキストメニューを無効化
                         .contextMenu { }
 
