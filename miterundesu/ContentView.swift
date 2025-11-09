@@ -42,7 +42,10 @@ struct ContentView: View {
                 // カメラプレビュー領域
                 CameraPreviewWithZoom(
                     cameraManager: cameraManager,
-                    isTheaterMode: $isTheaterMode
+                    isTheaterMode: $isTheaterMode,
+                    onCapture: {
+                        capturePhoto()
+                    }
                 )
                 .frame(maxWidth: .infinity)
                 .frame(height: 500)

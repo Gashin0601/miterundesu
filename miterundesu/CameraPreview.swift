@@ -7,6 +7,7 @@
 
 import SwiftUI
 import AVFoundation
+import AVKit
 
 struct CameraPreview: UIViewRepresentable {
     @ObservedObject var cameraManager: CameraManager
@@ -45,6 +46,7 @@ struct CameraPreview: UIViewRepresentable {
 struct CameraPreviewWithZoom: View {
     @ObservedObject var cameraManager: CameraManager
     @Binding var isTheaterMode: Bool
+    let onCapture: () -> Void
 
     @State private var lastZoomFactor: CGFloat = 1.0
 
@@ -64,6 +66,12 @@ struct CameraPreviewWithZoom: View {
                             lastZoomFactor = 1.0
                         }
                 )
+                .onCameraCaptureEvent { event in
+                    // Camera Controlボタンの押下を検知
+                    if event.phase == .ended && !isTheaterMode {
+                        onCapture()
+                    }
+                }
 
             // カメラズームコントロール
             if !isTheaterMode {
