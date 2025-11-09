@@ -221,6 +221,10 @@ struct ContentView: View {
         cameraManager.capturePhoto { image in
             if let image = image {
                 imageManager.addImage(image)
+                // 撮影後、自動的に画像を表示
+                if let latestImage = imageManager.capturedImages.first {
+                    selectedImage = latestImage
+                }
             }
         }
     }

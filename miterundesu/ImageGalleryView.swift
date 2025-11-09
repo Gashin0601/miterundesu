@@ -50,14 +50,23 @@ struct ImageGalleryView: View {
                 // 上部コントロール
                 VStack {
                     HStack {
-                        // 閉じるボタン
+                        // 閉じるボタン（シャッターボタンと同じデザイン）
                         Button(action: {
                             dismiss()
                         }) {
-                            Image(systemName: "xmark.circle.fill")
-                                .font(.system(size: 30))
-                                .foregroundColor(.white)
-                                .shadow(radius: 5)
+                            ZStack {
+                                Circle()
+                                    .stroke(Color.white, lineWidth: 4)
+                                    .frame(width: 70, height: 70)
+
+                                Circle()
+                                    .fill(Color.white)
+                                    .frame(width: 60, height: 60)
+
+                                Image(systemName: "xmark")
+                                    .font(.system(size: 28, weight: .bold))
+                                    .foregroundColor(.black)
+                            }
                         }
                         .padding()
                         .accessibilityLabel("閉じる")
