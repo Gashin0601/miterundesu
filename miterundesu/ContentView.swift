@@ -218,9 +218,10 @@ struct ContentView: View {
             setupBackgroundNotification()
             // 設定から最大拡大率を適用
             cameraManager.setMaxZoomFactor(settingsManager.maxZoomFactor)
-
-            // カメラのセットアップ完了後、少し遅延してロード画面を非表示
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.8) {
+        }
+        .onChange(of: cameraManager.isCameraReady) { oldValue, newValue in
+            if newValue {
+                // カメラの準備ができたらローディングを終了
                 withAnimation(.easeOut(duration: 0.3)) {
                     isLoading = false
                 }

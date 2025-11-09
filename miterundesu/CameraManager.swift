@@ -12,6 +12,7 @@ import Combine
 class CameraManager: NSObject, ObservableObject, AVCaptureSessionControlsDelegate {
     @Published var currentZoom: CGFloat = 1.0
     @Published var isSessionRunning = false
+    @Published var isCameraReady = false
     @Published var error: CameraError?
 
     var maxZoomFactor: CGFloat = 100.0 // デフォルト最大拡大率
@@ -141,6 +142,10 @@ class CameraManager: NSObject, ObservableObject, AVCaptureSessionControlsDelegat
                 self.session.startRunning()
                 DispatchQueue.main.async {
                     self.isSessionRunning = self.session.isRunning
+                    // セッションが開始されたらカメラ準備完了
+                    if self.session.isRunning {
+                        self.isCameraReady = true
+                    }
                 }
             }
         }
@@ -155,6 +160,7 @@ class CameraManager: NSObject, ObservableObject, AVCaptureSessionControlsDelegat
                 self.session.stopRunning()
                 DispatchQueue.main.async {
                     self.isSessionRunning = false
+                    self.isCameraReady = false
                 }
             }
         }
