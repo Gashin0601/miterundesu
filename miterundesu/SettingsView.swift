@@ -89,13 +89,14 @@ struct SettingsView: View {
                                     )
                             }
 
-                            TextEditor(text: settingsManager.isTheaterMode ? $settingsManager.scrollingMessageTheater : $settingsManager.scrollingMessageNormal)
-                                .frame(minHeight: 100)
+                            TextField("", text: settingsManager.isTheaterMode ? $settingsManager.scrollingMessageTheater : $settingsManager.scrollingMessageNormal, axis: .vertical)
+                                .lineLimit(5...10)
+                                .textFieldStyle(.plain)
                                 .padding(8)
                                 .background(Color.white.opacity(0.1))
                                 .cornerRadius(8)
                                 .foregroundColor(.white)
-                                .scrollContentBackground(.hidden)
+                                .submitLabel(.done)
                         }
                         .padding(.vertical, 8)
                     }
