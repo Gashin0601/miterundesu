@@ -36,70 +36,11 @@ struct ImageGalleryView: View {
 
     var body: some View {
         ZStack {
-            Color("MainGreen").ignoresSafeArea()
+            Color.black.ignoresSafeArea()
 
             if !imageManager.capturedImages.isEmpty && currentIndex < imageManager.capturedImages.count {
-                ZStack {
-                    GeometryReader { geometry in
-                        ScrollView(.horizontal, showsIndicators: false) {
-                            LazyHStack(spacing: 0) {
-                                ForEach(Array(imageManager.capturedImages.enumerated()), id: \.element.id) { index, capturedImage in
-                                    ZoomableImageView(
-                                        capturedImage: capturedImage,
-                                        maxZoom: settingsManager.maxZoomFactor,
-                                        isZooming: $isZooming
-                                    )
-                                    .frame(width: geometry.size.width, height: geometry.size.height)
-                                    .id(capturedImage.id)
-                                }
-                            }
-                            .scrollTargetLayout()
-                        }
-                        .scrollTargetBehavior(.paging)
-                        .scrollPosition(id: $scrollPositionID)
-                        .ignoresSafeArea()
-                        .scrollDisabled(isZooming)
-                        .blur(radius: securityManager.isScreenRecording ? 50 : 0)
-                        .onChange(of: scrollPositionID) { oldValue, newValue in
-                            // スクロール位置からインデックスを更新
-                            if let newID = newValue,
-                               let newIndex = imageManager.capturedImages.firstIndex(where: { $0.id == newID }) {
-                                currentIndex = newIndex
-                                remainingTime = imageManager.capturedImages[newIndex].remainingTime
-                            }
-                        }
-                        .onAppear {
-                            // 初期位置を設定
-                            scrollPositionID = imageManager.capturedImages[safe: currentIndex]?.id
-                        }
-                    }
-
-                    // 画面録画中の警告オーバーレイ
-                    if securityManager.isScreenRecording {
-                        VStack(spacing: 20) {
-                            Image(systemName: "eye.slash.fill")
-                                .font(.system(size: 80))
-                                .foregroundColor(.white)
-
-                            Text("画面録画中は表示できません")
-                                .font(.title)
-                                .fontWeight(.bold)
-                                .foregroundColor(.white)
-
-                            Text("このアプリでは録画・保存はできません")
-                                .font(.body)
-                                .foregroundColor(.white.opacity(0.8))
-                        }
-                        .padding(40)
-                        .background(
-                            RoundedRectangle(cornerRadius: 20)
-                                .fill(Color.black.opacity(0.8))
-                        )
-                    }
-                }
-
-                // 上部コントロール
-                VStack {
+                VStack(spacing: 0) {
+                    // 上部コントロール
                     HStack {
                         // 残り時間表示
                         if currentIndex < imageManager.capturedImages.count {
@@ -153,15 +94,75 @@ struct ImageGalleryView: View {
                         .accessibilityLabel("閉じる")
                         .accessibilityHint("ギャラリーを閉じてメイン画面に戻ります")
                     }
+                    .padding(.top, 8)
 
-                    Spacer()
-                }
+                    // 画像表示エリア（緑の背景）
+                    ZStack {
+                        GeometryReader { geometry in
+                            ScrollView(.horizontal, showsIndicators: false) {
+                                LazyHStack(spacing: 0) {
+                                    ForEach(Array(imageManager.capturedImages.enumerated()), id: \.element.id) { index, capturedImage in
+                                        ZoomableImageView(
+                                            capturedImage: capturedImage,
+                                            maxZoom: settingsManager.maxZoomFactor,
+                                            isZooming: $isZooming
+                                        )
+                                        .frame(width: geometry.size.width, height: geometry.size.height)
+                                        .id(capturedImage.id)
+                                    }
+                                }
+                                .scrollTargetLayout()
+                            }
+                            .scrollTargetBehavior(.paging)
+                            .scrollPosition(id: $scrollPositionID)
+                            .scrollDisabled(isZooming)
+                            .blur(radius: securityManager.isScreenRecording ? 50 : 0)
+                            .onChange(of: scrollPositionID) { oldValue, newValue in
+                                // スクロール位置からインデックスを更新
+                                if let newID = newValue,
+                                   let newIndex = imageManager.capturedImages.firstIndex(where: { $0.id == newID }) {
+                                    currentIndex = newIndex
+                                    remainingTime = imageManager.capturedImages[newIndex].remainingTime
+                                }
+                            }
+                            .onAppear {
+                                // 初期位置を設定
+                                scrollPositionID = imageManager.capturedImages[safe: currentIndex]?.id
+                            }
+                        }
 
-                // 画像インジケーター
-                if imageManager.capturedImages.count > 1 {
-                    VStack {
-                        Spacer()
+                        // 画面録画中の警告オーバーレイ
+                        if securityManager.isScreenRecording {
+                            VStack(spacing: 20) {
+                                Image(systemName: "eye.slash.fill")
+                                    .font(.system(size: 80))
+                                    .foregroundColor(.white)
 
+                                Text("画面録画中は表示できません")
+                                    .font(.title)
+                                    .fontWeight(.bold)
+                                    .foregroundColor(.white)
+
+                                Text("このアプリでは録画・保存はできません")
+                                    .font(.body)
+                                    .foregroundColor(.white.opacity(0.8))
+                            }
+                            .padding(40)
+                            .background(
+                                RoundedRectangle(cornerRadius: 20)
+                                    .fill(Color.black.opacity(0.8))
+                            )
+                        }
+                    }
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    .background(Color("MainGreen"))
+                    .cornerRadius(20)
+                    .padding(.horizontal, 16)
+                    .padding(.top, 4)
+                    .padding(.bottom, 8)
+
+                    // 画像インジケーター
+                    if imageManager.capturedImages.count > 1 {
                         HStack(spacing: 8) {
                             ForEach(0..<imageManager.capturedImages.count, id: \.self) { index in
                                 Circle()
@@ -169,7 +170,7 @@ struct ImageGalleryView: View {
                                     .frame(width: 8, height: 8)
                             }
                         }
-                        .padding(.bottom, 40)
+                        .padding(.bottom, 16)
                     }
                 }
             } else {

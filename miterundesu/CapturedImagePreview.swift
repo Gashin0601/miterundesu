@@ -37,88 +37,10 @@ struct CapturedImagePreview: View {
 
     var body: some View {
         ZStack {
-            Color("MainGreen").ignoresSafeArea()
+            Color.black.ignoresSafeArea()
 
-            // 画像表示
-            ZStack {
-                GeometryReader { geometry in
-                    Image(uiImage: capturedImage.image)
-                        .resizable()
-                        .aspectRatio(contentMode: .fit)
-                        .frame(width: geometry.size.width, height: geometry.size.height)
-                        .scaleEffect(scale)
-                        .offset(offset)
-                        .clipped()
-                        .cornerRadius(20)
-                        .highPriorityGesture(
-                            MagnificationGesture(minimumScaleDelta: 0)
-                                .onChanged { value in
-                                    let delta = value / lastScale
-                                    lastScale = value
-                                    scale = min(max(scale * delta, 1), CGFloat(settingsManager.maxZoomFactor))
-                                }
-                                .onEnded { _ in
-                                    lastScale = 1.0
-                                }
-                        )
-                        .simultaneousGesture(
-                            DragGesture(minimumDistance: scale > 1.0 ? 0 : 10)
-                                .onChanged { value in
-                                    if scale > 1.0 {
-                                        offset = CGSize(
-                                            width: lastOffset.width + value.translation.width,
-                                            height: lastOffset.height + value.translation.height
-                                        )
-                                    }
-                                }
-                                .onEnded { _ in
-                                    if scale > 1.0 {
-                                        lastOffset = offset
-                                    }
-                                }
-                        )
-                        .onTapGesture(count: 2) {
-                            withAnimation(.easeInOut(duration: 0.3)) {
-                                scale = 1.0
-                                offset = .zero
-                                lastOffset = .zero
-                            }
-                        }
-                        .onChange(of: scale) { oldValue, newValue in
-                            if newValue <= 1.0 {
-                                offset = .zero
-                                lastOffset = .zero
-                            }
-                        }
-                }
-                .blur(radius: securityManager.isScreenRecording ? 50 : 0)
-
-                // 画面録画中の警告
-                if securityManager.isScreenRecording {
-                    VStack(spacing: 20) {
-                        Image(systemName: "eye.slash.fill")
-                            .font(.system(size: 80))
-                            .foregroundColor(.white)
-
-                        Text("画面録画中は表示できません")
-                            .font(.title)
-                            .fontWeight(.bold)
-                            .foregroundColor(.white)
-
-                        Text("このアプリでは録画・保存はできません")
-                            .font(.body)
-                            .foregroundColor(.white.opacity(0.8))
-                    }
-                    .padding(40)
-                    .background(
-                        RoundedRectangle(cornerRadius: 20)
-                            .fill(Color.black.opacity(0.8))
-                    )
-                }
-            }
-
-            // 上部コントロール
-            VStack {
+            VStack(spacing: 0) {
+                // 上部コントロール
                 HStack {
                     // 左：設定ボタン
                     Button(action: {
@@ -181,134 +103,212 @@ struct CapturedImagePreview: View {
                 }
                 .padding(.top, 8)
 
-                Spacer()
-            }
-
-            // 下部：バツボタン（シャッターと同じ位置・デザイン）
-            VStack {
-                Spacer()
-
-                Button(action: {
-                    dismiss()
-                }) {
-                    ZStack {
-                        Circle()
-                            .stroke(Color.white, lineWidth: 4)
-                            .frame(width: 70, height: 70)
-
-                        Circle()
-                            .fill(Color.white)
-                            .frame(width: 60, height: 60)
-
-                        Image(systemName: "xmark")
-                            .font(.system(size: 28, weight: .bold))
-                            .foregroundColor(.black)
-                    }
-                }
-                .padding(.bottom, 40)
-                .accessibilityLabel("閉じる")
-                .accessibilityHint("プレビューを閉じてカメラに戻ります")
-            }
-
-            // 右側：ズームコントロール
-            VStack {
-                Spacer()
-
-                HStack {
-                    Spacer()
-
-                    VStack(spacing: 12) {
-                        // ズームイン
-                        ZStack {
-                            Circle()
-                                .fill(Color.black.opacity(0.6))
-                                .frame(width: 44, height: 44)
-
-                            Image(systemName: "plus")
-                                .font(.system(size: 20, weight: .medium))
-                                .foregroundColor(.white)
-                        }
-                        .onTapGesture {
-                            zoomIn()
-                        }
-                        .onLongPressGesture(minimumDuration: 0.3, pressing: { pressing in
-                            if pressing {
-                                startContinuousZoom(direction: .in)
-                            } else {
-                                stopContinuousZoom()
-                            }
-                        }, perform: {})
-                        .accessibilityLabel("ズームイン")
-                        .accessibilityHint("タップで1.5倍拡大、長押しで連続拡大します")
-
-                        // ズームアウト
-                        ZStack {
-                            Circle()
-                                .fill(Color.black.opacity(0.6))
-                                .frame(width: 44, height: 44)
-
-                            Image(systemName: "minus")
-                                .font(.system(size: 20, weight: .medium))
-                                .foregroundColor(.white)
-                        }
-                        .onTapGesture {
-                            zoomOut()
-                        }
-                        .onLongPressGesture(minimumDuration: 0.3, pressing: { pressing in
-                            if pressing {
-                                startContinuousZoom(direction: .out)
-                            } else {
-                                stopContinuousZoom()
-                            }
-                        }, perform: {})
-                        .accessibilityLabel("ズームアウト")
-                        .accessibilityHint("タップで縮小、長押しで連続縮小します")
-
-                        // リセットボタン（1.circleアイコン）
-                        Button(action: {
-                            stopContinuousZoom()
-                            withAnimation {
+                // 画像表示エリア（緑の背景）
+                ZStack {
+                    GeometryReader { geometry in
+                        Image(uiImage: capturedImage.image)
+                            .resizable()
+                            .aspectRatio(contentMode: .fit)
+                            .frame(width: geometry.size.width, height: geometry.size.height)
+                            .scaleEffect(scale)
+                            .offset(offset)
+                            .clipped()
+                            .highPriorityGesture(
+                            MagnificationGesture(minimumScaleDelta: 0)
+                                .onChanged { value in
+                                    let delta = value / lastScale
+                                    lastScale = value
+                                    scale = min(max(scale * delta, 1), CGFloat(settingsManager.maxZoomFactor))
+                                }
+                                .onEnded { _ in
+                                    lastScale = 1.0
+                                }
+                        )
+                        .simultaneousGesture(
+                            DragGesture(minimumDistance: scale > 1.0 ? 0 : 10)
+                                .onChanged { value in
+                                    if scale > 1.0 {
+                                        offset = CGSize(
+                                            width: lastOffset.width + value.translation.width,
+                                            height: lastOffset.height + value.translation.height
+                                        )
+                                    }
+                                }
+                                .onEnded { _ in
+                                    if scale > 1.0 {
+                                        lastOffset = offset
+                                    }
+                                }
+                        )
+                        .onTapGesture(count: 2) {
+                            withAnimation(.easeInOut(duration: 0.3)) {
                                 scale = 1.0
                                 offset = .zero
                                 lastOffset = .zero
                             }
-                        }) {
-                            ZStack {
-                                Circle()
-                                    .fill(Color.black.opacity(0.6))
-                                    .frame(width: 44, height: 44)
-
-                                Image(systemName: "1.circle")
-                                    .font(.system(size: 20, weight: .medium))
-                                    .foregroundColor(.white)
+                        }
+                        .onChange(of: scale) { oldValue, newValue in
+                            if newValue <= 1.0 {
+                                offset = .zero
+                                lastOffset = .zero
                             }
                         }
-                        .accessibilityLabel("ズームリセット")
-                        .accessibilityHint("画像の拡大を元に戻します")
-                    }
-                    .padding(.trailing, 12)
-                    .padding(.bottom, 12)
                 }
-            }
+                .blur(radius: securityManager.isScreenRecording ? 50 : 0)
 
-            // 倍率表示（右下）
-            VStack {
-                Spacer()
+                        // 画面録画中の警告
+                        if securityManager.isScreenRecording {
+                            VStack(spacing: 20) {
+                                Image(systemName: "eye.slash.fill")
+                                    .font(.system(size: 80))
+                                    .foregroundColor(.white)
 
-                HStack {
-                    Spacer()
+                                Text("画面録画中は表示できません")
+                                    .font(.title)
+                                    .fontWeight(.bold)
+                                    .foregroundColor(.white)
 
-                    Text("×\(String(format: "%.1f", scale))")
-                        .font(.system(size: 16, weight: .bold, design: .monospaced))
-                        .foregroundColor(.white)
-                        .padding(.horizontal, 12)
-                        .padding(.vertical, 8)
-                        .background(
-                            RoundedRectangle(cornerRadius: 10)
-                                .fill(Color.white.opacity(0.2))
-                        )
-                        .padding(.trailing, 16)
-                        .padding(.bottom, 16)
+                                Text("このアプリでは録画・保存はできません")
+                                    .font(.body)
+                                    .foregroundColor(.white.opacity(0.8))
+                            }
+                            .padding(40)
+                            .background(
+                                RoundedRectangle(cornerRadius: 20)
+                                    .fill(Color.black.opacity(0.8))
+                            )
+                        }
+
+                        // 右側：ズームコントロール
+                        VStack {
+                            Spacer()
+
+                            HStack {
+                                Spacer()
+
+                                VStack(spacing: 12) {
+                                    // ズームイン
+                                    ZStack {
+                                        Circle()
+                                            .fill(Color.black.opacity(0.6))
+                                            .frame(width: 44, height: 44)
+
+                                        Image(systemName: "plus")
+                                            .font(.system(size: 20, weight: .medium))
+                                            .foregroundColor(.white)
+                                    }
+                                    .onTapGesture {
+                                        zoomIn()
+                                    }
+                                    .onLongPressGesture(minimumDuration: 0.3, pressing: { pressing in
+                                        if pressing {
+                                            startContinuousZoom(direction: .in)
+                                        } else {
+                                            stopContinuousZoom()
+                                        }
+                                    }, perform: {})
+                                    .accessibilityLabel("ズームイン")
+                                    .accessibilityHint("タップで1.5倍拡大、長押しで連続拡大します")
+
+                                    // ズームアウト
+                                    ZStack {
+                                        Circle()
+                                            .fill(Color.black.opacity(0.6))
+                                            .frame(width: 44, height: 44)
+
+                                        Image(systemName: "minus")
+                                            .font(.system(size: 20, weight: .medium))
+                                            .foregroundColor(.white)
+                                    }
+                                    .onTapGesture {
+                                        zoomOut()
+                                    }
+                                    .onLongPressGesture(minimumDuration: 0.3, pressing: { pressing in
+                                        if pressing {
+                                            startContinuousZoom(direction: .out)
+                                        } else {
+                                            stopContinuousZoom()
+                                        }
+                                    }, perform: {})
+                                    .accessibilityLabel("ズームアウト")
+                                    .accessibilityHint("タップで縮小、長押しで連続縮小します")
+
+                                    // リセットボタン（1.circleアイコン）
+                                    Button(action: {
+                                        stopContinuousZoom()
+                                        withAnimation {
+                                            scale = 1.0
+                                            offset = .zero
+                                            lastOffset = .zero
+                                        }
+                                    }) {
+                                        ZStack {
+                                            Circle()
+                                                .fill(Color.black.opacity(0.6))
+                                                .frame(width: 44, height: 44)
+
+                                            Image(systemName: "1.circle")
+                                                .font(.system(size: 20, weight: .medium))
+                                                .foregroundColor(.white)
+                                        }
+                                    }
+                                    .accessibilityLabel("ズームリセット")
+                                    .accessibilityHint("画像の拡大を元に戻します")
+                                }
+                                .padding(.trailing, 12)
+                                .padding(.bottom, 12)
+                            }
+                        }
+
+                        // 倍率表示（右下）
+                        VStack {
+                            Spacer()
+
+                            HStack {
+                                Spacer()
+
+                                Text("×\(String(format: "%.1f", scale))")
+                                    .font(.system(size: 16, weight: .bold, design: .monospaced))
+                                    .foregroundColor(.white)
+                                    .padding(.horizontal, 12)
+                                    .padding(.vertical, 8)
+                                    .background(
+                                        RoundedRectangle(cornerRadius: 10)
+                                            .fill(Color.white.opacity(0.2))
+                                    )
+                                    .padding(.trailing, 16)
+                                    .padding(.bottom, 16)
+                            }
+                        }
+                    }
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    .background(Color("MainGreen"))
+                    .cornerRadius(20)
+                    .padding(.horizontal, 16)
+                    .padding(.top, 4)
+                    .padding(.bottom, 8)
+
+                    // 下部：バツボタン（シャッターと同じ位置・デザイン）
+                    Button(action: {
+                        dismiss()
+                    }) {
+                        ZStack {
+                            Circle()
+                                .stroke(Color.white, lineWidth: 4)
+                                .frame(width: 70, height: 70)
+
+                            Circle()
+                                .fill(Color.white)
+                                .frame(width: 60, height: 60)
+
+                            Image(systemName: "xmark")
+                                .font(.system(size: 28, weight: .bold))
+                                .foregroundColor(.black)
+                        }
+                    }
+                    .padding(.bottom, 20)
+                    .accessibilityLabel("閉じる")
+                    .accessibilityHint("プレビューを閉じてカメラに戻ります")
                 }
             }
         }
