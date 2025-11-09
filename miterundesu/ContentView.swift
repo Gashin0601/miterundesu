@@ -30,7 +30,7 @@ struct ContentView: View {
         ZStack {
             if isLoading {
                 // ロード画面
-                LoadingView()
+                LoadingView(settingsManager: settingsManager)
             } else {
                 // メインカラー（背景）
                 (settingsManager.isTheaterMode ? Color("TheaterOrange") : Color("MainGreen"))
@@ -44,7 +44,8 @@ struct ContentView: View {
                         isTheaterMode: $settingsManager.isTheaterMode,
                         onToggle: {
                             handleTheaterModeChange()
-                        }
+                        },
+                        settingsManager: settingsManager
                     )
                     .padding(.leading, 20)
                     .opacity(shouldShowUI ? 1 : 0)
@@ -58,7 +59,7 @@ struct ContentView: View {
                         HStack(spacing: 6) {
                             Image(systemName: "book.fill")
                                 .font(.system(size: 14))
-                            Text("説明を見る")
+                            Text(settingsManager.localizationManager.localizedString("explanation"))
                                 .font(.system(size: 14, weight: .medium))
                         }
                         .foregroundColor(settingsManager.isTheaterMode ? Color("TheaterOrange") : Color("MainGreen"))
@@ -70,8 +71,7 @@ struct ContentView: View {
                         )
                     }
                     .opacity(shouldShowUI ? 1 : 0)
-                    .accessibilityLabel("説明を見る")
-                    .accessibilityHint("アプリの使い方と注意事項を表示します")
+                    .accessibilityLabel(settingsManager.localizationManager.localizedString("explanation"))
 
                     Spacer()
 
@@ -84,7 +84,7 @@ struct ContentView: View {
                                 .font(.system(size: 16))
                                 .foregroundColor(.white)
 
-                            Text("設定")
+                            Text(settingsManager.localizationManager.localizedString("settings"))
                                 .font(.system(size: 13, weight: .medium))
                                 .foregroundColor(.white)
                                 .lineLimit(1)
@@ -98,8 +98,7 @@ struct ContentView: View {
                     }
                     .padding(.trailing, 20)
                     .opacity(shouldShowUI ? 1 : 0)
-                    .accessibilityLabel("設定")
-                    .accessibilityHint("アプリの設定画面を開きます")
+                    .accessibilityLabel(settingsManager.localizationManager.localizedString("settings"))
                 }
                 .padding(.top, 8)
                 .padding(.bottom, 8)
@@ -127,7 +126,7 @@ struct ContentView: View {
                                 .font(.system(size: 40))
                                 .foregroundColor(.white)
 
-                            Text("録画中は非表示")
+                            Text(settingsManager.localizationManager.localizedString("screen_recording_warning"))
                                 .font(.headline)
                                 .foregroundColor(.white)
                         }
@@ -149,6 +148,7 @@ struct ContentView: View {
                     currentZoom: cameraManager.currentZoom,
                     imageManager: imageManager,
                     securityManager: securityManager,
+                    settingsManager: settingsManager,
                     selectedImage: $selectedImage,
                     onCapture: {
                         capturePhoto()
@@ -229,8 +229,7 @@ struct ContentView: View {
         .onDisappear {
             cameraManager.stopSession()
             stopUIHideTimer()
-            // セキュリティ：メモリクリア
-            imageManager.clearAllImages()
+            // セキュリティデータのみクリア（画像はCoreDataで永続化）
             securityManager.clearSensitiveData()
         }
         .onChange(of: settingsManager.isTheaterMode) { oldValue, newValue in
@@ -302,14 +301,23 @@ struct ContentView: View {
 
     // バックグラウンド通知の設定
     private func setupBackgroundNotification() {
+        // アプリがフォアグラウンドに復帰した時に期限切れ画像をチェック
         NotificationCenter.default.addObserver(
-            forName: NSNotification.Name("AppWillResignActive"),
+            forName: UIApplication.willEnterForegroundNotification,
             object: nil,
             queue: .main
-        ) { _ in
-            // アプリがバックグラウンドに移行する際にメモリクリア
-            imageManager.clearAllImages()
-            securityManager.clearSensitiveData()
+        ) { [weak self] _ in
+            // フォアグラウンド復帰時に期限切れ画像を削除
+            self?.imageManager.removeExpiredImages()
+        }
+
+        // アプリがバックグラウンドに移行する際にセキュリティデータのみクリア
+        NotificationCenter.default.addObserver(
+            forName: UIApplication.willResignActiveNotification,
+            object: nil,
+            queue: .main
+        ) { [weak self] _ in
+            self?.securityManager.clearSensitiveData()
         }
     }
 }
@@ -326,7 +334,7 @@ struct HeaderView: View {
                 .clipped()
 
             // ロゴ
-            Text("ミテルンデス")
+            Text(settingsManager.localizationManager.localizedString("app_name"))
                 .font(.system(size: 24, weight: .bold, design: .default))
                 .foregroundColor(.white)
         }
@@ -384,6 +392,7 @@ struct InfiniteScrollingText: View {
 struct TheaterModeToggle: View {
     @Binding var isTheaterMode: Bool
     let onToggle: () -> Void
+    @ObservedObject var settingsManager: SettingsManager
 
     var body: some View {
         Button(action: {
@@ -396,7 +405,7 @@ struct TheaterModeToggle: View {
                     .frame(width: 18, height: 18)
 
                 // テキスト
-                Text("シアター")
+                Text(settingsManager.localizationManager.localizedString("theater_mode"))
                     .font(.system(size: 11, weight: .medium))
                     .foregroundColor(.white)
                     .lineLimit(1)
@@ -408,8 +417,7 @@ struct TheaterModeToggle: View {
                     .fill(Color.white.opacity(0.25))
             )
         }
-        .accessibilityLabel("シアターモード")
-        .accessibilityHint(isTheaterMode ? "シアターモードをオフにします" : "映画館や美術館などで使用するシアターモードをオンにします")
+        .accessibilityLabel(settingsManager.localizationManager.localizedString("theater_mode"))
     }
 }
 
@@ -494,6 +502,7 @@ struct FooterView: View {
     let currentZoom: CGFloat
     @ObservedObject var imageManager: ImageManager
     @ObservedObject var securityManager: SecurityManager
+    @ObservedObject var settingsManager: SettingsManager
     @Binding var selectedImage: CapturedImage?
     let onCapture: () -> Void
 
@@ -502,7 +511,8 @@ struct FooterView: View {
             // シャッターボタン（中央）
             ShutterButton(
                 isTheaterMode: isTheaterMode,
-                onCapture: onCapture
+                onCapture: onCapture,
+                settingsManager: settingsManager
             )
 
             HStack {
@@ -511,7 +521,8 @@ struct FooterView: View {
                     imageManager: imageManager,
                     securityManager: securityManager,
                     selectedImage: $selectedImage,
-                    isTheaterMode: isTheaterMode
+                    isTheaterMode: isTheaterMode,
+                    settingsManager: settingsManager
                 )
                 .padding(.leading, 16)
 
@@ -531,6 +542,7 @@ struct FooterView: View {
 struct ShutterButton: View {
     let isTheaterMode: Bool
     let onCapture: () -> Void
+    @ObservedObject var settingsManager: SettingsManager
 
     var body: some View {
         VStack(spacing: 8) {
@@ -549,12 +561,11 @@ struct ShutterButton: View {
             }
             .disabled(isTheaterMode)
             .opacity(isTheaterMode ? 0.3 : 1.0)
-            .accessibilityLabel(isTheaterMode ? "撮影不可" : "シャッターボタン")
-            .accessibilityHint(isTheaterMode ? "シアターモードでは撮影できません" : "タップして写真を撮影します。画像は10分後に自動削除されます")
+            .accessibilityLabel(settingsManager.localizationManager.localizedString(isTheaterMode ? "capture_disabled" : "capture_disabled"))
             .accessibilityAddTraits(.isButton)
 
             if isTheaterMode {
-                Text("撮影不可")
+                Text(settingsManager.localizationManager.localizedString("capture_disabled"))
                     .font(.system(size: 10, weight: .medium))
                     .foregroundColor(.white.opacity(0.6))
             }
@@ -568,6 +579,7 @@ struct ThumbnailView: View {
     @ObservedObject var securityManager: SecurityManager
     @Binding var selectedImage: CapturedImage?
     let isTheaterMode: Bool
+    @ObservedObject var settingsManager: SettingsManager
 
     @State private var currentTime = Date()
     let timer = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
@@ -599,8 +611,7 @@ struct ThumbnailView: View {
             }
             .disabled(isTheaterMode)
             .opacity(isTheaterMode ? 0.3 : 1.0)
-            .accessibilityLabel(isTheaterMode ? "閲覧不可" : "最新の撮影画像")
-            .accessibilityHint(isTheaterMode ? "シアターモードでは画像を閲覧できません" : "タップして撮影した画像を表示します。残り時間: \(formattedTime(latestImage.remainingTime))")
+            .accessibilityLabel(settingsManager.localizationManager.localizedString(isTheaterMode ? "viewing_disabled" : "latest_image"))
             .onReceive(timer) { _ in
                 currentTime = Date()
                 imageManager.removeExpiredImages()
@@ -668,6 +679,7 @@ struct ZoomLevelView: View {
 // MARK: - Loading View
 struct LoadingView: View {
     @State private var isAnimating = false
+    @ObservedObject var settingsManager: SettingsManager
 
     var body: some View {
         ZStack {
@@ -676,7 +688,7 @@ struct LoadingView: View {
 
             VStack(spacing: 24) {
                 // ロゴ
-                Text("ミテルンデス")
+                Text(settingsManager.localizationManager.localizedString("app_name"))
                     .font(.system(size: 32, weight: .bold, design: .default))
                     .foregroundColor(.white)
 
@@ -698,7 +710,7 @@ struct LoadingView: View {
                         )
                 }
 
-                Text("カメラを準備中...")
+                Text(settingsManager.localizationManager.localizedString("camera_preparing"))
                     .font(.system(size: 14, weight: .medium))
                     .foregroundColor(.white.opacity(0.8))
             }

@@ -111,12 +111,12 @@ struct CapturedImagePreview: View {
                                     .font(.system(size: 80))
                                     .foregroundColor(.white)
 
-                                Text("画面録画中は表示できません")
+                                Text(settingsManager.localizationManager.localizedString("screen_recording_warning"))
                                     .font(.title)
                                     .fontWeight(.bold)
                                     .foregroundColor(.white)
 
-                                Text("このアプリでは録画・保存はできません")
+                                Text(settingsManager.localizationManager.localizedString("no_recording_message"))
                                     .font(.body)
                                     .foregroundColor(.white.opacity(0.8))
                             }
@@ -239,7 +239,7 @@ struct CapturedImagePreview: View {
                             HStack(spacing: 6) {
                                 Image(systemName: "book.fill")
                                     .font(.system(size: 14))
-                                Text("説明を見る")
+                                Text(settingsManager.localizationManager.localizedString("explanation"))
                                     .font(.system(size: 14, weight: .medium))
                             }
                             .foregroundColor(Color("MainGreen"))
@@ -250,8 +250,7 @@ struct CapturedImagePreview: View {
                                     .fill(Color.white)
                             )
                         }
-                        .accessibilityLabel("説明を見る")
-                        .accessibilityHint("アプリの使い方と注意事項を表示します")
+                        .accessibilityLabel(settingsManager.localizationManager.localizedString("explanation"))
 
                         Spacer()
 
@@ -262,7 +261,7 @@ struct CapturedImagePreview: View {
                             HStack(spacing: 6) {
                                 Image(systemName: "gearshape.fill")
                                     .font(.system(size: 16))
-                                Text("設定")
+                                Text(settingsManager.localizationManager.localizedString("settings"))
                                     .font(.system(size: 13, weight: .medium))
                             }
                             .foregroundColor(.white)
@@ -274,8 +273,7 @@ struct CapturedImagePreview: View {
                             )
                         }
                         .padding(.trailing, 20)
-                        .accessibilityLabel("設定")
-                        .accessibilityHint("アプリの設定画面を開きます")
+                        .accessibilityLabel(settingsManager.localizationManager.localizedString("settings"))
                     }
                     .padding(.top, 8)
 

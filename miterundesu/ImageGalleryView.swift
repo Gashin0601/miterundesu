@@ -84,12 +84,12 @@ struct ImageGalleryView: View {
                                 .font(.system(size: 80))
                                 .foregroundColor(.white)
 
-                            Text("画面録画中は表示できません")
+                            Text(settingsManager.localizationManager.localizedString("screen_recording_warning"))
                                 .font(.title)
                                 .fontWeight(.bold)
                                 .foregroundColor(.white)
 
-                            Text("このアプリでは録画・保存はできません")
+                            Text(settingsManager.localizationManager.localizedString("no_recording_message"))
                                 .font(.body)
                                 .foregroundColor(.white.opacity(0.8))
                         }
@@ -126,7 +126,7 @@ struct ImageGalleryView: View {
                                 HStack(spacing: 6) {
                                     Image(systemName: "book.fill")
                                         .font(.system(size: 14))
-                                    Text("説明を見る")
+                                    Text(settingsManager.localizationManager.localizedString("explanation"))
                                         .font(.system(size: 14, weight: .medium))
                                 }
                                 .foregroundColor(Color("MainGreen"))
@@ -137,8 +137,7 @@ struct ImageGalleryView: View {
                                         .fill(Color.white)
                                 )
                             }
-                            .accessibilityLabel("説明を見る")
-                            .accessibilityHint("アプリの使い方と注意事項を表示します")
+                            .accessibilityLabel(settingsManager.localizationManager.localizedString("explanation"))
 
                             Spacer()
 
@@ -149,7 +148,7 @@ struct ImageGalleryView: View {
                                 HStack(spacing: 6) {
                                     Image(systemName: "xmark.circle.fill")
                                         .font(.system(size: 16))
-                                    Text("閉じる")
+                                    Text(settingsManager.localizationManager.localizedString("close"))
                                         .font(.system(size: 13, weight: .medium))
                                 }
                                 .foregroundColor(.white)
@@ -161,8 +160,7 @@ struct ImageGalleryView: View {
                                 )
                             }
                             .padding(.trailing, 20)
-                            .accessibilityLabel("閉じる")
-                            .accessibilityHint("ギャラリーを閉じてメイン画面に戻ります")
+                            .accessibilityLabel(settingsManager.localizationManager.localizedString("close"))
                         }
                         .padding(.top, 8)
 

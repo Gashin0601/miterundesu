@@ -21,10 +21,10 @@ struct SettingsView: View {
 
                 Form {
                     // 最大拡大率設定
-                    Section(header: Text("カメラ設定").foregroundColor(.white)) {
+                    Section(header: Text(settingsManager.localizationManager.localizedString("camera_settings")).foregroundColor(.white)) {
                         VStack(alignment: .leading, spacing: 12) {
                             HStack {
-                                Text("最大拡大率")
+                                Text(settingsManager.localizationManager.localizedString("max_zoom"))
                                     .font(.body)
                                     .foregroundColor(.white)
                                 Spacer()
@@ -59,26 +59,21 @@ struct SettingsView: View {
                     .listRowBackground(Color.white.opacity(0.2))
 
                     // 言語設定
-                    Section(header: Text("言語設定").foregroundColor(.white)) {
-                        Picker("言語", selection: $settingsManager.language) {
+                    Section(header: Text(settingsManager.localizationManager.localizedString("language_settings")).foregroundColor(.white)) {
+                        Picker(settingsManager.localizationManager.localizedString("language"), selection: $settingsManager.language) {
                             ForEach(Language.allCases) { language in
                                 Text(language.displayName)
                                     .tag(language.rawValue)
                             }
                         }
                         .pickerStyle(.segmented)
-
-                        Text("アプリの表示言語を選択します。")
-                            .font(.caption)
-                            .foregroundColor(.white.opacity(0.7))
-                            .padding(.top, 4)
                     }
                     .listRowBackground(Color.white.opacity(0.2))
 
                     // スクロールメッセージ設定
-                    Section(header: Text("スクロールメッセージ").foregroundColor(.white)) {
+                    Section(header: Text(settingsManager.localizationManager.localizedString("scrolling_message_settings")).foregroundColor(.white)) {
                         VStack(alignment: .leading, spacing: 8) {
-                            Text("メッセージ内容")
+                            Text(settingsManager.localizationManager.localizedString("message_content"))
                                 .font(.body)
                                 .foregroundColor(.white)
 
@@ -89,19 +84,15 @@ struct SettingsView: View {
                                 .cornerRadius(8)
                                 .foregroundColor(.white)
                                 .scrollContentBackground(.hidden)
-
-                            Text("画面上部に表示されるスクロールメッセージの内容を編集できます。")
-                                .font(.caption)
-                                .foregroundColor(.white.opacity(0.7))
                         }
                         .padding(.vertical, 8)
                     }
                     .listRowBackground(Color.white.opacity(0.2))
 
                     // アプリ情報
-                    Section(header: Text("アプリ情報").foregroundColor(.white)) {
+                    Section(header: Text(settingsManager.localizationManager.localizedString("app_info")).foregroundColor(.white)) {
                         HStack {
-                            Text("バージョン")
+                            Text(settingsManager.localizationManager.localizedString("version"))
                                 .foregroundColor(.white)
                             Spacer()
                             Text("1.0.0")
@@ -111,7 +102,7 @@ struct SettingsView: View {
 
                         Link(destination: URL(string: "https://miterundesu.jp")!) {
                             HStack {
-                                Text("公式サイト")
+                                Text(settingsManager.localizationManager.localizedString("official_site"))
                                     .foregroundColor(.white)
                                 Spacer()
                                 Image(systemName: "arrow.up.right.square")
@@ -128,7 +119,7 @@ struct SettingsView: View {
                         }) {
                             HStack {
                                 Spacer()
-                                Text("設定をリセット")
+                                Text(settingsManager.localizationManager.localizedString("reset_settings"))
                                     .foregroundColor(.white)
                                 Spacer()
                             }
@@ -140,7 +131,7 @@ struct SettingsView: View {
                 .background(Color.clear)
                 .listStyle(.plain)
             }
-            .navigationTitle("設定")
+            .navigationTitle(settingsManager.localizationManager.localizedString("settings"))
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
