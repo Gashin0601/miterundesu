@@ -37,7 +37,7 @@ struct CapturedImagePreview: View {
 
     var body: some View {
         ZStack {
-            Color.black.ignoresSafeArea()
+            Color("MainGreen").ignoresSafeArea()
 
             // 画像表示
             ZStack {
@@ -50,10 +50,6 @@ struct CapturedImagePreview: View {
                         .offset(offset)
                         .clipped()
                         .cornerRadius(20)
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 20)
-                                .stroke(Color("MainGreen"), lineWidth: 3)
-                        )
                         .highPriorityGesture(
                             MagnificationGesture(minimumScaleDelta: 0)
                                 .onChanged { value in

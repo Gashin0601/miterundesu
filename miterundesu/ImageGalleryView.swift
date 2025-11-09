@@ -36,7 +36,7 @@ struct ImageGalleryView: View {
 
     var body: some View {
         ZStack {
-            Color.black.ignoresSafeArea()
+            Color("MainGreen").ignoresSafeArea()
 
             if !imageManager.capturedImages.isEmpty && currentIndex < imageManager.capturedImages.count {
                 ZStack {
@@ -238,10 +238,6 @@ struct ZoomableImageView: View {
                     .offset(offset)
                     .clipped()
                     .cornerRadius(20)
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 20)
-                            .stroke(Color("MainGreen"), lineWidth: 3)
-                    )
                     .onAppear {
                     // 表示時にズーム状態をリセット
                     scale = 1.0
