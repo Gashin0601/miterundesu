@@ -16,20 +16,21 @@ struct CameraPreview: UIViewRepresentable {
         let view = UIView(frame: .zero)
         view.backgroundColor = .black
 
-        let previewLayer = cameraManager.previewLayer
-        previewLayer.frame = view.bounds
-        view.layer.addSublayer(previewLayer)
-
-        context.coordinator.previewLayer = previewLayer
-
         return view
     }
 
     func updateUIView(_ uiView: UIView, context: Context) {
+        // プレビューレイヤーがまだ追加されていない場合は追加
+        if context.coordinator.previewLayer == nil {
+            let previewLayer = cameraManager.previewLayer
+            context.coordinator.previewLayer = previewLayer
+            uiView.layer.addSublayer(previewLayer)
+        }
+
+        // フレームを更新
         if let previewLayer = context.coordinator.previewLayer {
-            // フレームを即座に更新（既にメインスレッドで実行されている）
             CATransaction.begin()
-            CATransaction.setDisableActions(true) // アニメーションを無効化
+            CATransaction.setDisableActions(true)
             previewLayer.frame = uiView.bounds
             CATransaction.commit()
         }
