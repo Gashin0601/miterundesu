@@ -51,7 +51,6 @@ struct CapturedImagePreview: View {
                         .scaleEffect(scale)
                         .offset(offset)
                         .clipped()
-                        .restrictCapture() // スクリーンショット・画面録画対策
                         .highPriorityGesture(
                             MagnificationGesture(minimumScaleDelta: 0)
                                 .onChanged { value in
@@ -103,6 +102,7 @@ struct CapturedImagePreview: View {
                             }
                         }
                 }
+                .restrictCapture() // スクリーンショット・画面録画対策（GeometryReader全体をラップ）
                 .blur(radius: securityManager.isScreenRecording ? 50 : 0)
 
                         // 画面録画中の警告
