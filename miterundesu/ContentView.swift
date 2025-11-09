@@ -117,24 +117,24 @@ struct ContentView: View {
                             capturePhoto()
                         }
                     )
-                    .blur(radius: securityManager.isScreenRecording ? 30 : 0)
 
-                    // 画面録画中の警告
-                    if securityManager.isScreenRecording {
+                    // 画面録画・スクショ検出時は完全に真っ黒にする
+                    if securityManager.isScreenRecording || securityManager.showScreenshotWarning {
+                        Color.black
+                            .ignoresSafeArea()
+
                         VStack(spacing: 12) {
                             Image(systemName: "eye.slash.fill")
                                 .font(.system(size: 40))
                                 .foregroundColor(.white)
 
-                            Text(settingsManager.localizationManager.localizedString("screen_recording_warning"))
+                            Text(securityManager.isScreenRecording ?
+                                settingsManager.localizationManager.localizedString("screen_recording_warning") :
+                                settingsManager.localizationManager.localizedString("screenshot_taken"))
                                 .font(.headline)
                                 .foregroundColor(.white)
                         }
                         .padding(20)
-                        .background(
-                            RoundedRectangle(cornerRadius: 12)
-                                .fill(Color.black.opacity(0.7))
-                        )
                     }
                 }
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -165,29 +165,6 @@ struct ContentView: View {
                         .onTapGesture {
                             showUITemporarily()
                         }
-                }
-
-                // 画面録画警告（上部に常時表示）
-                if securityManager.showRecordingWarning {
-                    VStack {
-                        RecordingWarningView()
-                        Spacer()
-                    }
-                    .transition(.move(edge: .top).combined(with: .opacity))
-                    .animation(.easeInOut, value: securityManager.showRecordingWarning)
-                }
-
-                // スクリーンショット警告（中央にモーダル表示）
-                if securityManager.showScreenshotWarning {
-                    Color.black.opacity(0.4)
-                        .ignoresSafeArea()
-                        .onTapGesture {
-                            securityManager.showScreenshotWarning = false
-                        }
-
-                    ScreenshotWarningView()
-                        .transition(.scale.combined(with: .opacity))
-                        .animation(.spring(), value: securityManager.showScreenshotWarning)
                 }
             }
         }

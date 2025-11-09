@@ -74,7 +74,6 @@ struct ImageGalleryView: View {
                             .scrollTargetBehavior(.paging)
                             .scrollPosition(id: $scrollPositionID)
                             .scrollDisabled(isZooming)
-                            .blur(radius: securityManager.isScreenRecording ? 50 : 0)
                             .onChange(of: scrollPositionID) { oldValue, newValue in
                                 // スクロール位置からインデックスを更新
                                 if let newID = newValue,
@@ -89,14 +88,19 @@ struct ImageGalleryView: View {
                             }
                     }
 
-                    // 画面録画中の警告オーバーレイ
-                    if securityManager.isScreenRecording {
+                    // 画面録画・スクショ検出時は完全に真っ黒にする
+                    if securityManager.isScreenRecording || securityManager.showScreenshotWarning {
+                        Color.black
+                            .ignoresSafeArea()
+
                         VStack(spacing: 20) {
                             Image(systemName: "eye.slash.fill")
                                 .font(.system(size: 80))
                                 .foregroundColor(.white)
 
-                            Text(settingsManager.localizationManager.localizedString("screen_recording_warning"))
+                            Text(securityManager.isScreenRecording ?
+                                settingsManager.localizationManager.localizedString("screen_recording_warning") :
+                                settingsManager.localizationManager.localizedString("screenshot_taken"))
                                 .font(.title)
                                 .fontWeight(.bold)
                                 .foregroundColor(.white)
@@ -106,10 +110,6 @@ struct ImageGalleryView: View {
                                 .foregroundColor(.white.opacity(0.8))
                         }
                         .padding(40)
-                        .background(
-                            RoundedRectangle(cornerRadius: 20)
-                                .fill(Color.black.opacity(0.8))
-                        )
                     }
 
                     // 上部コントロール（オーバーレイ）
@@ -298,29 +298,6 @@ struct ImageGalleryView: View {
                     .foregroundColor(.white)
                     .padding()
                 }
-            }
-
-            // 画面録画警告（上部に常時表示）
-            if securityManager.showRecordingWarning {
-                VStack {
-                    RecordingWarningView()
-                    Spacer()
-                }
-                .transition(.move(edge: .top).combined(with: .opacity))
-                .animation(.easeInOut, value: securityManager.showRecordingWarning)
-            }
-
-            // スクリーンショット警告（中央にモーダル表示）
-            if securityManager.showScreenshotWarning {
-                Color.black.opacity(0.4)
-                    .ignoresSafeArea()
-                    .onTapGesture {
-                        securityManager.showScreenshotWarning = false
-                    }
-
-                ScreenshotWarningView()
-                    .transition(.scale.combined(with: .opacity))
-                    .animation(.spring(), value: securityManager.showScreenshotWarning)
             }
         }
         .fullScreenCover(isPresented: $showExplanation) {
