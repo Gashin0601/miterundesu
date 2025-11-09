@@ -72,8 +72,8 @@ class SettingsManager: ObservableObject {
         if let savedMessageTheater = UserDefaults.standard.string(forKey: Keys.scrollingMessageTheater), !savedMessageTheater.isEmpty {
             self.scrollingMessageTheater = savedMessageTheater
         } else {
-            // デフォルトメッセージを言語に応じて設定
-            self.scrollingMessageTheater = localizationManager.localizedString("default_scrolling_message_theater")
+            // デフォルトメッセージ（日本語固定）
+            self.scrollingMessageTheater = "撮影・録画は行っていません。スマートフォンを拡大鏡として使用しています。スクリーンショットや画面収録を含め、一切の保存ができないカメラアプリですので、ご安心ください。"
         }
 
         // プロパティの変更を監視してUserDefaultsに保存
@@ -116,7 +116,7 @@ class SettingsManager: ObservableObject {
         language = "ja"
         isTheaterMode = false
         scrollingMessageNormal = "撮影・録画は行っていません。スマートフォンを拡大鏡として使っています。画像は一時的に保存できますが、10分後には自動的に削除されます。共有やスクリーンショットはできません。"
-        scrollingMessageTheater = localizationManager.localizedString("default_scrolling_message_theater")
+        scrollingMessageTheater = "撮影・録画は行っていません。スマートフォンを拡大鏡として使用しています。スクリーンショットや画面収録を含め、一切の保存ができないカメラアプリですので、ご安心ください。"
     }
 }
 
