@@ -9,7 +9,7 @@ import AVFoundation
 import SwiftUI
 import Combine
 
-class CameraManager: NSObject, ObservableObject { // AVCaptureSessionControlsDelegate を削除（Camera Control UI非表示のため）
+class CameraManager: NSObject, ObservableObject, AVCaptureSessionControlsDelegate {
     @Published var currentZoom: CGFloat = 1.0
     @Published var isSessionRunning = false
     @Published var isCameraReady = false
@@ -22,7 +22,7 @@ class CameraManager: NSObject, ObservableObject { // AVCaptureSessionControlsDel
     private let photoOutput = AVCapturePhotoOutput()
     private var videoDeviceInput: AVCaptureDeviceInput?
     private var device: AVCaptureDevice?
-    // private var customZoomSlider: AVCaptureSlider? // Camera Control UI非表示のためコメントアウト
+    private var customZoomSlider: AVCaptureSlider?
 
     private let sessionQueue = DispatchQueue(label: "camera.session.queue")
 
@@ -81,9 +81,6 @@ class CameraManager: NSObject, ObservableObject { // AVCaptureSessionControlsDel
                 }
 
                 // Camera Control用のカスタムズームスライダーを追加
-                // ※ Camera Control UIを非表示にするため、AVCaptureSliderの設定をコメントアウト
-                // Camera Controlボタンの押下による撮影は .onCameraCaptureEvent で動作します
-                /*
                 if #available(iOS 18.0, *) {
                     // 既存のコントロールを削除
                     self.session.controls.forEach { self.session.removeControl($0) }
@@ -123,7 +120,6 @@ class CameraManager: NSObject, ObservableObject { // AVCaptureSessionControlsDel
                     // セッションデリゲートを設定
                     self.session.setControlsDelegate(self, queue: self.sessionQueue)
                 }
-                */
 
                 self.session.commitConfiguration()
 
@@ -250,8 +246,6 @@ class CameraManager: NSObject, ObservableObject { // AVCaptureSessionControlsDel
         maxZoomFactor = factor
 
         // Camera Controlのズームスライダーも更新
-        // ※ Camera Control UIを非表示にするため、以下をコメントアウト
-        /*
         if #available(iOS 18.0, *) {
             sessionQueue.async { [weak self] in
                 guard let self = self, let camera = self.device else { return }
@@ -288,12 +282,9 @@ class CameraManager: NSObject, ObservableObject { // AVCaptureSessionControlsDel
                 }
             }
         }
-        */
     }
 
     // MARK: - AVCaptureSessionControlsDelegate
-    // ※ Camera Control UI非表示のため、デリゲートメソッドをコメントアウト
-    /*
     @available(iOS 18.0, *)
     func sessionControlsDidBecomeActive(_ session: AVCaptureSession) {
         // Camera Controlがアクティブになったとき
@@ -317,7 +308,6 @@ class CameraManager: NSObject, ObservableObject { // AVCaptureSessionControlsDel
         // Camera Controlが非アクティブになったとき
         print("Camera Controls became inactive")
     }
-    */
 }
 
 // MARK: - Photo Capture Delegate
