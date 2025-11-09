@@ -19,33 +19,34 @@ struct ExplanationView: View {
 
             VStack(spacing: 0) {
                 // 上部固定ヘッダー
-                HStack(alignment: .center, spacing: 0) {
-                    // 左：シアターモードトグル
-                    TheaterModeToggle(
-                        isTheaterMode: $settingsManager.isTheaterMode,
-                        onToggle: {},
-                        settingsManager: settingsManager
-                    )
-                    .padding(.leading, 20)
-
-                    Spacer()
-
-                    // 中央：ロゴ
+                ZStack {
+                    // 中央：ロゴ（完全に中央配置）
                     Text(settingsManager.localizationManager.localizedString("app_name"))
                         .font(.system(size: 20, weight: .bold, design: .default))
                         .foregroundColor(.white)
 
-                    Spacer()
+                    // 左右のボタンを絶対配置
+                    HStack {
+                        // 左：シアターモードトグル
+                        TheaterModeToggle(
+                            isTheaterMode: $settingsManager.isTheaterMode,
+                            onToggle: {},
+                            settingsManager: settingsManager
+                        )
+                        .padding(.leading, 20)
 
-                    // 右：閉じるボタン
-                    Button(action: {
-                        dismiss()
-                    }) {
-                        Image(systemName: "xmark.circle.fill")
-                            .font(.system(size: 28))
-                            .foregroundColor(.white)
+                        Spacer()
+
+                        // 右：閉じるボタン
+                        Button(action: {
+                            dismiss()
+                        }) {
+                            Image(systemName: "xmark.circle.fill")
+                                .font(.system(size: 28))
+                                .foregroundColor(.white)
+                        }
+                        .padding(.trailing, 20)
                     }
-                    .padding(.trailing, 20)
                 }
                 .padding(.top, 8)
                 .padding(.bottom, 8)
