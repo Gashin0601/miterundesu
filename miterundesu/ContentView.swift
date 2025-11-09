@@ -306,9 +306,9 @@ struct ContentView: View {
             forName: UIApplication.willEnterForegroundNotification,
             object: nil,
             queue: .main
-        ) { [weak self] _ in
+        ) { [imageManager] _ in
             // フォアグラウンド復帰時に期限切れ画像を削除
-            self?.imageManager.removeExpiredImages()
+            imageManager.removeExpiredImages()
         }
 
         // アプリがバックグラウンドに移行する際にセキュリティデータのみクリア
@@ -316,8 +316,8 @@ struct ContentView: View {
             forName: UIApplication.willResignActiveNotification,
             object: nil,
             queue: .main
-        ) { [weak self] _ in
-            self?.securityManager.clearSensitiveData()
+        ) { [securityManager] _ in
+            securityManager.clearSensitiveData()
         }
     }
 }
@@ -351,7 +351,6 @@ struct InfiniteScrollingText: View {
             let textWidth = text.widthOfString(usingFont: .systemFont(ofSize: 16))
             let spacing: CGFloat = 40
             let itemWidth = textWidth + spacing
-            let screenWidth = geometry.size.width
 
             HStack(spacing: spacing) {
                 // 十分な数のテキストを配置してシームレスなループを実現
