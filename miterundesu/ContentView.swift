@@ -9,10 +9,13 @@ import SwiftUI
 import UIKit
 
 struct ContentView: View {
+    @StateObject private var cameraManager = CameraManager()
+    @StateObject private var imageManager = ImageManager()
+
     @State private var isTheaterMode = false
-    @State private var currentZoom: CGFloat = 1.0
     @State private var showSettings = false
     @State private var showExplanation = false
+    @State private var selectedImage: CapturedImage?
 
     var body: some View {
         ZStack {
@@ -29,15 +32,26 @@ struct ContentView: View {
 
                 Spacer()
 
-                // カメラプレビュー領域（Phase 3で実装）
-                CameraPreviewPlaceholder()
+                // カメラプレビュー領域
+                CameraPreviewWithZoom(
+                    cameraManager: cameraManager,
+                    isTheaterMode: $isTheaterMode
+                )
+                .frame(maxWidth: .infinity)
+                .frame(height: 400)
+                .padding(.horizontal, 20)
 
                 Spacer()
 
                 // フッター部分
                 FooterView(
                     isTheaterMode: isTheaterMode,
-                    currentZoom: currentZoom
+                    currentZoom: cameraManager.currentZoom,
+                    imageManager: imageManager,
+                    selectedImage: $selectedImage,
+                    onCapture: {
+                        capturePhoto()
+                    }
                 )
             }
 
@@ -78,6 +92,24 @@ struct ContentView: View {
         }
         .sheet(isPresented: $showExplanation) {
             ExplanationViewPlaceholder(isTheaterMode: isTheaterMode)
+        }
+        .sheet(item: $selectedImage) { capturedImage in
+            ImagePreviewView(capturedImage: capturedImage)
+        }
+        .onAppear {
+            cameraManager.setupCamera()
+            cameraManager.startSession()
+        }
+        .onDisappear {
+            cameraManager.stopSession()
+        }
+    }
+
+    private func capturePhoto() {
+        cameraManager.capturePhoto { image in
+            if let image = image {
+                imageManager.addImage(image)
+            }
         }
     }
 }
@@ -175,42 +207,30 @@ struct TheaterModeToggle: View {
     }
 }
 
-// MARK: - Camera Preview Placeholder
-struct CameraPreviewPlaceholder: View {
-    var body: some View {
-        RoundedRectangle(cornerRadius: 20)
-            .fill(Color.black.opacity(0.3))
-            .overlay(
-                VStack {
-                    Image(systemName: "camera.fill")
-                        .font(.system(size: 60))
-                        .foregroundColor(.white.opacity(0.5))
-                    Text("カメラプレビュー")
-                        .font(.system(size: 16, weight: .medium))
-                        .foregroundColor(.white.opacity(0.7))
-                        .padding(.top, 8)
-                }
-            )
-            .frame(maxWidth: .infinity)
-            .frame(height: 400)
-            .padding(.horizontal, 20)
-    }
-}
 
 // MARK: - Footer View
 struct FooterView: View {
     let isTheaterMode: Bool
     let currentZoom: CGFloat
+    @ObservedObject var imageManager: ImageManager
+    @Binding var selectedImage: CapturedImage?
+    let onCapture: () -> Void
 
     var body: some View {
         ZStack {
             // シャッターボタン（中央）
-            ShutterButton(isTheaterMode: isTheaterMode)
+            ShutterButton(
+                isTheaterMode: isTheaterMode,
+                onCapture: onCapture
+            )
 
             HStack {
                 // サムネイル（左下）
-                ThumbnailView()
-                    .padding(.leading, 20)
+                ThumbnailView(
+                    imageManager: imageManager,
+                    selectedImage: $selectedImage
+                )
+                .padding(.leading, 20)
 
                 Spacer()
 
@@ -226,11 +246,12 @@ struct FooterView: View {
 // MARK: - Shutter Button
 struct ShutterButton: View {
     let isTheaterMode: Bool
+    let onCapture: () -> Void
 
     var body: some View {
         VStack(spacing: 8) {
             Button(action: {
-                // シャッター処理（Phase 3で実装）
+                onCapture()
             }) {
                 ZStack {
                     Circle()
@@ -256,15 +277,70 @@ struct ShutterButton: View {
 
 // MARK: - Thumbnail View
 struct ThumbnailView: View {
+    @ObservedObject var imageManager: ImageManager
+    @Binding var selectedImage: CapturedImage?
+
+    @State private var currentTime = Date()
+    let timer = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
+
     var body: some View {
-        RoundedRectangle(cornerRadius: 10)
-            .fill(Color.white.opacity(0.2))
-            .frame(width: 60, height: 60)
-            .overlay(
-                Image(systemName: "photo")
-                    .font(.system(size: 24))
-                    .foregroundColor(.white.opacity(0.5))
+        if let latestImage = imageManager.capturedImages.first {
+            Button(action: {
+                selectedImage = latestImage
+            }) {
+                ZStack(alignment: .topTrailing) {
+                    Image(uiImage: latestImage.image)
+                        .resizable()
+                        .scaledToFill()
+                        .frame(width: 60, height: 60)
+                        .clipShape(RoundedRectangle(cornerRadius: 10))
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 10)
+                                .stroke(Color.white, lineWidth: 2)
+                        )
+
+                    // 残り時間バッジ
+                    TimeRemainingBadge(remainingTime: latestImage.remainingTime)
+                }
+            }
+            .onReceive(timer) { _ in
+                currentTime = Date()
+                imageManager.removeExpiredImages()
+            }
+        } else {
+            RoundedRectangle(cornerRadius: 10)
+                .fill(Color.white.opacity(0.2))
+                .frame(width: 60, height: 60)
+                .overlay(
+                    Image(systemName: "photo")
+                        .font(.system(size: 24))
+                        .foregroundColor(.white.opacity(0.5))
+                )
+        }
+    }
+}
+
+// MARK: - Time Remaining Badge
+struct TimeRemainingBadge: View {
+    let remainingTime: TimeInterval
+
+    var body: some View {
+        Text(formattedTime)
+            .font(.system(size: 8, weight: .bold, design: .monospaced))
+            .foregroundColor(.white)
+            .padding(.horizontal, 4)
+            .padding(.vertical, 2)
+            .background(
+                RoundedRectangle(cornerRadius: 4)
+                    .fill(Color.red.opacity(0.8))
             )
+            .padding(4)
+    }
+
+    private var formattedTime: String {
+        let minutes = Int(remainingTime) / 60
+        let seconds = Int(remainingTime) % 60
+        return String(format: "%d:%02d", minutes, seconds)
     }
 }
 
