@@ -31,7 +31,7 @@ struct ContentView: View {
                 .ignoresSafeArea()
 
             VStack(spacing: 0) {
-                // 上部コントロール（シアター、ロゴ、設定）
+                // 上部コントロール（シアター、説明ボタン、設定）
                 HStack(alignment: .center, spacing: 0) {
                     // 左：シアターモードトグル
                     TheaterModeToggle(
@@ -45,11 +45,27 @@ struct ContentView: View {
 
                     Spacer()
 
-                    // 中央：ロゴ
-                    Text("ミテルンデス")
-                        .font(.system(size: 24, weight: .bold, design: .default))
-                        .foregroundColor(.white)
-                        .opacity(shouldShowUI ? 1 : 0)
+                    // 中央：説明を見るボタン
+                    Button(action: {
+                        showExplanation = true
+                    }) {
+                        HStack(spacing: 6) {
+                            Image(systemName: "book.fill")
+                                .font(.system(size: 14))
+                            Text("説明を見る")
+                                .font(.system(size: 14, weight: .medium))
+                        }
+                        .foregroundColor(isTheaterMode ? Color("TheaterOrange") : Color("MainGreen"))
+                        .padding(.horizontal, 16)
+                        .padding(.vertical, 8)
+                        .background(
+                            RoundedRectangle(cornerRadius: 20)
+                                .fill(Color.white)
+                        )
+                    }
+                    .opacity(shouldShowUI ? 1 : 0)
+                    .accessibilityLabel("説明を見る")
+                    .accessibilityHint("アプリの使い方と注意事項を表示します")
 
                     Spacer()
 
@@ -82,13 +98,10 @@ struct ContentView: View {
                 .padding(.top, 8)
                 .padding(.bottom, 8)
 
-                // ヘッダー部分（無限スクロールと説明ボタンのみ）
-                HeaderView(
-                    isTheaterMode: isTheaterMode,
-                    showExplanation: $showExplanation
-                )
-                .opacity(shouldShowUI ? 1 : 0)
-                .padding(.top, 4)
+                // ヘッダー部分（無限スクロールとロゴ）
+                HeaderView()
+                    .opacity(shouldShowUI ? 1 : 0)
+                    .padding(.top, 4)
 
                 // カメラプレビュー領域
                 ZStack {
@@ -289,9 +302,6 @@ struct ContentView: View {
 
 // MARK: - Header View
 struct HeaderView: View {
-    let isTheaterMode: Bool
-    @Binding var showExplanation: Bool
-
     var body: some View {
         VStack(spacing: 10) {
             // 無限スクロールテキスト
@@ -299,26 +309,10 @@ struct HeaderView: View {
                 .frame(height: 28)
                 .clipped()
 
-            // 説明を見るボタン
-            Button(action: {
-                showExplanation = true
-            }) {
-                HStack(spacing: 6) {
-                    Image(systemName: "book.fill")
-                        .font(.system(size: 14))
-                    Text("説明を見る")
-                        .font(.system(size: 14, weight: .medium))
-                }
-                .foregroundColor(isTheaterMode ? Color("TheaterOrange") : Color("MainGreen"))
-                .padding(.horizontal, 16)
-                .padding(.vertical, 8)
-                .background(
-                    RoundedRectangle(cornerRadius: 20)
-                        .fill(Color.white)
-                )
-            }
-            .accessibilityLabel("説明を見る")
-            .accessibilityHint("アプリの使い方と注意事項を表示します")
+            // ロゴ
+            Text("ミテルンデス")
+                .font(.system(size: 24, weight: .bold, design: .default))
+                .foregroundColor(.white)
         }
     }
 }
