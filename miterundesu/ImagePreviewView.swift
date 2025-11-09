@@ -58,6 +58,17 @@ struct ImagePreviewView: View {
                             lastOffset = offset
                         }
                 )
+                .allowsHitTesting(true)
+                .contentShape(Rectangle())
+                // 長押しジェスチャーを無効化（画像保存を防ぐ）
+                .simultaneousGesture(
+                    LongPressGesture(minimumDuration: 0.5)
+                        .onEnded { _ in
+                            // 何もしない（長押しを無効化）
+                        }
+                )
+                // コンテキストメニューを無効化（共有・保存を防ぐ）
+                .contextMenu { }
 
             // 上部：閉じるボタンと残り時間
             VStack {

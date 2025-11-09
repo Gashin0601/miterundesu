@@ -11,6 +11,7 @@ import UIKit
 struct ContentView: View {
     @StateObject private var cameraManager = CameraManager()
     @StateObject private var imageManager = ImageManager()
+    @StateObject private var securityManager = SecurityManager()
 
     @State private var isTheaterMode = false
     @State private var showSettings = false
@@ -108,6 +109,29 @@ struct ContentView: View {
                         showUITemporarily()
                     }
             }
+
+            // 画面録画警告（上部に常時表示）
+            if securityManager.showRecordingWarning {
+                VStack {
+                    RecordingWarningView()
+                    Spacer()
+                }
+                .transition(.move(edge: .top).combined(with: .opacity))
+                .animation(.easeInOut, value: securityManager.showRecordingWarning)
+            }
+
+            // スクリーンショット警告（中央にモーダル表示）
+            if securityManager.showScreenshotWarning {
+                Color.black.opacity(0.4)
+                    .ignoresSafeArea()
+                    .onTapGesture {
+                        securityManager.showScreenshotWarning = false
+                    }
+
+                ScreenshotWarningView()
+                    .transition(.scale.combined(with: .opacity))
+                    .animation(.spring(), value: securityManager.showScreenshotWarning)
+            }
         }
         .sheet(isPresented: $showSettings) {
             SettingsViewPlaceholder()
@@ -121,12 +145,16 @@ struct ContentView: View {
         .onAppear {
             cameraManager.setupCamera()
             cameraManager.startSession()
+            setupBackgroundNotification()
         }
         .onDisappear {
             cameraManager.stopSession()
             stopUIHideTimer()
+            // セキュリティ：メモリクリア
+            imageManager.clearAllImages()
+            securityManager.clearSensitiveData()
         }
-        .onChange(of: isTheaterMode) { newValue in
+        .onChange(of: isTheaterMode) { oldValue, newValue in
             if !newValue {
                 // 通常モードに戻ったらUIを表示し、タイマー停止
                 showUI = true
@@ -182,6 +210,19 @@ struct ContentView: View {
             if let image = image {
                 imageManager.addImage(image)
             }
+        }
+    }
+
+    // バックグラウンド通知の設定
+    private func setupBackgroundNotification() {
+        NotificationCenter.default.addObserver(
+            forName: NSNotification.Name("AppWillResignActive"),
+            object: nil,
+            queue: .main
+        ) { _ in
+            // アプリがバックグラウンドに移行する際にメモリクリア
+            imageManager.clearAllImages()
+            securityManager.clearSensitiveData()
         }
     }
 }
@@ -376,6 +417,8 @@ struct ThumbnailView: View {
                             RoundedRectangle(cornerRadius: 10)
                                 .stroke(Color.white, lineWidth: 2)
                         )
+                        // コンテキストメニューを無効化
+                        .contextMenu { }
 
                     // 残り時間バッジ
                     TimeRemainingBadge(remainingTime: latestImage.remainingTime)
