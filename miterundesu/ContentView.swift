@@ -138,7 +138,7 @@ struct ContentView: View {
             SettingsView(settingsManager: settingsManager)
         }
         .sheet(isPresented: $showExplanation) {
-            ExplanationViewPlaceholder(isTheaterMode: isTheaterMode)
+            ExplanationView(isTheaterMode: isTheaterMode)
         }
         .sheet(item: $selectedImage) { capturedImage in
             ImagePreviewView(capturedImage: capturedImage)
@@ -486,49 +486,6 @@ struct ZoomLevelView: View {
                 RoundedRectangle(cornerRadius: 10)
                     .fill(Color.white.opacity(0.2))
             )
-    }
-}
-
-// MARK: - Placeholder Views
-struct ExplanationViewPlaceholder: View {
-    let isTheaterMode: Bool
-
-    var body: some View {
-        ScrollView {
-            VStack(alignment: .leading, spacing: 20) {
-                Text("撮影しているわけではなく、\n拡大して見ているんです。")
-                    .font(.title2)
-                    .fontWeight(.bold)
-                    .padding(.top, 20)
-
-                Text(isTheaterMode ?
-                    "このアプリは写真や映像を撮るためのものではありません。明るさを抑えた画面で、一時的に文字や作品を\"見やすく\"するために使用しています。保存・録画・共有は一切できません。周囲の方の迷惑にならないよう、光量を落として利用しています。" :
-                    "ミテルンデスは、画像を保存・共有する機能を持たないアプリです。撮影ボタンを押しても写真は端末に保存されず、10分後に自動的に消去されます。プライバシーや著作権を守るための設計であり、あくまで\"見やすくするための補助ツール\"です。"
-                )
-                .font(.body)
-
-                Spacer()
-
-                VStack(spacing: 12) {
-                    Link("miterundesu.jp", destination: URL(string: "https://miterundesu.jp")!)
-                        .font(.system(size: 14))
-
-                    HStack(spacing: 20) {
-                        Link(destination: URL(string: "https://twitter.com")!) {
-                            Image(systemName: "xmark")
-                                .font(.system(size: 24))
-                        }
-
-                        Link(destination: URL(string: "https://instagram.com")!) {
-                            Image(systemName: "camera")
-                                .font(.system(size: 24))
-                        }
-                    }
-                }
-            }
-            .padding()
-        }
-        .background(isTheaterMode ? Color("TheaterOrange") : Color("MainGreen"))
     }
 }
 
