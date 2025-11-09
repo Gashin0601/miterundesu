@@ -45,7 +45,7 @@ struct ContentView: View {
                     isTheaterMode: $isTheaterMode
                 )
                 .frame(maxWidth: .infinity)
-                .frame(height: 400)
+                .frame(height: 500)
                 .padding(.horizontal, 20)
 
                 Spacer()
@@ -92,10 +92,8 @@ struct ContentView: View {
                         Image(systemName: "gearshape.fill")
                             .font(.system(size: 24))
                             .foregroundColor(.white)
-                            .opacity(isTheaterMode ? 0.3 : 1.0)
                             .frame(minWidth: 44, minHeight: 44)
                     }
-                    .disabled(isTheaterMode)
                     .padding(.trailing, 20)
                     .padding(.top, 50)
                     .opacity(shouldShowUI ? 1 : 0)
@@ -137,10 +135,10 @@ struct ContentView: View {
                     .animation(.spring(), value: securityManager.showScreenshotWarning)
             }
         }
-        .sheet(isPresented: $showSettings) {
-            SettingsView(settingsManager: settingsManager)
+        .fullScreenCover(isPresented: $showSettings) {
+            SettingsView(settingsManager: settingsManager, isTheaterMode: isTheaterMode)
         }
-        .sheet(isPresented: $showExplanation) {
+        .fullScreenCover(isPresented: $showExplanation) {
             ExplanationView(isTheaterMode: isTheaterMode)
         }
         .sheet(item: $selectedImage) { capturedImage in
@@ -252,11 +250,12 @@ struct HeaderView: View {
             Text("ミテルンデス")
                 .font(.system(size: 28, weight: .bold, design: .default))
                 .foregroundColor(.white)
-                .padding(.top, 60)
+                .padding(.top, 80)
 
             // 無限スクロールテキスト
             InfiniteScrollingText(text: "画像は保存できません。")
                 .frame(height: 30)
+                .clipped()
 
             // 説明を見るボタン
             Button(action: {
@@ -376,7 +375,7 @@ struct FooterView: View {
                     .padding(.trailing, 20)
             }
         }
-        .padding(.bottom, 40)
+        .padding(.bottom, 20)
     }
 }
 

@@ -9,11 +9,17 @@ import SwiftUI
 
 struct SettingsView: View {
     @ObservedObject var settingsManager: SettingsManager
+    let isTheaterMode: Bool
     @Environment(\.dismiss) var dismiss
 
     var body: some View {
-        NavigationView {
-            Form {
+        ZStack {
+            // 背景色
+            (isTheaterMode ? Color("TheaterOrange") : Color("MainGreen"))
+                .ignoresSafeArea()
+
+            NavigationView {
+                Form {
                 // 最大拡大率設定
                 Section(header: Text("カメラ設定")) {
                     VStack(alignment: .leading, spacing: 12) {
@@ -106,12 +112,20 @@ struct SettingsView: View {
                     Button("完了") {
                         dismiss()
                     }
+                    .foregroundColor(.white)
                 }
             }
+            .toolbarBackground(isTheaterMode ? Color("TheaterOrange") : Color("MainGreen"), for: .navigationBar)
+            .toolbarBackground(.visible, for: .navigationBar)
+            .scrollContentBackground(.hidden)
         }
     }
 }
 
 #Preview {
-    SettingsView(settingsManager: SettingsManager())
+    SettingsView(settingsManager: SettingsManager(), isTheaterMode: false)
+}
+
+#Preview("Theater Mode") {
+    SettingsView(settingsManager: SettingsManager(), isTheaterMode: true)
 }
