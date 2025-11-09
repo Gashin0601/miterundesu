@@ -79,8 +79,8 @@ struct ContentView: View {
                     .accessibilityLabel("設定")
                     .accessibilityHint("アプリの設定画面を開きます")
                 }
-                .padding(.top, 4)
-                .padding(.bottom, 4)
+                .padding(.top, 8)
+                .padding(.bottom, 8)
 
                 // ヘッダー部分（無限スクロールと説明ボタンのみ）
                 HeaderView(
@@ -88,6 +88,7 @@ struct ContentView: View {
                     showExplanation: $showExplanation
                 )
                 .opacity(shouldShowUI ? 1 : 0)
+                .padding(.top, 4)
 
                 // カメラプレビュー領域
                 ZStack {
@@ -119,8 +120,9 @@ struct ContentView: View {
                     }
                 }
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
-                .padding(.horizontal, 20)
-                .padding(.top, 8)
+                .padding(.horizontal, 16)
+                .padding(.top, 12)
+                .padding(.bottom, 8)
 
                 // フッター部分
                 FooterView(
@@ -291,10 +293,10 @@ struct HeaderView: View {
     @Binding var showExplanation: Bool
 
     var body: some View {
-        VStack(spacing: 8) {
+        VStack(spacing: 10) {
             // 無限スクロールテキスト
             InfiniteScrollingText(text: "画像は保存できません。")
-                .frame(height: 30)
+                .frame(height: 28)
                 .clipped()
 
             // 説明を見るボタン
@@ -315,11 +317,9 @@ struct HeaderView: View {
                         .fill(Color.white)
                 )
             }
-            .padding(.top, 4)
             .accessibilityLabel("説明を見る")
             .accessibilityHint("アプリの使い方と注意事項を表示します")
         }
-        .padding(.top, 12)
     }
 }
 
@@ -496,16 +496,17 @@ struct FooterView: View {
                     securityManager: securityManager,
                     selectedImage: $selectedImage
                 )
-                .padding(.leading, 20)
+                .padding(.leading, 16)
 
                 Spacer()
 
                 // 倍率表示（右下）
                 ZoomLevelView(zoomLevel: currentZoom)
-                    .padding(.trailing, 20)
+                    .padding(.trailing, 16)
             }
         }
-        .padding(.bottom, 20)
+        .padding(.top, 8)
+        .padding(.bottom, 16)
     }
 }
 
