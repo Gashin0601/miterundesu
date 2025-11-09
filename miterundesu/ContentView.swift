@@ -14,7 +14,6 @@ struct ContentView: View {
     @StateObject private var securityManager = SecurityManager()
     @StateObject private var settingsManager = SettingsManager()
 
-    @State private var isTheaterMode = false
     @State private var showSettings = false
     @State private var showExplanation = false
     @State private var selectedImage: CapturedImage? // サムネイルから開いた画像
@@ -34,7 +33,7 @@ struct ContentView: View {
                 LoadingView()
             } else {
                 // メインカラー（背景）
-                (isTheaterMode ? Color("TheaterOrange") : Color("MainGreen"))
+                (settingsManager.isTheaterMode ? Color("TheaterOrange") : Color("MainGreen"))
                     .ignoresSafeArea()
 
                 VStack(spacing: 0) {
@@ -42,7 +41,7 @@ struct ContentView: View {
                 HStack(alignment: .center, spacing: 0) {
                     // 左：シアターモードトグル
                     TheaterModeToggle(
-                        isTheaterMode: $isTheaterMode,
+                        isTheaterMode: $settingsManager.isTheaterMode,
                         onToggle: {
                             handleTheaterModeChange()
                         }
@@ -62,7 +61,7 @@ struct ContentView: View {
                             Text("説明を見る")
                                 .font(.system(size: 14, weight: .medium))
                         }
-                        .foregroundColor(isTheaterMode ? Color("TheaterOrange") : Color("MainGreen"))
+                        .foregroundColor(settingsManager.isTheaterMode ? Color("TheaterOrange") : Color("MainGreen"))
                         .padding(.horizontal, 16)
                         .padding(.vertical, 8)
                         .background(
@@ -106,7 +105,7 @@ struct ContentView: View {
                 .padding(.bottom, 8)
 
                 // ヘッダー部分（無限スクロールとロゴ）
-                HeaderView()
+                HeaderView(settingsManager: settingsManager)
                     .opacity(shouldShowUI ? 1 : 0)
                     .padding(.top, 4)
 
@@ -114,7 +113,7 @@ struct ContentView: View {
                 ZStack {
                     CameraPreviewWithZoom(
                         cameraManager: cameraManager,
-                        isTheaterMode: $isTheaterMode,
+                        isTheaterMode: $settingsManager.isTheaterMode,
                         onCapture: {
                             capturePhoto()
                         }
@@ -146,7 +145,7 @@ struct ContentView: View {
 
                 // フッター部分
                 FooterView(
-                    isTheaterMode: isTheaterMode,
+                    isTheaterMode: settingsManager.isTheaterMode,
                     currentZoom: cameraManager.currentZoom,
                     imageManager: imageManager,
                     securityManager: securityManager,
@@ -160,7 +159,7 @@ struct ContentView: View {
 
 
                 // シアターモード時のタップ領域
-                if isTheaterMode && !showUI {
+                if settingsManager.isTheaterMode && !showUI {
                     Color.clear
                         .contentShape(Rectangle())
                         .onTapGesture {
@@ -193,10 +192,10 @@ struct ContentView: View {
             }
         }
         .fullScreenCover(isPresented: $showSettings) {
-            SettingsView(settingsManager: settingsManager, isTheaterMode: isTheaterMode)
+            SettingsView(settingsManager: settingsManager, isTheaterMode: settingsManager.isTheaterMode)
         }
         .fullScreenCover(isPresented: $showExplanation) {
-            ExplanationView(isTheaterMode: isTheaterMode)
+            ExplanationView(isTheaterMode: settingsManager.isTheaterMode)
         }
         .fullScreenCover(item: $selectedImage) { capturedImage in
             ImageGalleryView(
@@ -234,7 +233,7 @@ struct ContentView: View {
             imageManager.clearAllImages()
             securityManager.clearSensitiveData()
         }
-        .onChange(of: isTheaterMode) { oldValue, newValue in
+        .onChange(of: settingsManager.isTheaterMode) { oldValue, newValue in
             if !newValue {
                 // 通常モードに戻ったらUIを表示し、タイマー停止
                 showUI = true
@@ -249,12 +248,12 @@ struct ContentView: View {
 
     // UIを表示すべきかどうか
     private var shouldShowUI: Bool {
-        !isTheaterMode || showUI
+        !settingsManager.isTheaterMode || showUI
     }
 
     // シアターモード切り替え時の処理
     private func handleTheaterModeChange() {
-        if isTheaterMode {
+        if settingsManager.isTheaterMode {
             // シアターモードON: UIを表示してタイマー開始
             showUI = true
             startUIHideTimer()
@@ -317,10 +316,12 @@ struct ContentView: View {
 
 // MARK: - Header View
 struct HeaderView: View {
+    @ObservedObject var settingsManager: SettingsManager
+
     var body: some View {
         VStack(spacing: 10) {
             // 無限スクロールテキスト
-            InfiniteScrollingText(text: "撮影・録画は行っていません。スマートフォンを拡大鏡として使っています。画像は一時的に保存できますが、10分後には自動的に削除されます。共有やスクリーンショットはできません。")
+            InfiniteScrollingText(text: settingsManager.scrollingMessage)
                 .frame(height: 28)
                 .clipped()
 

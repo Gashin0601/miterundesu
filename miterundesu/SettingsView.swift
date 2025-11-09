@@ -75,6 +75,29 @@ struct SettingsView: View {
                     }
                     .listRowBackground(Color.white.opacity(0.2))
 
+                    // スクロールメッセージ設定
+                    Section(header: Text("スクロールメッセージ").foregroundColor(.white)) {
+                        VStack(alignment: .leading, spacing: 8) {
+                            Text("メッセージ内容")
+                                .font(.body)
+                                .foregroundColor(.white)
+
+                            TextEditor(text: $settingsManager.scrollingMessage)
+                                .frame(minHeight: 100)
+                                .padding(8)
+                                .background(Color.white.opacity(0.1))
+                                .cornerRadius(8)
+                                .foregroundColor(.white)
+                                .scrollContentBackground(.hidden)
+
+                            Text("画面上部に表示されるスクロールメッセージの内容を編集できます。")
+                                .font(.caption)
+                                .foregroundColor(.white.opacity(0.7))
+                        }
+                        .padding(.vertical, 8)
+                    }
+                    .listRowBackground(Color.white.opacity(0.2))
+
                     // アプリ情報
                     Section(header: Text("アプリ情報").foregroundColor(.white)) {
                         HStack {
