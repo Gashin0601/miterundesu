@@ -297,7 +297,6 @@ struct CapturedImagePreview: View {
                     .accessibilityLabel("閉じる")
                     .accessibilityHint("プレビューを閉じてカメラに戻ります")
                 }
-            }
         }
         .fullScreenCover(isPresented: $showSettings) {
             SettingsView(settingsManager: settingsManager, isTheaterMode: false)
