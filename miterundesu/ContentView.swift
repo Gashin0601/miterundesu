@@ -320,7 +320,7 @@ struct HeaderView: View {
     var body: some View {
         VStack(spacing: 10) {
             // 無限スクロールテキスト
-            InfiniteScrollingText(text: "画像は保存できません。")
+            InfiniteScrollingText(text: "撮影・録画は行っていません。スマートフォンを拡大鏡として使っています。画像は一時的に保存できますが、10分後には自動的に削除されます。共有やスクリーンショットはできません。")
                 .frame(height: 28)
                 .clipped()
 
@@ -345,8 +345,8 @@ struct InfiniteScrollingText: View {
             let screenWidth = geometry.size.width
 
             HStack(spacing: spacing) {
-                // 2セット表示して途切れないループを実現
-                ForEach(0..<10, id: \.self) { _ in
+                // 十分な数のテキストを配置してシームレスなループを実現
+                ForEach(0..<20, id: \.self) { _ in
                     Text(text)
                         .font(.system(size: 16, weight: .medium))
                         .foregroundColor(.white.opacity(0.8))
@@ -356,16 +356,22 @@ struct InfiniteScrollingText: View {
             .fixedSize()
             .offset(x: offset)
             .onAppear {
-                // 初期位置を画面右端に設定
-                offset = screenWidth
+                // 初期位置を設定
+                offset = 0
 
-                // アニメーション開始を少し遅延
+                // アニメーション開始
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                    // テキスト全体の長さに応じたアニメーション時間を計算（スピード一定）
+                    let totalDistance = itemWidth * 10
+                    let speed: CGFloat = 50 // ピクセル/秒
+                    let duration = Double(totalDistance / speed)
+
                     withAnimation(
-                        Animation.linear(duration: 20)
+                        Animation.linear(duration: duration)
                             .repeatForever(autoreverses: false)
                     ) {
-                        offset = -(itemWidth * 5)
+                        // ちょうど半分（10個分）移動させることでシームレスループ
+                        offset = -itemWidth * 10
                     }
                 }
             }
