@@ -11,6 +11,7 @@ struct SettingsView: View {
     @ObservedObject var settingsManager: SettingsManager
     let isTheaterMode: Bool
     @Environment(\.dismiss) var dismiss
+    @FocusState private var isMessageFieldFocused: Bool
 
     var body: some View {
         NavigationView {
@@ -89,14 +90,30 @@ struct SettingsView: View {
                                     )
                             }
 
-                            TextField("", text: settingsManager.isTheaterMode ? $settingsManager.scrollingMessageTheater : $settingsManager.scrollingMessageNormal, axis: .vertical)
-                                .lineLimit(5...10)
+                            TextField("", text: settingsManager.isTheaterMode ? $settingsManager.scrollingMessageTheater : $settingsManager.scrollingMessageNormal)
                                 .textFieldStyle(.plain)
                                 .padding(8)
                                 .background(Color.white.opacity(0.1))
                                 .cornerRadius(8)
                                 .foregroundColor(.white)
+                                .focused($isMessageFieldFocused)
                                 .submitLabel(.done)
+                                .onSubmit {
+                                    isMessageFieldFocused = false
+                                }
+                                .onChange(of: settingsManager.isTheaterMode ? settingsManager.scrollingMessageTheater : settingsManager.scrollingMessageNormal) { oldValue, newValue in
+                                    // 改行文字を削除（ペーストされた場合に対応）
+                                    let cleaned = newValue.replacingOccurrences(of: "\n", with: "")
+                                    if settingsManager.isTheaterMode {
+                                        if cleaned != newValue {
+                                            settingsManager.scrollingMessageTheater = cleaned
+                                        }
+                                    } else {
+                                        if cleaned != newValue {
+                                            settingsManager.scrollingMessageNormal = cleaned
+                                        }
+                                    }
+                                }
                         }
                         .padding(.vertical, 8)
                     }
