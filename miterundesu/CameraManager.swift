@@ -203,21 +203,19 @@ class CameraManager: NSObject, ObservableObject, AVCaptureSessionControlsDelegat
 
                 device.unlockForConfiguration()
 
-                // アニメーション中も現在のズーム値を更新するためのタイマー
-                let timer = Timer.scheduledTimer(withTimeInterval: 0.05, repeats: true) { timer in
-                    DispatchQueue.main.async {
+                // アニメーション中も現在のズーム値を更新するためのタイマー（メインスレッドで作成）
+                DispatchQueue.main.async {
+                    let timer = Timer.scheduledTimer(withTimeInterval: 0.05, repeats: true) { timer in
                         self.currentZoom = device.videoZoomFactor
-                    }
 
-                    // 目標値に到達したらタイマーを停止
-                    if abs(device.videoZoomFactor - clampedZoom) < 0.01 {
-                        timer.invalidate()
-                        DispatchQueue.main.async {
+                        // 目標値に到達したらタイマーを停止
+                        if abs(device.videoZoomFactor - clampedZoom) < 0.01 {
+                            timer.invalidate()
                             self.currentZoom = clampedZoom
                         }
                     }
+                    RunLoop.main.add(timer, forMode: .common)
                 }
-                RunLoop.main.add(timer, forMode: .common)
             } catch {
                 print("Error zooming: \(error)")
             }

@@ -36,69 +36,15 @@ struct ImageGalleryView: View {
 
     var body: some View {
         ZStack {
-            Color.black.ignoresSafeArea()
-
             if !imageManager.capturedImages.isEmpty && currentIndex < imageManager.capturedImages.count {
-                VStack(spacing: 0) {
-                    // 上部コントロール
-                    HStack {
-                        // 残り時間表示
-                        if currentIndex < imageManager.capturedImages.count {
-                            Text(formattedRemainingTime)
-                                .font(.system(size: 14, weight: .medium, design: .monospaced))
-                                .foregroundColor(.white)
-                                .padding(.horizontal, 12)
-                                .padding(.vertical, 8)
-                                .background(
-                                    RoundedRectangle(cornerRadius: 10)
-                                        .fill(Color.red.opacity(0.7))
-                                )
-                                .padding()
-                        }
+                // 画像表示エリア（緑の背景・全画面）
+                ZStack {
+                    // 緑の背景
+                    Color("MainGreen")
+                        .ignoresSafeArea()
 
-                        Spacer()
-
-                        // 説明を見るボタン（中央）
-                        Button(action: {
-                            showExplanation = true
-                        }) {
-                            HStack(spacing: 6) {
-                                Image(systemName: "book.fill")
-                                    .font(.system(size: 14))
-                                Text("説明を見る")
-                                    .font(.system(size: 14, weight: .medium))
-                            }
-                            .foregroundColor(Color("MainGreen"))
-                            .padding(.horizontal, 16)
-                            .padding(.vertical, 8)
-                            .background(
-                                RoundedRectangle(cornerRadius: 20)
-                                    .fill(Color.white)
-                            )
-                        }
-                        .accessibilityLabel("説明を見る")
-                        .accessibilityHint("アプリの使い方と注意事項を表示します")
-
-                        Spacer()
-
-                        // 閉じるボタン
-                        Button(action: {
-                            dismiss()
-                        }) {
-                            Image(systemName: "xmark.circle.fill")
-                                .font(.system(size: 32))
-                                .foregroundColor(.white)
-                                .frame(minWidth: 44, minHeight: 44)
-                        }
-                        .padding()
-                        .accessibilityLabel("閉じる")
-                        .accessibilityHint("ギャラリーを閉じてメイン画面に戻ります")
-                    }
-                    .padding(.top, 8)
-
-                    // 画像表示エリア（緑の背景）
-                    ZStack {
-                        GeometryReader { geometry in
+                    // 画像スクロールビュー
+                    GeometryReader { geometry in
                             ScrollView(.horizontal, showsIndicators: false) {
                                 LazyHStack(spacing: 0) {
                                     ForEach(Array(imageManager.capturedImages.enumerated()), id: \.element.id) { index, capturedImage in
@@ -129,48 +75,105 @@ struct ImageGalleryView: View {
                                 // 初期位置を設定
                                 scrollPositionID = imageManager.capturedImages[safe: currentIndex]?.id
                             }
-                        }
-
-                        // 画面録画中の警告オーバーレイ
-                        if securityManager.isScreenRecording {
-                            VStack(spacing: 20) {
-                                Image(systemName: "eye.slash.fill")
-                                    .font(.system(size: 80))
-                                    .foregroundColor(.white)
-
-                                Text("画面録画中は表示できません")
-                                    .font(.title)
-                                    .fontWeight(.bold)
-                                    .foregroundColor(.white)
-
-                                Text("このアプリでは録画・保存はできません")
-                                    .font(.body)
-                                    .foregroundColor(.white.opacity(0.8))
-                            }
-                            .padding(40)
-                            .background(
-                                RoundedRectangle(cornerRadius: 20)
-                                    .fill(Color.black.opacity(0.8))
-                            )
-                        }
                     }
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
-                    .background(Color("MainGreen"))
-                    .cornerRadius(20)
-                    .padding(.horizontal, 16)
-                    .padding(.top, 4)
-                    .padding(.bottom, 8)
 
-                    // 画像インジケーター
-                    if imageManager.capturedImages.count > 1 {
-                        HStack(spacing: 8) {
-                            ForEach(0..<imageManager.capturedImages.count, id: \.self) { index in
-                                Circle()
-                                    .fill(index == currentIndex ? Color.white : Color.white.opacity(0.4))
-                                    .frame(width: 8, height: 8)
-                            }
+                    // 画面録画中の警告オーバーレイ
+                    if securityManager.isScreenRecording {
+                        VStack(spacing: 20) {
+                            Image(systemName: "eye.slash.fill")
+                                .font(.system(size: 80))
+                                .foregroundColor(.white)
+
+                            Text("画面録画中は表示できません")
+                                .font(.title)
+                                .fontWeight(.bold)
+                                .foregroundColor(.white)
+
+                            Text("このアプリでは録画・保存はできません")
+                                .font(.body)
+                                .foregroundColor(.white.opacity(0.8))
                         }
-                        .padding(.bottom, 16)
+                        .padding(40)
+                        .background(
+                            RoundedRectangle(cornerRadius: 20)
+                                .fill(Color.black.opacity(0.8))
+                        )
+                    }
+
+                    // 上部コントロール（オーバーレイ）
+                    VStack {
+                        HStack {
+                            // 残り時間表示
+                            if currentIndex < imageManager.capturedImages.count {
+                                Text(formattedRemainingTime)
+                                    .font(.system(size: 14, weight: .medium, design: .monospaced))
+                                    .foregroundColor(.white)
+                                    .padding(.horizontal, 12)
+                                    .padding(.vertical, 8)
+                                    .background(
+                                        RoundedRectangle(cornerRadius: 10)
+                                            .fill(Color.red.opacity(0.7))
+                                    )
+                                    .padding()
+                            }
+
+                            Spacer()
+
+                            // 説明を見るボタン（中央）
+                            Button(action: {
+                                showExplanation = true
+                            }) {
+                                HStack(spacing: 6) {
+                                    Image(systemName: "book.fill")
+                                        .font(.system(size: 14))
+                                    Text("説明を見る")
+                                        .font(.system(size: 14, weight: .medium))
+                                }
+                                .foregroundColor(Color("MainGreen"))
+                                .padding(.horizontal, 16)
+                                .padding(.vertical, 8)
+                                .background(
+                                    RoundedRectangle(cornerRadius: 20)
+                                        .fill(Color.white)
+                                )
+                            }
+                            .accessibilityLabel("説明を見る")
+                            .accessibilityHint("アプリの使い方と注意事項を表示します")
+
+                            Spacer()
+
+                            // 閉じるボタン
+                            Button(action: {
+                                dismiss()
+                            }) {
+                                Image(systemName: "xmark.circle.fill")
+                                    .font(.system(size: 32))
+                                    .foregroundColor(.white)
+                                    .frame(minWidth: 44, minHeight: 44)
+                            }
+                            .padding()
+                            .accessibilityLabel("閉じる")
+                            .accessibilityHint("ギャラリーを閉じてメイン画面に戻ります")
+                        }
+                        .padding(.top, 8)
+
+                        Spacer()
+                    }
+
+                    // 画像インジケーター（オーバーレイ）
+                    if imageManager.capturedImages.count > 1 {
+                        VStack {
+                            Spacer()
+
+                            HStack(spacing: 8) {
+                                ForEach(0..<imageManager.capturedImages.count, id: \.self) { index in
+                                    Circle()
+                                        .fill(index == currentIndex ? Color.white : Color.white.opacity(0.4))
+                                        .frame(width: 8, height: 8)
+                                }
+                            }
+                            .padding(.bottom, 16)
+                        }
                     }
                 }
             } else {
@@ -238,7 +241,6 @@ struct ZoomableImageView: View {
                     .scaleEffect(scale)
                     .offset(offset)
                     .clipped()
-                    .cornerRadius(20)
                     .onAppear {
                     // 表示時にズーム状態をリセット
                     scale = 1.0

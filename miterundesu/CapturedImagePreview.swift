@@ -37,74 +37,12 @@ struct CapturedImagePreview: View {
 
     var body: some View {
         ZStack {
-            Color.black.ignoresSafeArea()
+            // 緑の背景（全画面）
+            Color("MainGreen")
+                .ignoresSafeArea()
 
-            VStack(spacing: 0) {
-                // 上部コントロール
-                HStack {
-                    // 左：設定ボタン
-                    Button(action: {
-                        showSettings = true
-                    }) {
-                        HStack(spacing: 6) {
-                            Image(systemName: "gearshape.fill")
-                                .font(.system(size: 16))
-                            Text("設定")
-                                .font(.system(size: 13, weight: .medium))
-                        }
-                        .foregroundColor(.white)
-                        .padding(.horizontal, 12)
-                        .padding(.vertical, 6)
-                        .background(
-                            RoundedRectangle(cornerRadius: 8)
-                                .fill(Color.white.opacity(0.25))
-                        )
-                    }
-                    .padding(.leading, 20)
-                    .accessibilityLabel("設定")
-                    .accessibilityHint("アプリの設定画面を開きます")
-
-                    Spacer()
-
-                    // 中央：説明を見るボタン
-                    Button(action: {
-                        showExplanation = true
-                    }) {
-                        HStack(spacing: 6) {
-                            Image(systemName: "book.fill")
-                                .font(.system(size: 14))
-                            Text("説明を見る")
-                                .font(.system(size: 14, weight: .medium))
-                        }
-                        .foregroundColor(Color("MainGreen"))
-                        .padding(.horizontal, 16)
-                        .padding(.vertical, 8)
-                        .background(
-                            RoundedRectangle(cornerRadius: 20)
-                                .fill(Color.white)
-                        )
-                    }
-                    .accessibilityLabel("説明を見る")
-                    .accessibilityHint("アプリの使い方と注意事項を表示します")
-
-                    Spacer()
-
-                    // 右：残り時間表示
-                    Text(formattedRemainingTime)
-                        .font(.system(size: 14, weight: .medium, design: .monospaced))
-                        .foregroundColor(.white)
-                        .padding(.horizontal, 12)
-                        .padding(.vertical, 8)
-                        .background(
-                            RoundedRectangle(cornerRadius: 10)
-                                .fill(Color.red.opacity(0.7))
-                        )
-                        .padding(.trailing, 20)
-                }
-                .padding(.top, 8)
-
-                // 画像表示エリア（緑の背景）
-                ZStack {
+            // 画像表示エリア
+            ZStack {
                     GeometryReader { geometry in
                         Image(uiImage: capturedImage.image)
                             .resizable()
@@ -279,16 +217,79 @@ struct CapturedImagePreview: View {
                                     .padding(.trailing, 16)
                                     .padding(.bottom, 16)
                             }
-                        }
-                    }
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
-                    .background(Color("MainGreen"))
-                    .cornerRadius(20)
-                    .padding(.horizontal, 16)
-                    .padding(.top, 4)
-                    .padding(.bottom, 8)
+                }
 
-                    // 下部：バツボタン（シャッターと同じ位置・デザイン）
+                // 上部コントロール（オーバーレイ）
+                VStack {
+                    HStack {
+                        // 左：設定ボタン
+                        Button(action: {
+                            showSettings = true
+                        }) {
+                            HStack(spacing: 6) {
+                                Image(systemName: "gearshape.fill")
+                                    .font(.system(size: 16))
+                                Text("設定")
+                                    .font(.system(size: 13, weight: .medium))
+                            }
+                            .foregroundColor(.white)
+                            .padding(.horizontal, 12)
+                            .padding(.vertical, 6)
+                            .background(
+                                RoundedRectangle(cornerRadius: 8)
+                                    .fill(Color.white.opacity(0.25))
+                            )
+                        }
+                        .padding(.leading, 20)
+                        .accessibilityLabel("設定")
+                        .accessibilityHint("アプリの設定画面を開きます")
+
+                        Spacer()
+
+                        // 中央：説明を見るボタン
+                        Button(action: {
+                            showExplanation = true
+                        }) {
+                            HStack(spacing: 6) {
+                                Image(systemName: "book.fill")
+                                    .font(.system(size: 14))
+                                Text("説明を見る")
+                                    .font(.system(size: 14, weight: .medium))
+                            }
+                            .foregroundColor(Color("MainGreen"))
+                            .padding(.horizontal, 16)
+                            .padding(.vertical, 8)
+                            .background(
+                                RoundedRectangle(cornerRadius: 20)
+                                    .fill(Color.white)
+                            )
+                        }
+                        .accessibilityLabel("説明を見る")
+                        .accessibilityHint("アプリの使い方と注意事項を表示します")
+
+                        Spacer()
+
+                        // 右：残り時間表示
+                        Text(formattedRemainingTime)
+                            .font(.system(size: 14, weight: .medium, design: .monospaced))
+                            .foregroundColor(.white)
+                            .padding(.horizontal, 12)
+                            .padding(.vertical, 8)
+                            .background(
+                                RoundedRectangle(cornerRadius: 10)
+                                    .fill(Color.red.opacity(0.7))
+                            )
+                            .padding(.trailing, 20)
+                    }
+                    .padding(.top, 8)
+
+                    Spacer()
+                }
+
+                // 下部：バツボタン（オーバーレイ）
+                VStack {
+                    Spacer()
+
                     Button(action: {
                         dismiss()
                     }) {
