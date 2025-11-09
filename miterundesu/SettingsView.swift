@@ -73,11 +73,23 @@ struct SettingsView: View {
                     // スクロールメッセージ設定
                     Section(header: Text(settingsManager.localizationManager.localizedString("scrolling_message_settings")).foregroundColor(.white)) {
                         VStack(alignment: .leading, spacing: 8) {
-                            Text(settingsManager.localizationManager.localizedString("message_content"))
-                                .font(.body)
-                                .foregroundColor(.white)
+                            HStack {
+                                Text(settingsManager.localizationManager.localizedString("message_content"))
+                                    .font(.body)
+                                    .foregroundColor(.white)
+                                Spacer()
+                                Text(settingsManager.isTheaterMode ? settingsManager.localizationManager.localizedString("theater_mode") : settingsManager.localizationManager.localizedString("normal_mode"))
+                                    .font(.caption)
+                                    .foregroundColor(.white.opacity(0.7))
+                                    .padding(.horizontal, 8)
+                                    .padding(.vertical, 4)
+                                    .background(
+                                        RoundedRectangle(cornerRadius: 6)
+                                            .fill(Color.white.opacity(0.2))
+                                    )
+                            }
 
-                            TextEditor(text: $settingsManager.scrollingMessage)
+                            TextEditor(text: settingsManager.isTheaterMode ? $settingsManager.scrollingMessageTheater : $settingsManager.scrollingMessageNormal)
                                 .frame(minHeight: 100)
                                 .padding(8)
                                 .background(Color.white.opacity(0.1))

@@ -16,7 +16,8 @@ class SettingsManager: ObservableObject {
         static let maxZoomFactor = "maxZoomFactor"
         static let language = "language"
         static let isTheaterMode = "isTheaterMode"
-        static let scrollingMessage = "scrollingMessage"
+        static let scrollingMessageNormal = "scrollingMessageNormal"
+        static let scrollingMessageTheater = "scrollingMessageTheater"
     }
 
     // 最大拡大率（デフォルト: ×100）
@@ -28,8 +29,16 @@ class SettingsManager: ObservableObject {
     // シアターモード（デフォルト: オフ）
     @Published var isTheaterMode: Bool = false
 
-    // スクロールメッセージ（デフォルトは言語に応じて設定）
-    @Published var scrollingMessage: String = ""
+    // スクロールメッセージ - 通常モード用
+    @Published var scrollingMessageNormal: String = ""
+
+    // スクロールメッセージ - シアターモード用
+    @Published var scrollingMessageTheater: String = ""
+
+    // 現在のモードに応じたスクロールメッセージを返す
+    var scrollingMessage: String {
+        isTheaterMode ? scrollingMessageTheater : scrollingMessageNormal
+    }
 
     private var cancellables = Set<AnyCancellable>()
 
@@ -51,11 +60,20 @@ class SettingsManager: ObservableObject {
 
         self.isTheaterMode = UserDefaults.standard.bool(forKey: Keys.isTheaterMode)
 
-        if let savedMessage = UserDefaults.standard.string(forKey: Keys.scrollingMessage), !savedMessage.isEmpty {
-            self.scrollingMessage = savedMessage
+        // 通常モード用メッセージの読み込み
+        if let savedMessageNormal = UserDefaults.standard.string(forKey: Keys.scrollingMessageNormal), !savedMessageNormal.isEmpty {
+            self.scrollingMessageNormal = savedMessageNormal
+        } else {
+            // デフォルトメッセージ（日本語固定）
+            self.scrollingMessageNormal = "撮影・録画は行っていません。スマートフォンを拡大鏡として使っています。画像は一時的に保存できますが、10分後には自動的に削除されます。共有やスクリーンショットはできません。"
+        }
+
+        // シアターモード用メッセージの読み込み
+        if let savedMessageTheater = UserDefaults.standard.string(forKey: Keys.scrollingMessageTheater), !savedMessageTheater.isEmpty {
+            self.scrollingMessageTheater = savedMessageTheater
         } else {
             // デフォルトメッセージを言語に応じて設定
-            self.scrollingMessage = localizationManager.localizedString("default_scrolling_message")
+            self.scrollingMessageTheater = localizationManager.localizedString("default_scrolling_message_theater")
         }
 
         // プロパティの変更を監視してUserDefaultsに保存
@@ -79,9 +97,15 @@ class SettingsManager: ObservableObject {
             }
             .store(in: &cancellables)
 
-        $scrollingMessage
+        $scrollingMessageNormal
             .sink { newValue in
-                UserDefaults.standard.set(newValue, forKey: Keys.scrollingMessage)
+                UserDefaults.standard.set(newValue, forKey: Keys.scrollingMessageNormal)
+            }
+            .store(in: &cancellables)
+
+        $scrollingMessageTheater
+            .sink { newValue in
+                UserDefaults.standard.set(newValue, forKey: Keys.scrollingMessageTheater)
             }
             .store(in: &cancellables)
     }
@@ -91,7 +115,8 @@ class SettingsManager: ObservableObject {
         maxZoomFactor = 100.0
         language = "ja"
         isTheaterMode = false
-        scrollingMessage = localizationManager.localizedString("default_scrolling_message")
+        scrollingMessageNormal = "撮影・録画は行っていません。スマートフォンを拡大鏡として使っています。画像は一時的に保存できますが、10分後には自動的に削除されます。共有やスクリーンショットはできません。"
+        scrollingMessageTheater = localizationManager.localizedString("default_scrolling_message_theater")
     }
 }
 
