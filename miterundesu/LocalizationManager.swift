@@ -22,6 +22,11 @@ class LocalizationManager: ObservableObject {
 
     // ローカライズされたテキストを取得
     func localizedString(_ key: String) -> String {
+        // アプリ名は常に日本語表示（外国から来た日本人対象のため）
+        if key == "app_name" {
+            return "ミテルンデス"
+        }
+
         switch currentLanguage {
         case "en":
             return englishStrings[key] ?? key
