@@ -305,6 +305,29 @@ struct CapturedImagePreview: View {
                     .accessibilityLabel("閉じる")
                     .accessibilityHint("プレビューを閉じてカメラに戻ります")
                 }
+
+            // 画面録画警告（上部に常時表示）
+            if securityManager.showRecordingWarning {
+                VStack {
+                    RecordingWarningView()
+                    Spacer()
+                }
+                .transition(.move(edge: .top).combined(with: .opacity))
+                .animation(.easeInOut, value: securityManager.showRecordingWarning)
+            }
+
+            // スクリーンショット警告（中央にモーダル表示）
+            if securityManager.showScreenshotWarning {
+                Color.black.opacity(0.4)
+                    .ignoresSafeArea()
+                    .onTapGesture {
+                        securityManager.showScreenshotWarning = false
+                    }
+
+                ScreenshotWarningView()
+                    .transition(.scale.combined(with: .opacity))
+                    .animation(.spring(), value: securityManager.showScreenshotWarning)
+            }
         }
         .fullScreenCover(isPresented: $showSettings) {
             SettingsView(settingsManager: settingsManager, isTheaterMode: false)
