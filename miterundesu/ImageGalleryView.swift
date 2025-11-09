@@ -340,48 +340,54 @@ struct ZoomableImageView: View {
                     // ズームコントロールボタン
                     VStack(spacing: 12) {
                         // ズームイン
-                        ZStack {
-                            Circle()
-                                .fill(Color.black.opacity(0.6))
-                                .frame(width: 44, height: 44)
-
-                            Image(systemName: "plus")
-                                .font(.system(size: 20, weight: .medium))
-                                .foregroundColor(.white)
-                        }
-                        .onTapGesture {
+                        Button(action: {
                             zoomIn()
-                        }
-                        .onLongPressGesture(minimumDuration: 0.3, pressing: { pressing in
-                            if pressing {
-                                startContinuousZoom(direction: .in)
-                            } else {
-                                stopContinuousZoom()
+                        }) {
+                            ZStack {
+                                Circle()
+                                    .fill(Color.black.opacity(0.6))
+                                    .frame(width: 44, height: 44)
+
+                                Image(systemName: "plus")
+                                    .font(.system(size: 20, weight: .medium))
+                                    .foregroundColor(.white)
                             }
-                        }, perform: {})
+                        }
+                        .simultaneousGesture(
+                            LongPressGesture(minimumDuration: 0.3)
+                                .onChanged { _ in
+                                    startContinuousZoom(direction: .in)
+                                }
+                                .onEnded { _ in
+                                    stopContinuousZoom()
+                                }
+                        )
                         .accessibilityLabel("ズームイン")
                         .accessibilityHint("タップで1.5倍拡大、長押しで連続拡大します")
 
                         // ズームアウト
-                        ZStack {
-                            Circle()
-                                .fill(Color.black.opacity(0.6))
-                                .frame(width: 44, height: 44)
-
-                            Image(systemName: "minus")
-                                .font(.system(size: 20, weight: .medium))
-                                .foregroundColor(.white)
-                        }
-                        .onTapGesture {
+                        Button(action: {
                             zoomOut()
-                        }
-                        .onLongPressGesture(minimumDuration: 0.3, pressing: { pressing in
-                            if pressing {
-                                startContinuousZoom(direction: .out)
-                            } else {
-                                stopContinuousZoom()
+                        }) {
+                            ZStack {
+                                Circle()
+                                    .fill(Color.black.opacity(0.6))
+                                    .frame(width: 44, height: 44)
+
+                                Image(systemName: "minus")
+                                    .font(.system(size: 20, weight: .medium))
+                                    .foregroundColor(.white)
                             }
-                        }, perform: {})
+                        }
+                        .simultaneousGesture(
+                            LongPressGesture(minimumDuration: 0.3)
+                                .onChanged { _ in
+                                    startContinuousZoom(direction: .out)
+                                }
+                                .onEnded { _ in
+                                    stopContinuousZoom()
+                                }
+                        )
                         .accessibilityLabel("ズームアウト")
                         .accessibilityHint("タップで縮小、長押しで連続縮小します")
 
