@@ -103,7 +103,7 @@ struct ImageGalleryView: View {
                     // 上部コントロール（オーバーレイ）
                     VStack {
                         HStack {
-                            // 残り時間表示
+                            // 左：残り時間表示
                             if currentIndex < imageManager.capturedImages.count {
                                 Text(formattedRemainingTime)
                                     .font(.system(size: 14, weight: .medium, design: .monospaced))
@@ -114,12 +114,12 @@ struct ImageGalleryView: View {
                                         RoundedRectangle(cornerRadius: 10)
                                             .fill(Color.red.opacity(0.7))
                                     )
-                                    .padding()
+                                    .padding(.leading, 20)
                             }
 
                             Spacer()
 
-                            // 説明を見るボタン（中央）
+                            // 中央：説明を見るボタン
                             Button(action: {
                                 showExplanation = true
                             }) {
@@ -142,16 +142,25 @@ struct ImageGalleryView: View {
 
                             Spacer()
 
-                            // 閉じるボタン
+                            // 右：閉じるボタン
                             Button(action: {
                                 dismiss()
                             }) {
-                                Image(systemName: "xmark.circle.fill")
-                                    .font(.system(size: 32))
-                                    .foregroundColor(.white)
-                                    .frame(minWidth: 44, minHeight: 44)
+                                HStack(spacing: 6) {
+                                    Image(systemName: "xmark.circle.fill")
+                                        .font(.system(size: 16))
+                                    Text("閉じる")
+                                        .font(.system(size: 13, weight: .medium))
+                                }
+                                .foregroundColor(.white)
+                                .padding(.horizontal, 12)
+                                .padding(.vertical, 6)
+                                .background(
+                                    RoundedRectangle(cornerRadius: 8)
+                                        .fill(Color.white.opacity(0.25))
+                                )
                             }
-                            .padding()
+                            .padding(.trailing, 20)
                             .accessibilityLabel("閉じる")
                             .accessibilityHint("ギャラリーを閉じてメイン画面に戻ります")
                         }
