@@ -102,6 +102,7 @@ struct CapturedImagePreview: View {
                             }
                         }
                 }
+                .restrictCapture() // スクリーンショット・画面録画対策（GeometryReader全体をラップ）
                 .blur(radius: securityManager.isScreenRecording ? 50 : 0)
 
                         // 画面録画中の警告
@@ -306,7 +307,6 @@ struct CapturedImagePreview: View {
                     .accessibilityHint("プレビューを閉じてカメラに戻ります")
                 }
         }
-        .restrictCapture() // スクリーンショット・画面録画対策（最初のフレームから保護）
         .fullScreenCover(isPresented: $showSettings) {
             SettingsView(settingsManager: settingsManager, isTheaterMode: false)
         }
