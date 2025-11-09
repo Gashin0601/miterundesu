@@ -44,14 +44,14 @@ struct CapturedImagePreview: View {
             // 画像表示エリア
             ZStack(alignment: .bottomTrailing) {
                 GeometryReader { geometry in
-                        Image(uiImage: capturedImage.image)
-                            .resizable()
-                            .aspectRatio(contentMode: .fit)
-                            .frame(width: geometry.size.width, height: geometry.size.height)
-                            .scaleEffect(scale)
-                            .offset(offset)
-                            .clipped()
-                            .highPriorityGesture(
+                    Image(uiImage: capturedImage.image)
+                        .resizable()
+                        .aspectRatio(contentMode: .fit)
+                        .frame(width: geometry.size.width, height: geometry.size.height)
+                        .scaleEffect(scale)
+                        .offset(offset)
+                        .clipped()
+                        .highPriorityGesture(
                             MagnificationGesture(minimumScaleDelta: 0)
                                 .onChanged { value in
                                     let delta = value / lastScale
@@ -102,6 +102,7 @@ struct CapturedImagePreview: View {
                             }
                         }
                 }
+                .hideWithScreenshot() // スクリーンショット・画面録画対策
                 .blur(radius: securityManager.isScreenRecording ? 50 : 0)
 
                         // 画面録画中の警告

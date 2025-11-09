@@ -74,6 +74,7 @@ struct ImageGalleryView: View {
                             .scrollTargetBehavior(.paging)
                             .scrollPosition(id: $scrollPositionID)
                             .scrollDisabled(isZooming)
+                            .hideWithScreenshot() // スクリーンショット・画面録画対策
                             .blur(radius: securityManager.isScreenRecording ? 50 : 0)
                             .onChange(of: scrollPositionID) { oldValue, newValue in
                                 // スクロール位置からインデックスを更新

@@ -7,6 +7,7 @@
 
 import SwiftUI
 import Combine
+import UIKit
 
 // MARK: - Security Manager
 class SecurityManager: ObservableObject {
@@ -15,10 +16,16 @@ class SecurityManager: ObservableObject {
     @Published var showRecordingWarning = false
 
     private var cancellables = Set<AnyCancellable>()
+    private var recordingCheckTimer: Timer?
 
     init() {
         setupScreenshotDetection()
         setupScreenRecordingDetection()
+        setupAppLifecycleObservers()
+    }
+
+    deinit {
+        recordingCheckTimer?.invalidate()
     }
 
     // スクリーンショット検出
@@ -30,13 +37,35 @@ class SecurityManager: ObservableObject {
             .store(in: &cancellables)
     }
 
-    // 画面録画検出
+    // 画面録画検出（高速化版）
     private func setupScreenRecordingDetection() {
-        // 初期状態をチェック
+        // 初期状態を即座にチェック
         checkScreenRecordingStatus()
 
         // UIScreen.capturedDidChangeNotificationを監視（iOS 11+）
         NotificationCenter.default.publisher(for: UIScreen.capturedDidChangeNotification)
+            .sink { [weak self] _ in
+                self?.checkScreenRecordingStatus()
+            }
+            .store(in: &cancellables)
+
+        // 高速ポーリング（0.1秒ごと）で画面録画状態を監視
+        recordingCheckTimer = Timer.scheduledTimer(withTimeInterval: 0.1, repeats: true) { [weak self] _ in
+            self?.checkScreenRecordingStatus()
+        }
+    }
+
+    // アプリのライフサイクル監視
+    private func setupAppLifecycleObservers() {
+        // アプリがアクティブになった時に即座にチェック
+        NotificationCenter.default.publisher(for: UIApplication.didBecomeActiveNotification)
+            .sink { [weak self] _ in
+                self?.checkScreenRecordingStatus()
+            }
+            .store(in: &cancellables)
+
+        // アプリがフォアグラウンドに入った時もチェック
+        NotificationCenter.default.publisher(for: UIApplication.willEnterForegroundNotification)
             .sink { [weak self] _ in
                 self?.checkScreenRecordingStatus()
             }
@@ -57,10 +86,38 @@ class SecurityManager: ObservableObject {
         print("⚠️ スクリーンショットが検出されました")
     }
 
-    // 画面録画状態のチェック
+    // 画面録画状態のチェック（高速化版）
     private func checkScreenRecordingStatus() {
-        DispatchQueue.main.async {
-            let isCaptured = UIScreen.main.isCaptured
+        let isCaptured: Bool
+
+        // iOS 18対応：sceneCaptureStateを優先的に使用
+        if #available(iOS 18.0, *) {
+            // シーンベースのアプリの場合
+            if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+               let window = windowScene.windows.first {
+                isCaptured = window.traitCollection.sceneCaptureState == .active
+            } else {
+                // フォールバック：従来の方法
+                isCaptured = UIScreen.main.isCaptured
+            }
+        } else {
+            // iOS 17以前
+            isCaptured = UIScreen.main.isCaptured
+        }
+
+        // メインスレッドで状態を更新
+        if Thread.isMainThread {
+            updateRecordingState(isCaptured)
+        } else {
+            DispatchQueue.main.async { [weak self] in
+                self?.updateRecordingState(isCaptured)
+            }
+        }
+    }
+
+    private func updateRecordingState(_ isCaptured: Bool) {
+        // 状態が変わった時のみ更新
+        if self.isScreenRecording != isCaptured {
             self.isScreenRecording = isCaptured
 
             if isCaptured {
@@ -68,6 +125,7 @@ class SecurityManager: ObservableObject {
                 print("⚠️ 画面録画が検出されました")
             } else {
                 self.showRecordingWarning = false
+                print("✅ 画面録画が停止されました")
             }
         }
     }
@@ -79,22 +137,87 @@ class SecurityManager: ObservableObject {
     }
 }
 
-// MARK: - Secure View Modifier
-struct SecureView: ViewModifier {
-    func body(content: Content) -> some View {
-        content
-            .background(
-                SecureField("", text: .constant(""))
-                    .frame(width: 0, height: 0)
-                    .opacity(0)
-            )
+// MARK: - Secure View Modifier (スクリーンショット・画面録画対策)
+struct ScreenshotPreventView<Content: View>: UIViewControllerRepresentable {
+    let content: Content
+
+    init(@ViewBuilder content: () -> Content) {
+        self.content = content()
+    }
+
+    func makeUIViewController(context: Context) -> ScreenshotPreventViewController<Content> {
+        ScreenshotPreventViewController(rootView: content)
+    }
+
+    func updateUIViewController(_ uiViewController: ScreenshotPreventViewController<Content>, context: Context) {
+        uiViewController.rootView = content
+    }
+}
+
+class ScreenshotPreventViewController<Content: View>: UIViewController {
+    var rootView: Content {
+        didSet {
+            hostingController.rootView = rootView
+        }
+    }
+
+    private let hostingController: UIHostingController<Content>
+    private let secureTextField = UITextField()
+
+    init(rootView: Content) {
+        self.rootView = rootView
+        self.hostingController = UIHostingController(rootView: rootView)
+        super.init(nibName: nil, bundle: nil)
+    }
+
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+
+    override func viewDidLoad() {
+        super.viewDidLoad()
+
+        // セキュアテキストフィールドを設定（スクリーンショット・画面録画対策）
+        secureTextField.isSecureTextEntry = true
+        view.addSubview(secureTextField)
+
+        // テキストフィールドのサブビューにホスティングコントローラーのビューを追加
+        if let textFieldSubview = secureTextField.subviews.first {
+            addChild(hostingController)
+            textFieldSubview.addSubview(hostingController.view)
+            hostingController.view.translatesAutoresizingMaskIntoConstraints = false
+
+            NSLayoutConstraint.activate([
+                hostingController.view.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+                hostingController.view.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+                hostingController.view.topAnchor.constraint(equalTo: view.topAnchor),
+                hostingController.view.bottomAnchor.constraint(equalTo: view.bottomAnchor)
+            ])
+
+            hostingController.didMove(toParent: self)
+        }
+
+        // セキュアテキストフィールドをビュー全体に配置
+        secureTextField.translatesAutoresizingMaskIntoConstraints = false
+        NSLayoutConstraint.activate([
+            secureTextField.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            secureTextField.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            secureTextField.topAnchor.constraint(equalTo: view.topAnchor),
+            secureTextField.bottomAnchor.constraint(equalTo: view.bottomAnchor)
+        ])
+
+        // テキストフィールドを非表示にする
+        secureTextField.isUserInteractionEnabled = false
+        secureTextField.alpha = 0
     }
 }
 
 extension View {
-    /// ビューをセキュア化（スクリーンショット時に隠す）
-    func secureView() -> some View {
-        modifier(SecureView())
+    /// ビューをスクリーンショット・画面録画から保護
+    func hideWithScreenshot() -> some View {
+        ScreenshotPreventView {
+            self
+        }
     }
 }
 
