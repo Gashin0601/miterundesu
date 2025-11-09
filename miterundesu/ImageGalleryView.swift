@@ -302,6 +302,7 @@ struct ImageGalleryView: View {
                 }
             }
         }
+        .restrictCapture() // スクリーンショット・画面録画対策（ビュー全体を保護）
         .onAppear {
             // 最初のフレーム保護：0.15秒後にコンテンツを表示
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.15) {
@@ -522,7 +523,6 @@ struct ZoomableImageView: View {
                     }
                 }
         }
-        .restrictCapture() // スクリーンショット・画面録画対策（GeometryReader全体をラップ）
     }
 
     // 境界制約を適用したオフセットを計算（ベストプラクティスに基づく）
