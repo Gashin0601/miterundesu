@@ -41,11 +41,13 @@ struct ImageGalleryView: View {
                             capturedImage: capturedImage,
                             maxZoom: settingsManager.maxZoomFactor
                         )
+                        .id(capturedImage.id)
                         .tag(index)
                     }
                 }
                 .tabViewStyle(.page(indexDisplayMode: .never))
                 .ignoresSafeArea()
+                .id(currentIndex)
 
                 // 上部コントロール
                 VStack {
@@ -163,9 +165,18 @@ struct ZoomableImageView: View {
         GeometryReader { geometry in
             Image(uiImage: capturedImage.image)
                 .resizable()
-                .scaledToFit()
+                .aspectRatio(contentMode: .fit)
+                .frame(width: geometry.size.width, height: geometry.size.height)
                 .scaleEffect(scale)
                 .offset(offset)
+                .clipped()
+                .onAppear {
+                    // 表示時にズーム状態をリセット
+                    scale = 1.0
+                    lastScale = 1.0
+                    offset = .zero
+                    lastOffset = .zero
+                }
                 .gesture(
                     MagnificationGesture()
                         .onChanged { value in

@@ -144,7 +144,7 @@ struct ContentView: View {
         .fullScreenCover(isPresented: $showExplanation) {
             ExplanationView(isTheaterMode: isTheaterMode)
         }
-        .sheet(item: $selectedImage) { capturedImage in
+        .fullScreenCover(item: $selectedImage) { capturedImage in
             ImageGalleryView(
                 imageManager: imageManager,
                 settingsManager: settingsManager,
