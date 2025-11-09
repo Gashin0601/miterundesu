@@ -31,8 +31,8 @@ struct ContentView: View {
                 .ignoresSafeArea()
 
             VStack(spacing: 0) {
-                // 上部コントロール（シアターモードトグルと設定ボタン）
-                HStack(spacing: 0) {
+                // 上部コントロール（シアター、ロゴ、設定）
+                HStack(alignment: .center, spacing: 0) {
                     // 左：シアターモードトグル
                     TheaterModeToggle(
                         isTheaterMode: $isTheaterMode,
@@ -45,22 +45,30 @@ struct ContentView: View {
 
                     Spacer()
 
+                    // 中央：ロゴ
+                    Text("ミテルンデス")
+                        .font(.system(size: 24, weight: .bold, design: .default))
+                        .foregroundColor(.white)
+                        .opacity(shouldShowUI ? 1 : 0)
+
+                    Spacer()
+
                     // 右：設定ボタン
                     Button(action: {
                         showSettings = true
                     }) {
-                        HStack(spacing: 5) {
+                        HStack(spacing: 6) {
                             Image(systemName: "gearshape.fill")
-                                .font(.system(size: 14))
+                                .font(.system(size: 16))
                                 .foregroundColor(.white)
 
                             Text("設定")
-                                .font(.system(size: 11, weight: .medium))
+                                .font(.system(size: 13, weight: .medium))
                                 .foregroundColor(.white)
                                 .lineLimit(1)
                         }
-                        .padding(.horizontal, 8)
-                        .padding(.vertical, 4)
+                        .padding(.horizontal, 12)
+                        .padding(.vertical, 6)
                         .background(
                             RoundedRectangle(cornerRadius: 8)
                                 .fill(Color.white.opacity(0.25))
@@ -72,9 +80,9 @@ struct ContentView: View {
                     .accessibilityHint("アプリの設定画面を開きます")
                 }
                 .padding(.top, 10)
-                .padding(.bottom, 5)
+                .padding(.bottom, 10)
 
-                // ヘッダー部分
+                // ヘッダー部分（無限スクロールと説明ボタンのみ）
                 HeaderView(
                     isTheaterMode: isTheaterMode,
                     showExplanation: $showExplanation
