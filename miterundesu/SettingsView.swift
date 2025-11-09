@@ -20,104 +20,112 @@ struct SettingsView: View {
 
             NavigationView {
                 Form {
-                // 最大拡大率設定
-                Section(header: Text("カメラ設定")) {
-                    VStack(alignment: .leading, spacing: 12) {
-                        HStack {
-                            Text("最大拡大率")
-                                .font(.body)
-                            Spacer()
-                            Text("×\(Int(settingsManager.maxZoomFactor))")
-                                .font(.headline)
-                                .foregroundColor(.green)
-                        }
+                    // 最大拡大率設定
+                    Section(header: Text("カメラ設定").foregroundColor(.white)) {
+                        VStack(alignment: .leading, spacing: 12) {
+                            HStack {
+                                Text("最大拡大率")
+                                    .font(.body)
+                                Spacer()
+                                Text("×\(Int(settingsManager.maxZoomFactor))")
+                                    .font(.headline)
+                                    .foregroundColor(.green)
+                            }
 
-                        Slider(
-                            value: $settingsManager.maxZoomFactor,
-                            in: 10...200,
-                            step: 10
-                        )
-                        .tint(.green)
+                            Slider(
+                                value: $settingsManager.maxZoomFactor,
+                                in: 10...200,
+                                step: 10
+                            )
+                            .tint(.green)
 
-                        HStack {
-                            Text("×10")
+                            HStack {
+                                Text("×10")
+                                    .font(.caption)
+                                    .foregroundColor(.white.opacity(0.7))
+                                Spacer()
+                                Text("×200")
+                                    .font(.caption)
+                                    .foregroundColor(.white.opacity(0.7))
+                            }
+
+                            Text("カメラのズーム機能の最大倍率を設定します。")
                                 .font(.caption)
-                                .foregroundColor(.secondary)
-                            Spacer()
-                            Text("×200")
-                                .font(.caption)
-                                .foregroundColor(.secondary)
+                                .foregroundColor(.white.opacity(0.7))
                         }
+                        .padding(.vertical, 8)
+                    }
+                    .listRowBackground(Color.white.opacity(0.2))
 
-                        Text("カメラのズーム機能の最大倍率を設定します。")
+                    // 言語設定
+                    Section(header: Text("言語設定").foregroundColor(.white)) {
+                        Picker("言語", selection: $settingsManager.language) {
+                            ForEach(Language.allCases) { language in
+                                Text(language.displayName)
+                                    .tag(language.rawValue)
+                            }
+                        }
+                        .pickerStyle(.segmented)
+
+                        Text("アプリの表示言語を選択します。")
                             .font(.caption)
-                            .foregroundColor(.secondary)
+                            .foregroundColor(.white.opacity(0.7))
+                            .padding(.top, 4)
                     }
-                    .padding(.vertical, 8)
-                }
+                    .listRowBackground(Color.white.opacity(0.2))
 
-                // 言語設定
-                Section(header: Text("言語設定")) {
-                    Picker("言語", selection: $settingsManager.language) {
-                        ForEach(Language.allCases) { language in
-                            Text(language.displayName)
-                                .tag(language.rawValue)
-                        }
-                    }
-                    .pickerStyle(.segmented)
-
-                    Text("アプリの表示言語を選択します。")
-                        .font(.caption)
-                        .foregroundColor(.secondary)
-                        .padding(.top, 4)
-                }
-
-                // アプリ情報
-                Section(header: Text("アプリ情報")) {
-                    HStack {
-                        Text("バージョン")
-                        Spacer()
-                        Text("1.0.0")
-                            .foregroundColor(.secondary)
-                    }
-
-                    Link(destination: URL(string: "https://miterundesu.jp")!) {
+                    // アプリ情報
+                    Section(header: Text("アプリ情報").foregroundColor(.white)) {
                         HStack {
-                            Text("公式サイト")
+                            Text("バージョン")
                             Spacer()
-                            Image(systemName: "arrow.up.right.square")
-                                .foregroundColor(.green)
+                            Text("1.0.0")
+                                .foregroundColor(.white.opacity(0.7))
                         }
-                    }
-                }
+                        .listRowBackground(Color.white.opacity(0.2))
 
-                // リセット
-                Section {
-                    Button(action: {
-                        settingsManager.resetToDefaults()
-                    }) {
-                        HStack {
-                            Spacer()
-                            Text("設定をリセット")
-                                .foregroundColor(.red)
-                            Spacer()
+                        Link(destination: URL(string: "https://miterundesu.jp")!) {
+                            HStack {
+                                Text("公式サイト")
+                                Spacer()
+                                Image(systemName: "arrow.up.right.square")
+                                    .foregroundColor(.white)
+                            }
                         }
+                        .listRowBackground(Color.white.opacity(0.2))
+                    }
+
+                    // リセット
+                    Section {
+                        Button(action: {
+                            settingsManager.resetToDefaults()
+                        }) {
+                            HStack {
+                                Spacer()
+                                Text("設定をリセット")
+                                    .foregroundColor(.red)
+                                Spacer()
+                            }
+                        }
+                        .listRowBackground(Color.white.opacity(0.2))
                     }
                 }
-            }
-            .navigationTitle("設定")
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    Button("完了") {
-                        dismiss()
+                .scrollContentBackground(.hidden)
+                .background(Color.clear)
+                .listStyle(.plain)
+                .navigationTitle("設定")
+                .navigationBarTitleDisplayMode(.inline)
+                .toolbar {
+                    ToolbarItem(placement: .navigationBarTrailing) {
+                        Button("完了") {
+                            dismiss()
+                        }
+                        .foregroundColor(.white)
                     }
-                    .foregroundColor(.white)
                 }
+                .toolbarBackground(isTheaterMode ? Color("TheaterOrange") : Color("MainGreen"), for: .navigationBar)
+                .toolbarBackground(.visible, for: .navigationBar)
             }
-            .toolbarBackground(isTheaterMode ? Color("TheaterOrange") : Color("MainGreen"), for: .navigationBar)
-            .toolbarBackground(.visible, for: .navigationBar)
-            .scrollContentBackground(.hidden)
         }
     }
 }
