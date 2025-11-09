@@ -128,7 +128,7 @@ struct CameraPreviewWithZoom: View {
                     // リセットボタン
                     Button(action: {
                         stopContinuousZoom()
-                        cameraManager.zoom(factor: 1.0)
+                        cameraManager.smoothZoom(to: 1.0, duration: 0.3)
                     }) {
                         ZStack {
                             Circle()

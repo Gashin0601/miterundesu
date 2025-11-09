@@ -182,6 +182,48 @@ class CameraManager: NSObject, ObservableObject, AVCaptureSessionControlsDelegat
         }
     }
 
+    // スムーズなズーム処理（アニメーション付き）
+    func smoothZoom(to factor: CGFloat, duration: Float = 0.5) {
+        guard let device = device else { return }
+
+        sessionQueue.async {
+            do {
+                try device.lockForConfiguration()
+
+                // ズーム倍率を制限
+                let clampedZoom = min(max(factor, 1.0), min(device.activeFormat.videoMaxZoomFactor, self.maxZoomFactor))
+
+                // レート（ズーム速度）を計算: 距離 / 時間
+                let currentZoom = device.videoZoomFactor
+                let distance = abs(clampedZoom - currentZoom)
+                let rate = distance / CGFloat(duration)
+
+                // rampメソッドでスムーズにズーム
+                device.ramp(toVideoZoomFactor: clampedZoom, withRate: Float(rate))
+
+                device.unlockForConfiguration()
+
+                // アニメーション中も現在のズーム値を更新するためのタイマー
+                let timer = Timer.scheduledTimer(withTimeInterval: 0.05, repeats: true) { timer in
+                    DispatchQueue.main.async {
+                        self.currentZoom = device.videoZoomFactor
+                    }
+
+                    // 目標値に到達したらタイマーを停止
+                    if abs(device.videoZoomFactor - clampedZoom) < 0.01 {
+                        timer.invalidate()
+                        DispatchQueue.main.async {
+                            self.currentZoom = clampedZoom
+                        }
+                    }
+                }
+                RunLoop.main.add(timer, forMode: .common)
+            } catch {
+                print("Error zooming: \(error)")
+            }
+        }
+    }
+
     // 写真をキャプチャ
     func capturePhoto(completion: @escaping (UIImage?) -> Void) {
         let settings = AVCapturePhotoSettings()
