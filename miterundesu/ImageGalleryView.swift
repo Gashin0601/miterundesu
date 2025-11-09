@@ -19,6 +19,10 @@ struct ImageGalleryView: View {
     @State private var isZooming: Bool = false
     @State private var scrollPositionID: UUID?
     @State private var showExplanation = false
+    @State private var imageScales: [UUID: CGFloat] = [:]
+    @State private var imageOffsets: [UUID: CGSize] = [:]
+    @State private var zoomTimer: Timer?
+    @State private var zoomStartTime: Date?
 
     let timer = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
 
@@ -51,7 +55,15 @@ struct ImageGalleryView: View {
                                         ZoomableImageView(
                                             capturedImage: capturedImage,
                                             maxZoom: settingsManager.maxZoomFactor,
-                                            isZooming: $isZooming
+                                            isZooming: $isZooming,
+                                            scale: Binding(
+                                                get: { imageScales[capturedImage.id] ?? 1.0 },
+                                                set: { imageScales[capturedImage.id] = $0 }
+                                            ),
+                                            offset: Binding(
+                                                get: { imageOffsets[capturedImage.id] ?? .zero },
+                                                set: { imageOffsets[capturedImage.id] = $0 }
+                                            )
                                         )
                                         .frame(width: geometry.size.width, height: geometry.size.height)
                                         .id(capturedImage.id)
@@ -182,6 +194,102 @@ struct ImageGalleryView: View {
                             .padding(.bottom, 16)
                         }
                     }
+
+                    // ズームコントロール（固定位置・オーバーレイ）
+                    VStack {
+                        Spacer()
+
+                        HStack {
+                            Spacer()
+
+                            VStack(alignment: .trailing, spacing: 8) {
+                                // ズームコントロールボタン
+                                VStack(spacing: 12) {
+                                    // ズームイン
+                                    Button(action: {
+                                        zoomIn()
+                                    }) {
+                                        ZStack {
+                                            Circle()
+                                                .fill(Color.black.opacity(0.6))
+                                                .frame(width: 44, height: 44)
+
+                                            Image(systemName: "plus")
+                                                .font(.system(size: 20, weight: .medium))
+                                                .foregroundColor(.white)
+                                        }
+                                    }
+                                    .simultaneousGesture(
+                                        LongPressGesture(minimumDuration: 0.3)
+                                            .onChanged { _ in
+                                                startContinuousZoom(direction: .in)
+                                            }
+                                            .onEnded { _ in
+                                                stopContinuousZoom()
+                                            }
+                                    )
+                                    .accessibilityLabel("ズームイン")
+                                    .accessibilityHint("タップで1.5倍拡大、長押しで連続拡大します")
+
+                                    // ズームアウト
+                                    Button(action: {
+                                        zoomOut()
+                                    }) {
+                                        ZStack {
+                                            Circle()
+                                                .fill(Color.black.opacity(0.6))
+                                                .frame(width: 44, height: 44)
+
+                                            Image(systemName: "minus")
+                                                .font(.system(size: 20, weight: .medium))
+                                                .foregroundColor(.white)
+                                        }
+                                    }
+                                    .simultaneousGesture(
+                                        LongPressGesture(minimumDuration: 0.3)
+                                            .onChanged { _ in
+                                                startContinuousZoom(direction: .out)
+                                            }
+                                            .onEnded { _ in
+                                                stopContinuousZoom()
+                                            }
+                                    )
+                                    .accessibilityLabel("ズームアウト")
+                                    .accessibilityHint("タップで縮小、長押しで連続縮小します")
+
+                                    // リセットボタン（1.circleアイコン）
+                                    Button(action: {
+                                        resetZoom()
+                                    }) {
+                                        ZStack {
+                                            Circle()
+                                                .fill(Color.black.opacity(0.6))
+                                                .frame(width: 44, height: 44)
+
+                                            Image(systemName: "1.circle")
+                                                .font(.system(size: 20, weight: .medium))
+                                                .foregroundColor(.white)
+                                        }
+                                    }
+                                    .accessibilityLabel("ズームリセット")
+                                    .accessibilityHint("画像の拡大を元に戻します")
+                                }
+
+                                // 倍率表示
+                                Text("×\(String(format: "%.1f", currentScale))")
+                                    .font(.system(size: 16, weight: .bold, design: .monospaced))
+                                    .foregroundColor(.white)
+                                    .padding(.horizontal, 12)
+                                    .padding(.vertical, 8)
+                                    .background(
+                                        RoundedRectangle(cornerRadius: 10)
+                                            .fill(Color.white.opacity(0.2))
+                                    )
+                            }
+                            .padding(.trailing, 12)
+                            .padding(.bottom, 50)
+                        }
+                    }
                 }
             } else {
                 // 画像が削除された場合
@@ -222,6 +330,93 @@ struct ImageGalleryView: View {
         let seconds = Int(remainingTime) % 60
         return String(format: "%d:%02d", minutes, seconds)
     }
+
+    private var currentImageID: UUID? {
+        guard currentIndex < imageManager.capturedImages.count else { return nil }
+        return imageManager.capturedImages[currentIndex].id
+    }
+
+    private var currentScale: CGFloat {
+        guard let id = currentImageID else { return 1.0 }
+        return imageScales[id] ?? 1.0
+    }
+
+    private func zoomIn() {
+        guard let id = currentImageID else { return }
+        withAnimation(.easeInOut(duration: 0.2)) {
+            let currentScale = imageScales[id] ?? 1.0
+            imageScales[id] = min(currentScale * 1.5, CGFloat(settingsManager.maxZoomFactor))
+        }
+        isZooming = (imageScales[id] ?? 1.0) > 1.0
+    }
+
+    private func zoomOut() {
+        guard let id = currentImageID else { return }
+        withAnimation(.easeInOut(duration: 0.2)) {
+            let currentScale = imageScales[id] ?? 1.0
+            imageScales[id] = max(currentScale / 1.5, 1.0)
+            if imageScales[id] == 1.0 {
+                imageOffsets[id] = .zero
+                isZooming = false
+            }
+        }
+    }
+
+    private func resetZoom() {
+        guard let id = currentImageID else { return }
+        stopContinuousZoom()
+        withAnimation {
+            imageScales[id] = 1.0
+            imageOffsets[id] = .zero
+        }
+        isZooming = false
+    }
+
+    enum ZoomDirection {
+        case `in`, out
+    }
+
+    private func startContinuousZoom(direction: ZoomDirection) {
+        guard let id = currentImageID else { return }
+        stopContinuousZoom()
+        isZooming = true
+        zoomStartTime = Date()
+
+        zoomTimer = Timer.scheduledTimer(withTimeInterval: 0.03, repeats: true) { _ in
+            let currentScale = imageScales[id] ?? 1.0
+            let elapsedTime = Date().timeIntervalSince(zoomStartTime ?? Date())
+            let baseStep: CGFloat = 0.02
+            let timeAcceleration = 1.0 + pow(min(elapsedTime / 2.0, 1.0), 1.5) * 3.0
+            let zoomMultiplier = max(1.0, sqrt(currentScale / 5.0))
+            let step = baseStep * timeAcceleration * zoomMultiplier
+
+            switch direction {
+            case .in:
+                imageScales[id] = min(currentScale + step, CGFloat(settingsManager.maxZoomFactor))
+            case .out:
+                let outStep = step * 0.7
+                imageScales[id] = max(currentScale - outStep, 1.0)
+                if imageScales[id] == 1.0 {
+                    imageOffsets[id] = .zero
+                }
+            }
+
+            if (direction == .in && (imageScales[id] ?? 1.0) >= CGFloat(settingsManager.maxZoomFactor)) ||
+               (direction == .out && (imageScales[id] ?? 1.0) <= 1.0) {
+                stopContinuousZoom()
+            }
+        }
+    }
+
+    private func stopContinuousZoom() {
+        zoomTimer?.invalidate()
+        zoomTimer = nil
+        zoomStartTime = nil
+
+        if let id = currentImageID, (imageScales[id] ?? 1.0) <= 1.0 {
+            isZooming = false
+        }
+    }
 }
 
 // MARK: - Zoomable Image View
@@ -229,33 +424,21 @@ struct ZoomableImageView: View {
     let capturedImage: CapturedImage
     let maxZoom: Double
     @Binding var isZooming: Bool
+    @Binding var scale: CGFloat
+    @Binding var offset: CGSize
 
-    @State private var scale: CGFloat = 1.0
     @State private var lastScale: CGFloat = 1.0
-    @State private var offset: CGSize = .zero
     @State private var lastOffset: CGSize = .zero
-    @State private var zoomTimer: Timer?
-    @State private var zoomStartTime: Date?
-    @State private var continuousZoomCount: Int = 0
 
     var body: some View {
         GeometryReader { geometry in
-            ZStack(alignment: .bottomTrailing) {
-                Image(uiImage: capturedImage.image)
+            Image(uiImage: capturedImage.image)
                     .resizable()
                     .aspectRatio(contentMode: .fit)
                     .frame(width: geometry.size.width, height: geometry.size.height)
                     .scaleEffect(scale)
                     .offset(offset)
                     .clipped()
-                    .onAppear {
-                    // 表示時にズーム状態をリセット
-                    scale = 1.0
-                    lastScale = 1.0
-                    offset = .zero
-                    lastOffset = .zero
-                    isZooming = false
-                }
                 .highPriorityGesture(
                     MagnificationGesture(minimumScaleDelta: 0)
                         .onChanged { value in
@@ -334,178 +517,6 @@ struct ZoomableImageView: View {
                         lastOffset = offset
                     }
                 }
-
-                // 右側：ズームコントロールと倍率表示
-                VStack(alignment: .trailing, spacing: 8) {
-                    // ズームコントロールボタン
-                    VStack(spacing: 12) {
-                        // ズームイン
-                        Button(action: {
-                            zoomIn()
-                        }) {
-                            ZStack {
-                                Circle()
-                                    .fill(Color.black.opacity(0.6))
-                                    .frame(width: 44, height: 44)
-
-                                Image(systemName: "plus")
-                                    .font(.system(size: 20, weight: .medium))
-                                    .foregroundColor(.white)
-                            }
-                        }
-                        .simultaneousGesture(
-                            LongPressGesture(minimumDuration: 0.3)
-                                .onChanged { _ in
-                                    startContinuousZoom(direction: .in)
-                                }
-                                .onEnded { _ in
-                                    stopContinuousZoom()
-                                }
-                        )
-                        .accessibilityLabel("ズームイン")
-                        .accessibilityHint("タップで1.5倍拡大、長押しで連続拡大します")
-
-                        // ズームアウト
-                        Button(action: {
-                            zoomOut()
-                        }) {
-                            ZStack {
-                                Circle()
-                                    .fill(Color.black.opacity(0.6))
-                                    .frame(width: 44, height: 44)
-
-                                Image(systemName: "minus")
-                                    .font(.system(size: 20, weight: .medium))
-                                    .foregroundColor(.white)
-                            }
-                        }
-                        .simultaneousGesture(
-                            LongPressGesture(minimumDuration: 0.3)
-                                .onChanged { _ in
-                                    startContinuousZoom(direction: .out)
-                                }
-                                .onEnded { _ in
-                                    stopContinuousZoom()
-                                }
-                        )
-                        .accessibilityLabel("ズームアウト")
-                        .accessibilityHint("タップで縮小、長押しで連続縮小します")
-
-                        // リセットボタン（1.circleアイコン）
-                        Button(action: {
-                            stopContinuousZoom()
-                            withAnimation {
-                                scale = 1.0
-                                offset = .zero
-                                lastOffset = .zero
-                            }
-                        }) {
-                            ZStack {
-                                Circle()
-                                    .fill(Color.black.opacity(0.6))
-                                    .frame(width: 44, height: 44)
-
-                                Image(systemName: "1.circle")
-                                    .font(.system(size: 20, weight: .medium))
-                                    .foregroundColor(.white)
-                            }
-                        }
-                        .accessibilityLabel("ズームリセット")
-                        .accessibilityHint("画像の拡大を元に戻します")
-                    }
-
-                    // 倍率表示
-                    Text("×\(String(format: "%.1f", scale))")
-                        .font(.system(size: 16, weight: .bold, design: .monospaced))
-                        .foregroundColor(.white)
-                        .padding(.horizontal, 12)
-                        .padding(.vertical, 8)
-                        .background(
-                            RoundedRectangle(cornerRadius: 10)
-                                .fill(Color.white.opacity(0.2))
-                        )
-                }
-                .padding(.trailing, 12)
-                .padding(.bottom, 12)
-            }
-        }
-    }
-
-    private func zoomIn() {
-        withAnimation(.easeInOut(duration: 0.2)) {
-            scale = min(scale * 1.5, CGFloat(maxZoom))
-        }
-        isZooming = scale > 1.0
-    }
-
-    private func zoomOut() {
-        withAnimation(.easeInOut(duration: 0.2)) {
-            scale = max(scale / 1.5, 1.0)
-            if scale == 1.0 {
-                offset = .zero
-                lastOffset = .zero
-                isZooming = false
-            }
-        }
-    }
-
-    enum ZoomDirection {
-        case `in`, out
-    }
-
-    private func startContinuousZoom(direction: ZoomDirection) {
-        stopContinuousZoom()
-        isZooming = true
-        zoomStartTime = Date()
-        continuousZoomCount = 0
-
-        zoomTimer = Timer.scheduledTimer(withTimeInterval: 0.03, repeats: true) { _ in
-            continuousZoomCount += 1
-
-            // 経過時間を計算（秒）
-            let elapsedTime = Date().timeIntervalSince(zoomStartTime ?? Date())
-
-            // 基本ステップ（画像は細かい制御が必要なのでカメラより小さめ）
-            let baseStep: CGFloat = 0.02
-
-            // 時間に応じた加速度（指数関数的に加速）
-            let timeAcceleration = 1.0 + pow(min(elapsedTime / 2.0, 1.0), 1.5) * 3.0
-
-            // 現在の倍率に応じた速度調整（高倍率では大きなステップ）
-            let zoomMultiplier = max(1.0, sqrt(scale / 5.0))
-
-            // 最終的なステップサイズ
-            let step = baseStep * timeAcceleration * zoomMultiplier
-
-            switch direction {
-            case .in:
-                scale = min(scale + step, CGFloat(maxZoom))
-            case .out:
-                // ズームアウトは少し遅めに（70%）
-                let outStep = step * 0.7
-                scale = max(scale - outStep, 1.0)
-                if scale == 1.0 {
-                    offset = .zero
-                    lastOffset = .zero
-                }
-            }
-
-            // 上限・下限に達したらタイマーを停止
-            if (direction == .in && scale >= CGFloat(maxZoom)) ||
-               (direction == .out && scale <= 1.0) {
-                stopContinuousZoom()
-            }
-        }
-    }
-
-    private func stopContinuousZoom() {
-        zoomTimer?.invalidate()
-        zoomTimer = nil
-        zoomStartTime = nil
-        continuousZoomCount = 0
-
-        if scale <= 1.0 {
-            isZooming = false
         }
     }
 
