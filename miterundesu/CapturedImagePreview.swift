@@ -25,7 +25,6 @@ struct CapturedImagePreview: View {
     @State private var continuousZoomCount: Int = 0
     @State private var showSettings = false
     @State private var showExplanation = false
-    @State private var isContentVisible = false // 最初のフレーム保護用（遅延表示）
 
     let timer = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
 
@@ -52,7 +51,6 @@ struct CapturedImagePreview: View {
                         .scaleEffect(scale)
                         .offset(offset)
                         .clipped()
-                        .opacity(isContentVisible ? 1.0 : 0.0) // 遅延表示
                         .highPriorityGesture(
                             MagnificationGesture(minimumScaleDelta: 0)
                                 .onChanged { value in
@@ -313,12 +311,6 @@ struct CapturedImagePreview: View {
         }
         .fullScreenCover(isPresented: $showExplanation) {
             ExplanationView(settingsManager: settingsManager)
-        }
-        .onAppear {
-            // 最初のフレーム保護：0.05秒後にコンテンツを表示（ユーザーには気づかれない程度）
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) {
-                isContentVisible = true
-            }
         }
         .onReceive(timer) { _ in
             remainingTime = capturedImage.remainingTime

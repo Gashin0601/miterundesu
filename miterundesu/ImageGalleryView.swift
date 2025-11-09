@@ -23,7 +23,6 @@ struct ImageGalleryView: View {
     @State private var imageOffsets: [UUID: CGSize] = [:]
     @State private var zoomTimer: Timer?
     @State private var zoomStartTime: Date?
-    @State private var isContentVisible = false // 最初のフレーム保護用（遅延表示）
 
     let timer = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
 
@@ -76,7 +75,6 @@ struct ImageGalleryView: View {
                             .scrollPosition(id: $scrollPositionID)
                             .scrollDisabled(isZooming)
                             .blur(radius: securityManager.isScreenRecording ? 50 : 0)
-                            .opacity(isContentVisible ? 1.0 : 0.0) // 遅延表示
                             .onChange(of: scrollPositionID) { oldValue, newValue in
                                 // スクロール位置からインデックスを更新
                                 if let newID = newValue,
@@ -300,12 +298,6 @@ struct ImageGalleryView: View {
                     .foregroundColor(.white)
                     .padding()
                 }
-            }
-        }
-        .onAppear {
-            // 最初のフレーム保護：0.05秒後にコンテンツを表示（ユーザーには気づかれない程度）
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) {
-                isContentVisible = true
             }
         }
         .fullScreenCover(isPresented: $showExplanation) {
