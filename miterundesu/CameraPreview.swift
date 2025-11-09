@@ -27,9 +27,11 @@ struct CameraPreview: UIViewRepresentable {
 
     func updateUIView(_ uiView: UIView, context: Context) {
         if let previewLayer = context.coordinator.previewLayer {
-            DispatchQueue.main.async {
-                previewLayer.frame = uiView.bounds
-            }
+            // フレームを即座に更新（既にメインスレッドで実行されている）
+            CATransaction.begin()
+            CATransaction.setDisableActions(true) // アニメーションを無効化
+            previewLayer.frame = uiView.bounds
+            CATransaction.commit()
         }
     }
 

@@ -25,11 +25,12 @@ class CameraManager: NSObject, ObservableObject, AVCaptureSessionControlsDelegat
 
     private let sessionQueue = DispatchQueue(label: "camera.session.queue")
 
-    var previewLayer: AVCaptureVideoPreviewLayer {
+    // プレビューレイヤーを保持（毎回新しく作成しない）
+    lazy var previewLayer: AVCaptureVideoPreviewLayer = {
         let layer = AVCaptureVideoPreviewLayer(session: session)
         layer.videoGravity = .resizeAspectFill
         return layer
-    }
+    }()
 
     override init() {
         super.init()
