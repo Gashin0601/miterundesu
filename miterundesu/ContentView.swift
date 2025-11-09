@@ -31,6 +31,49 @@ struct ContentView: View {
                 .ignoresSafeArea()
 
             VStack(spacing: 0) {
+                // 上部コントロール（シアターモードトグルと設定ボタン）
+                HStack(spacing: 0) {
+                    // 左：シアターモードトグル
+                    TheaterModeToggle(
+                        isTheaterMode: $isTheaterMode,
+                        onToggle: {
+                            handleTheaterModeChange()
+                        }
+                    )
+                    .padding(.leading, 20)
+                    .opacity(shouldShowUI ? 1 : 0)
+
+                    Spacer()
+
+                    // 右：設定ボタン
+                    Button(action: {
+                        showSettings = true
+                    }) {
+                        HStack(spacing: 5) {
+                            Image(systemName: "gearshape.fill")
+                                .font(.system(size: 14))
+                                .foregroundColor(.white)
+
+                            Text("設定")
+                                .font(.system(size: 11, weight: .medium))
+                                .foregroundColor(.white)
+                                .lineLimit(1)
+                        }
+                        .padding(.horizontal, 8)
+                        .padding(.vertical, 4)
+                        .background(
+                            RoundedRectangle(cornerRadius: 8)
+                                .fill(Color.white.opacity(0.25))
+                        )
+                    }
+                    .padding(.trailing, 20)
+                    .opacity(shouldShowUI ? 1 : 0)
+                    .accessibilityLabel("設定")
+                    .accessibilityHint("アプリの設定画面を開きます")
+                }
+                .padding(.top, 10)
+                .padding(.bottom, 5)
+
                 // ヘッダー部分
                 HeaderView(
                     isTheaterMode: isTheaterMode,
@@ -89,53 +132,6 @@ struct ContentView: View {
                 .opacity(shouldShowUI ? 1 : 0)
             }
 
-            // ノッチエリア: 左にシアターモードトグル、右に設定ボタン
-            GeometryReader { geometry in
-                VStack(spacing: 0) {
-                    HStack(spacing: 0) {
-                        // ノッチ左: シアターモードトグル
-                        TheaterModeToggle(
-                            isTheaterMode: $isTheaterMode,
-                            onToggle: {
-                                handleTheaterModeChange()
-                            }
-                        )
-                        .padding(.leading, 16)
-                        .opacity(shouldShowUI ? 1 : 0)
-
-                        Spacer()
-
-                        // ノッチ右: 設定ボタン
-                        Button(action: {
-                            showSettings = true
-                        }) {
-                            HStack(spacing: 6) {
-                                Image(systemName: "gearshape.fill")
-                                    .font(.system(size: 18))
-                                Text("設定")
-                                    .font(.system(size: 14, weight: .medium))
-                            }
-                            .foregroundColor(.white)
-                            .padding(.horizontal, 12)
-                            .padding(.vertical, 8)
-                            .background(
-                                RoundedRectangle(cornerRadius: 10)
-                                    .fill(Color.white.opacity(0.15))
-                            )
-                        }
-                        .padding(.trailing, 16)
-                        .opacity(shouldShowUI ? 1 : 0)
-                        .accessibilityLabel("設定")
-                        .accessibilityHint("アプリの設定画面を開きます")
-                    }
-                    .padding(.top, geometry.safeAreaInsets.top)
-                    .frame(height: 44 + geometry.safeAreaInsets.top)
-                    .background(Color.clear)
-
-                    Spacer()
-                }
-            }
-            .ignoresSafeArea(edges: .top)
 
             // シアターモード時のタップ領域
             if isTheaterMode && !showUI {
@@ -189,7 +185,7 @@ struct ContentView: View {
                 capturedImage: capturedImage
             )
         }
-        .statusBar(hidden: true)
+        .preferredColorScheme(.dark)
         .onAppear {
             cameraManager.setupCamera()
             cameraManager.startSession()
@@ -307,17 +303,18 @@ struct HeaderView: View {
             Button(action: {
                 showExplanation = true
             }) {
-                HStack(spacing: 4) {
-                    Text("📘")
+                HStack(spacing: 6) {
+                    Image(systemName: "book.fill")
+                        .font(.system(size: 14))
                     Text("説明を見る")
                         .font(.system(size: 14, weight: .medium))
                 }
-                .foregroundColor(.white)
+                .foregroundColor(isTheaterMode ? Color("TheaterOrange") : Color("MainGreen"))
                 .padding(.horizontal, 16)
                 .padding(.vertical, 8)
                 .background(
                     RoundedRectangle(cornerRadius: 20)
-                        .fill(Color.white.opacity(0.2))
+                        .fill(Color.white)
                 )
             }
             .padding(.top, 4)
@@ -345,16 +342,23 @@ struct InfiniteScrollingText: View {
                     Text(text)
                         .font(.system(size: 16, weight: .medium))
                         .foregroundColor(.white.opacity(0.8))
+                        .fixedSize()
                 }
             }
+            .fixedSize()
             .offset(x: offset)
             .onAppear {
-                offset = 0
-                withAnimation(
-                    Animation.linear(duration: 20)
-                        .repeatForever(autoreverses: false)
-                ) {
-                    offset = -(itemWidth * 5)
+                // 初期位置を画面右端に設定
+                offset = screenWidth
+
+                // アニメーション開始を少し遅延
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                    withAnimation(
+                        Animation.linear(duration: 20)
+                            .repeatForever(autoreverses: false)
+                    ) {
+                        offset = -(itemWidth * 5)
+                    }
                 }
             }
         }
@@ -367,37 +371,104 @@ struct TheaterModeToggle: View {
     let onToggle: () -> Void
 
     var body: some View {
-        HStack(spacing: 8) {
-            // アイコン
-            Image(systemName: isTheaterMode ? "theatermasks.fill" : "theatermasks")
-                .font(.system(size: 16))
-                .foregroundColor(.white)
+        Button(action: {
+            isTheaterMode.toggle()
+            onToggle()
+        }) {
+            HStack(spacing: 5) {
+                // カスタムアイコン
+                TheaterModeIcon(isTheaterMode: isTheaterMode)
+                    .frame(width: 18, height: 18)
 
-            // テキスト
-            Text("シアターモード")
-                .font(.system(size: 12, weight: .medium))
-                .foregroundColor(.white)
-
-            // トグルスイッチ
-            Toggle("", isOn: Binding(
-                get: { isTheaterMode },
-                set: { newValue in
-                    isTheaterMode = newValue
-                    onToggle()
-                }
-            ))
-            .labelsHidden()
-            .toggleStyle(SwitchToggleStyle(tint: Color.orange))
-            .scaleEffect(0.8)
+                // テキスト
+                Text("シアター")
+                    .font(.system(size: 11, weight: .medium))
+                    .foregroundColor(.white)
+                    .lineLimit(1)
+            }
+            .padding(.horizontal, 8)
+            .padding(.vertical, 4)
+            .background(
+                RoundedRectangle(cornerRadius: 8)
+                    .fill(Color.white.opacity(0.25))
+            )
         }
-        .padding(.horizontal, 10)
-        .padding(.vertical, 6)
-        .background(
-            RoundedRectangle(cornerRadius: 10)
-                .fill(Color.white.opacity(0.15))
-        )
         .accessibilityLabel("シアターモード")
         .accessibilityHint(isTheaterMode ? "シアターモードをオフにします" : "映画館や美術館などで使用するシアターモードをオンにします")
+    }
+}
+
+// MARK: - Theater Mode Icon
+struct TheaterModeIcon: View {
+    let isTheaterMode: Bool
+
+    var body: some View {
+        ZStack {
+            // 白い円の背景
+            Circle()
+                .fill(Color.white)
+
+            // 左上から右下の対角線で分割
+            GeometryReader { geometry in
+                let size = geometry.size.width
+
+                // 左上半分（通常時：オレンジ、シアター時：緑）
+                Path { path in
+                    path.move(to: CGPoint(x: 0, y: 0))
+                    path.addLine(to: CGPoint(x: size, y: 0))
+                    path.addLine(to: CGPoint(x: 0, y: size))
+                    path.addLine(to: CGPoint(x: 0, y: 0))
+                }
+                .fill(isTheaterMode ? Color("MainGreen") : Color("TheaterOrange"))
+
+                // 右下半分（通常時：緑、シアター時：オレンジ）
+                Path { path in
+                    path.move(to: CGPoint(x: size, y: 0))
+                    path.addLine(to: CGPoint(x: size, y: size))
+                    path.addLine(to: CGPoint(x: 0, y: size))
+                    path.addLine(to: CGPoint(x: size, y: 0))
+                }
+                .fill(isTheaterMode ? Color("TheaterOrange") : Color("MainGreen"))
+
+                // 左上から右下への白い境界線
+                Path { path in
+                    path.move(to: CGPoint(x: 0, y: 0))
+                    path.addLine(to: CGPoint(x: size, y: size))
+                }
+                .stroke(Color.white, lineWidth: 1.2)
+            }
+            .clipShape(Circle())
+
+            // 中央にシンボルを表示（白い縁取り付き）
+            ZStack {
+                // 白い縁取り
+                Image(systemName: isTheaterMode ? "moon.fill" : "sun.max.fill")
+                    .font(.system(size: 8, weight: .bold))
+                    .foregroundColor(.white)
+                    .offset(x: -0.4, y: 0)
+                Image(systemName: isTheaterMode ? "moon.fill" : "sun.max.fill")
+                    .font(.system(size: 8, weight: .bold))
+                    .foregroundColor(.white)
+                    .offset(x: 0.4, y: 0)
+                Image(systemName: isTheaterMode ? "moon.fill" : "sun.max.fill")
+                    .font(.system(size: 8, weight: .bold))
+                    .foregroundColor(.white)
+                    .offset(x: 0, y: -0.4)
+                Image(systemName: isTheaterMode ? "moon.fill" : "sun.max.fill")
+                    .font(.system(size: 8, weight: .bold))
+                    .foregroundColor(.white)
+                    .offset(x: 0, y: 0.4)
+
+                // メインアイコン
+                Image(systemName: isTheaterMode ? "moon.fill" : "sun.max.fill")
+                    .font(.system(size: 8, weight: .bold))
+                    .foregroundColor(isTheaterMode ? Color("TheaterOrange") : Color("MainGreen"))
+            }
+
+            // 円全体に薄い枠線
+            Circle()
+                .stroke(Color.white.opacity(0.3), lineWidth: 0.8)
+        }
     }
 }
 

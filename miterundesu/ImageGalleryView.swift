@@ -97,47 +97,41 @@ struct ImageGalleryView: View {
                     }
                 }
 
-                // ノッチエリア: 左にカウントダウン、右にバツボタン
-                GeometryReader { geometry in
-                    VStack(spacing: 0) {
-                        HStack(spacing: 0) {
-                            // ノッチ左: 残り時間（カウントダウン表示）
-                            if currentIndex < imageManager.capturedImages.count {
-                                Text(formattedRemainingTime)
-                                    .font(.system(size: 16, weight: .bold, design: .monospaced))
-                                    .foregroundColor(.white)
-                                    .padding(.horizontal, 12)
-                                    .padding(.vertical, 6)
-                                    .background(
-                                        RoundedRectangle(cornerRadius: 8)
-                                            .fill(Color.red.opacity(0.8))
-                                    )
-                                    .padding(.leading, 16)
-                            }
-
-                            Spacer()
-
-                            // ノッチ右: バツボタン
-                            Button(action: {
-                                dismiss()
-                            }) {
-                                Image(systemName: "xmark.circle.fill")
-                                    .font(.system(size: 32))
-                                    .foregroundColor(.white)
-                                    .frame(minWidth: 44, minHeight: 44)
-                            }
-                            .padding(.trailing, 16)
-                            .accessibilityLabel("閉じる")
-                            .accessibilityHint("ギャラリーを閉じてメイン画面に戻ります")
+                // 上部コントロール
+                VStack {
+                    HStack {
+                        // 残り時間表示
+                        if currentIndex < imageManager.capturedImages.count {
+                            Text(formattedRemainingTime)
+                                .font(.system(size: 14, weight: .medium, design: .monospaced))
+                                .foregroundColor(.white)
+                                .padding(.horizontal, 12)
+                                .padding(.vertical, 8)
+                                .background(
+                                    RoundedRectangle(cornerRadius: 10)
+                                        .fill(Color.red.opacity(0.7))
+                                )
+                                .padding()
                         }
-                        .padding(.top, geometry.safeAreaInsets.top)
-                        .frame(height: 44 + geometry.safeAreaInsets.top)
-                        .background(Color.clear)
 
                         Spacer()
+
+                        // 閉じるボタン
+                        Button(action: {
+                            dismiss()
+                        }) {
+                            Image(systemName: "xmark.circle.fill")
+                                .font(.system(size: 32))
+                                .foregroundColor(.white)
+                                .frame(minWidth: 44, minHeight: 44)
+                        }
+                        .padding()
+                        .accessibilityLabel("閉じる")
+                        .accessibilityHint("ギャラリーを閉じてメイン画面に戻ります")
                     }
+
+                    Spacer()
                 }
-                .ignoresSafeArea(edges: .top)
 
                 // 画像インジケーター
                 if imageManager.capturedImages.count > 1 {
@@ -182,7 +176,7 @@ struct ImageGalleryView: View {
                 }
             }
         }
-        .statusBar(hidden: true)
+        .preferredColorScheme(.dark)
     }
 
     private var formattedRemainingTime: String {

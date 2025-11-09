@@ -134,7 +134,7 @@ struct SettingsView: View {
             .toolbarBackground(.visible, for: .navigationBar)
         }
         .navigationViewStyle(.stack)
-        .statusBar(hidden: true)
+        .preferredColorScheme(.dark)
     }
 }
 

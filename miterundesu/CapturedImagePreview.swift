@@ -114,32 +114,25 @@ struct CapturedImagePreview: View {
                 }
             }
 
-            // ノッチエリア: 左にカウントダウン
-            GeometryReader { geometry in
-                VStack(spacing: 0) {
-                    HStack(spacing: 0) {
-                        // ノッチ左: 残り時間（カウントダウン表示）
-                        Text(formattedRemainingTime)
-                            .font(.system(size: 16, weight: .bold, design: .monospaced))
-                            .foregroundColor(.white)
-                            .padding(.horizontal, 12)
-                            .padding(.vertical, 6)
-                            .background(
-                                RoundedRectangle(cornerRadius: 8)
-                                    .fill(Color.red.opacity(0.8))
-                            )
-                            .padding(.leading, 16)
-
-                        Spacer()
-                    }
-                    .padding(.top, geometry.safeAreaInsets.top)
-                    .frame(height: 44 + geometry.safeAreaInsets.top)
-                    .background(Color.clear)
-
+            // 上部：残り時間表示
+            VStack {
+                HStack {
                     Spacer()
+
+                    Text(formattedRemainingTime)
+                        .font(.system(size: 14, weight: .medium, design: .monospaced))
+                        .foregroundColor(.white)
+                        .padding(.horizontal, 12)
+                        .padding(.vertical, 8)
+                        .background(
+                            RoundedRectangle(cornerRadius: 10)
+                                .fill(Color.red.opacity(0.7))
+                        )
+                        .padding()
                 }
+
+                Spacer()
             }
-            .ignoresSafeArea(edges: .top)
 
             // 下部：バツボタン（シャッターと同じ位置・デザイン）
             VStack {
@@ -270,7 +263,7 @@ struct CapturedImagePreview: View {
                 dismiss()
             }
         }
-        .statusBar(hidden: true)
+        .preferredColorScheme(.dark)
     }
 
     private var formattedRemainingTime: String {

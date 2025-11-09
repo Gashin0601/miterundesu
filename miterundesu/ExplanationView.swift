@@ -123,7 +123,7 @@ struct ExplanationView: View {
                 }
             }
         }
-        .statusBar(hidden: true)
+        .preferredColorScheme(.dark)
     }
 
     private var bodyText: String {
