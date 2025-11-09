@@ -17,6 +17,10 @@ struct ContentView: View {
     @State private var showExplanation = false
     @State private var selectedImage: CapturedImage?
 
+    // シアターモード用UI管理
+    @State private var showUI = true
+    @State private var uiHideTimer: Timer?
+
     var body: some View {
         ZStack {
             // メインカラー（背景）
@@ -29,6 +33,7 @@ struct ContentView: View {
                     isTheaterMode: isTheaterMode,
                     showExplanation: $showExplanation
                 )
+                .opacity(shouldShowUI ? 1 : 0)
 
                 Spacer()
 
@@ -53,14 +58,21 @@ struct ContentView: View {
                         capturePhoto()
                     }
                 )
+                .opacity(shouldShowUI ? 1 : 0)
             }
 
             // 左上：シアターモードトグル
             VStack {
                 HStack {
-                    TheaterModeToggle(isTheaterMode: $isTheaterMode)
-                        .padding(.leading, 20)
-                        .padding(.top, 50)
+                    TheaterModeToggle(
+                        isTheaterMode: $isTheaterMode,
+                        onToggle: {
+                            handleTheaterModeChange()
+                        }
+                    )
+                    .padding(.leading, 20)
+                    .padding(.top, 50)
+                    .opacity(shouldShowUI ? 1 : 0)
 
                     Spacer()
                 }
@@ -83,8 +95,18 @@ struct ContentView: View {
                     .disabled(isTheaterMode)
                     .padding(.trailing, 20)
                     .padding(.top, 50)
+                    .opacity(shouldShowUI ? 1 : 0)
                 }
                 Spacer()
+            }
+
+            // シアターモード時のタップ領域
+            if isTheaterMode && !showUI {
+                Color.clear
+                    .contentShape(Rectangle())
+                    .onTapGesture {
+                        showUITemporarily()
+                    }
             }
         }
         .sheet(isPresented: $showSettings) {
@@ -102,7 +124,57 @@ struct ContentView: View {
         }
         .onDisappear {
             cameraManager.stopSession()
+            stopUIHideTimer()
         }
+        .onChange(of: isTheaterMode) { newValue in
+            if !newValue {
+                // 通常モードに戻ったらUIを表示し、タイマー停止
+                showUI = true
+                stopUIHideTimer()
+            }
+        }
+    }
+
+    // UIを表示すべきかどうか
+    private var shouldShowUI: Bool {
+        !isTheaterMode || showUI
+    }
+
+    // シアターモード切り替え時の処理
+    private func handleTheaterModeChange() {
+        if isTheaterMode {
+            // シアターモードON: UIを表示してタイマー開始
+            showUI = true
+            startUIHideTimer()
+        } else {
+            // シアターモードOFF: タイマー停止
+            stopUIHideTimer()
+        }
+    }
+
+    // UIを一時的に表示
+    private func showUITemporarily() {
+        withAnimation(.easeInOut(duration: 0.3)) {
+            showUI = true
+        }
+        startUIHideTimer()
+    }
+
+    // UI非表示タイマー開始
+    private func startUIHideTimer() {
+        stopUIHideTimer()
+
+        uiHideTimer = Timer.scheduledTimer(withTimeInterval: 15.0, repeats: false) { _ in
+            withAnimation(.easeInOut(duration: 0.5)) {
+                showUI = false
+            }
+        }
+    }
+
+    // UI非表示タイマー停止
+    private func stopUIHideTimer() {
+        uiHideTimer?.invalidate()
+        uiHideTimer = nil
     }
 
     private func capturePhoto() {
@@ -187,10 +259,17 @@ struct InfiniteScrollingText: View {
 // MARK: - Theater Mode Toggle
 struct TheaterModeToggle: View {
     @Binding var isTheaterMode: Bool
+    let onToggle: () -> Void
 
     var body: some View {
         VStack(alignment: .leading, spacing: 4) {
-            Toggle(isOn: $isTheaterMode) {
+            Toggle(isOn: Binding(
+                get: { isTheaterMode },
+                set: { newValue in
+                    isTheaterMode = newValue
+                    onToggle()
+                }
+            )) {
                 Text("シアターモード")
                     .font(.system(size: 12, weight: .medium))
                     .foregroundColor(.white)

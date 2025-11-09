@@ -53,12 +53,11 @@ struct CameraPreviewWithZoom: View {
             .gesture(
                 MagnificationGesture()
                     .onChanged { value in
-                        if !isTheaterMode {
-                            let delta = value / lastZoomFactor
-                            lastZoomFactor = value
-                            let newZoom = cameraManager.currentZoom * delta
-                            cameraManager.zoom(factor: newZoom)
-                        }
+                        // シアターモード時もズームは有効（ピンチ操作のみ有効）
+                        let delta = value / lastZoomFactor
+                        lastZoomFactor = value
+                        let newZoom = cameraManager.currentZoom * delta
+                        cameraManager.zoom(factor: newZoom)
                     }
                     .onEnded { _ in
                         lastZoomFactor = 1.0
