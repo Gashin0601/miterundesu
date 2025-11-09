@@ -24,13 +24,20 @@ struct ContentView: View {
     @State private var showUI = true
     @State private var uiHideTimer: Timer?
 
+    // ロード画面管理
+    @State private var isLoading = true
+
     var body: some View {
         ZStack {
-            // メインカラー（背景）
-            (isTheaterMode ? Color("TheaterOrange") : Color("MainGreen"))
-                .ignoresSafeArea()
+            if isLoading {
+                // ロード画面
+                LoadingView()
+            } else {
+                // メインカラー（背景）
+                (isTheaterMode ? Color("TheaterOrange") : Color("MainGreen"))
+                    .ignoresSafeArea()
 
-            VStack(spacing: 0) {
+                VStack(spacing: 0) {
                 // 上部コントロール（シアター、説明ボタン、設定）
                 HStack(alignment: .center, spacing: 0) {
                     // 左：シアターモードトグル
@@ -152,36 +159,37 @@ struct ContentView: View {
             }
 
 
-            // シアターモード時のタップ領域
-            if isTheaterMode && !showUI {
-                Color.clear
-                    .contentShape(Rectangle())
-                    .onTapGesture {
-                        showUITemporarily()
-                    }
-            }
-
-            // 画面録画警告（上部に常時表示）
-            if securityManager.showRecordingWarning {
-                VStack {
-                    RecordingWarningView()
-                    Spacer()
+                // シアターモード時のタップ領域
+                if isTheaterMode && !showUI {
+                    Color.clear
+                        .contentShape(Rectangle())
+                        .onTapGesture {
+                            showUITemporarily()
+                        }
                 }
-                .transition(.move(edge: .top).combined(with: .opacity))
-                .animation(.easeInOut, value: securityManager.showRecordingWarning)
-            }
 
-            // スクリーンショット警告（中央にモーダル表示）
-            if securityManager.showScreenshotWarning {
-                Color.black.opacity(0.4)
-                    .ignoresSafeArea()
-                    .onTapGesture {
-                        securityManager.showScreenshotWarning = false
+                // 画面録画警告（上部に常時表示）
+                if securityManager.showRecordingWarning {
+                    VStack {
+                        RecordingWarningView()
+                        Spacer()
                     }
+                    .transition(.move(edge: .top).combined(with: .opacity))
+                    .animation(.easeInOut, value: securityManager.showRecordingWarning)
+                }
 
-                ScreenshotWarningView()
-                    .transition(.scale.combined(with: .opacity))
-                    .animation(.spring(), value: securityManager.showScreenshotWarning)
+                // スクリーンショット警告（中央にモーダル表示）
+                if securityManager.showScreenshotWarning {
+                    Color.black.opacity(0.4)
+                        .ignoresSafeArea()
+                        .onTapGesture {
+                            securityManager.showScreenshotWarning = false
+                        }
+
+                    ScreenshotWarningView()
+                        .transition(.scale.combined(with: .opacity))
+                        .animation(.spring(), value: securityManager.showScreenshotWarning)
+                }
             }
         }
         .fullScreenCover(isPresented: $showSettings) {
@@ -211,6 +219,13 @@ struct ContentView: View {
             setupBackgroundNotification()
             // 設定から最大拡大率を適用
             cameraManager.setMaxZoomFactor(settingsManager.maxZoomFactor)
+
+            // カメラのセットアップ完了後、少し遅延してロード画面を非表示
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.8) {
+                withAnimation(.easeOut(duration: 0.3)) {
+                    isLoading = false
+                }
+            }
         }
         .onDisappear {
             cameraManager.stopSession()
@@ -634,6 +649,51 @@ struct ZoomLevelView: View {
                 RoundedRectangle(cornerRadius: 10)
                     .fill(Color.white.opacity(0.2))
             )
+    }
+}
+
+// MARK: - Loading View
+struct LoadingView: View {
+    @State private var isAnimating = false
+
+    var body: some View {
+        ZStack {
+            Color("MainGreen")
+                .ignoresSafeArea()
+
+            VStack(spacing: 24) {
+                // ロゴ
+                Text("ミテルンデス")
+                    .font(.system(size: 32, weight: .bold, design: .default))
+                    .foregroundColor(.white)
+
+                // ローディングインジケーター
+                ZStack {
+                    Circle()
+                        .stroke(Color.white.opacity(0.3), lineWidth: 4)
+                        .frame(width: 60, height: 60)
+
+                    Circle()
+                        .trim(from: 0, to: 0.7)
+                        .stroke(Color.white, lineWidth: 4)
+                        .frame(width: 60, height: 60)
+                        .rotationEffect(Angle(degrees: isAnimating ? 360 : 0))
+                        .animation(
+                            Animation.linear(duration: 1)
+                                .repeatForever(autoreverses: false),
+                            value: isAnimating
+                        )
+                }
+
+                Text("カメラを準備中...")
+                    .font(.system(size: 14, weight: .medium))
+                    .foregroundColor(.white.opacity(0.8))
+            }
+            .onAppear {
+                isAnimating = true
+            }
+        }
+        .preferredColorScheme(.dark)
     }
 }
 
