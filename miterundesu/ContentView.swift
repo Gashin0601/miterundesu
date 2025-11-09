@@ -141,7 +141,11 @@ struct ContentView: View {
             ExplanationView(isTheaterMode: isTheaterMode)
         }
         .sheet(item: $selectedImage) { capturedImage in
-            ImagePreviewView(capturedImage: capturedImage)
+            ImageGalleryView(
+                imageManager: imageManager,
+                settingsManager: settingsManager,
+                initialImage: capturedImage
+            )
         }
         .onAppear {
             cameraManager.setupCamera()

@@ -49,20 +49,84 @@ struct CameraPreviewWithZoom: View {
     @State private var lastZoomFactor: CGFloat = 1.0
 
     var body: some View {
-        CameraPreview(cameraManager: cameraManager)
-            .gesture(
-                MagnificationGesture()
-                    .onChanged { value in
-                        // シアターモード時もズームは有効（ピンチ操作のみ有効）
-                        let delta = value / lastZoomFactor
-                        lastZoomFactor = value
-                        let newZoom = cameraManager.currentZoom * delta
-                        cameraManager.zoom(factor: newZoom)
+        ZStack(alignment: .bottomTrailing) {
+            CameraPreview(cameraManager: cameraManager)
+                .gesture(
+                    MagnificationGesture()
+                        .onChanged { value in
+                            // シアターモード時もズームは有効（ピンチ操作のみ有効）
+                            let delta = value / lastZoomFactor
+                            lastZoomFactor = value
+                            let newZoom = cameraManager.currentZoom * delta
+                            cameraManager.zoom(factor: newZoom)
+                        }
+                        .onEnded { _ in
+                            lastZoomFactor = 1.0
+                        }
+                )
+
+            // カメラズームコントロール
+            if !isTheaterMode {
+                VStack(spacing: 12) {
+                    // ズームイン
+                    Button(action: {
+                        zoomIn()
+                    }) {
+                        ZStack {
+                            Circle()
+                                .fill(Color.black.opacity(0.6))
+                                .frame(width: 44, height: 44)
+
+                            Image(systemName: "plus")
+                                .font(.system(size: 20, weight: .medium))
+                                .foregroundColor(.white)
+                        }
                     }
-                    .onEnded { _ in
-                        lastZoomFactor = 1.0
+
+                    // ズームアウト
+                    Button(action: {
+                        zoomOut()
+                    }) {
+                        ZStack {
+                            Circle()
+                                .fill(Color.black.opacity(0.6))
+                                .frame(width: 44, height: 44)
+
+                            Image(systemName: "minus")
+                                .font(.system(size: 20, weight: .medium))
+                                .foregroundColor(.white)
+                        }
                     }
-            )
-            .cornerRadius(20)
+
+                    // リセットボタン
+                    Button(action: {
+                        cameraManager.zoom(factor: 1.0)
+                    }) {
+                        ZStack {
+                            Circle()
+                                .fill(Color.black.opacity(0.6))
+                                .frame(width: 44, height: 44)
+
+                            Image(systemName: "1.circle")
+                                .font(.system(size: 20, weight: .medium))
+                                .foregroundColor(.white)
+                        }
+                    }
+                }
+                .padding(.trailing, 12)
+                .padding(.bottom, 12)
+            }
+        }
+        .cornerRadius(20)
+    }
+
+    private func zoomIn() {
+        let newZoom = min(cameraManager.currentZoom * 1.5, cameraManager.maxZoomFactor)
+        cameraManager.zoom(factor: newZoom)
+    }
+
+    private func zoomOut() {
+        let newZoom = max(cameraManager.currentZoom / 1.5, 1.0)
+        cameraManager.zoom(factor: newZoom)
     }
 }
