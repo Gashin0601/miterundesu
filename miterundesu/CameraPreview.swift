@@ -77,76 +77,74 @@ struct CameraPreviewWithZoom: View {
                     }
                 }
 
-            // カメラズームコントロール
-            if !isTheaterMode {
-                VStack(spacing: 12) {
-                    // ズームイン
-                    ZStack {
-                        Circle()
-                            .fill(Color.black.opacity(0.6))
-                            .frame(width: 44, height: 44)
+            // カメラズームコントロール（シアターモードでも表示）
+            VStack(spacing: 12) {
+                // ズームイン
+                ZStack {
+                    Circle()
+                        .fill(Color.black.opacity(0.6))
+                        .frame(width: 44, height: 44)
 
-                        Image(systemName: "plus")
-                            .font(.system(size: 20, weight: .medium))
-                            .foregroundColor(.white)
-                    }
-                    .onTapGesture {
-                        zoomIn()
-                    }
-                    .onLongPressGesture(minimumDuration: 0.3, pressing: { pressing in
-                        if pressing {
-                            startContinuousZoom(direction: .in)
-                        } else {
-                            stopContinuousZoom()
-                        }
-                    }, perform: {})
-                    .accessibilityLabel("ズームイン")
-                    .accessibilityHint("タップで1.5倍拡大、長押しで連続拡大します")
-
-                    // ズームアウト
-                    ZStack {
-                        Circle()
-                            .fill(Color.black.opacity(0.6))
-                            .frame(width: 44, height: 44)
-
-                        Image(systemName: "minus")
-                            .font(.system(size: 20, weight: .medium))
-                            .foregroundColor(.white)
-                    }
-                    .onTapGesture {
-                        zoomOut()
-                    }
-                    .onLongPressGesture(minimumDuration: 0.3, pressing: { pressing in
-                        if pressing {
-                            startContinuousZoom(direction: .out)
-                        } else {
-                            stopContinuousZoom()
-                        }
-                    }, perform: {})
-                    .accessibilityLabel("ズームアウト")
-                    .accessibilityHint("タップで縮小、長押しで連続縮小します")
-
-                    // リセットボタン
-                    Button(action: {
-                        stopContinuousZoom()
-                        cameraManager.smoothZoom(to: 1.0, duration: 0.3)
-                    }) {
-                        ZStack {
-                            Circle()
-                                .fill(Color.black.opacity(0.6))
-                                .frame(width: 44, height: 44)
-
-                            Image(systemName: "1.circle")
-                                .font(.system(size: 20, weight: .medium))
-                                .foregroundColor(.white)
-                        }
-                    }
-                    .accessibilityLabel("ズームリセット")
-                    .accessibilityHint("カメラのズームを1倍に戻します")
+                    Image(systemName: "plus")
+                        .font(.system(size: 20, weight: .medium))
+                        .foregroundColor(.white)
                 }
-                .padding(.trailing, 12)
-                .padding(.bottom, 12)
+                .onTapGesture {
+                    zoomIn()
+                }
+                .onLongPressGesture(minimumDuration: 0.3, pressing: { pressing in
+                    if pressing {
+                        startContinuousZoom(direction: .in)
+                    } else {
+                        stopContinuousZoom()
+                    }
+                }, perform: {})
+                .accessibilityLabel("ズームイン")
+                .accessibilityHint("タップで1.5倍拡大、長押しで連続拡大します")
+
+                // ズームアウト
+                ZStack {
+                    Circle()
+                        .fill(Color.black.opacity(0.6))
+                        .frame(width: 44, height: 44)
+
+                    Image(systemName: "minus")
+                        .font(.system(size: 20, weight: .medium))
+                        .foregroundColor(.white)
+                }
+                .onTapGesture {
+                    zoomOut()
+                }
+                .onLongPressGesture(minimumDuration: 0.3, pressing: { pressing in
+                    if pressing {
+                        startContinuousZoom(direction: .out)
+                    } else {
+                        stopContinuousZoom()
+                    }
+                }, perform: {})
+                .accessibilityLabel("ズームアウト")
+                .accessibilityHint("タップで縮小、長押しで連続縮小します")
+
+                // リセットボタン
+                Button(action: {
+                    stopContinuousZoom()
+                    cameraManager.smoothZoom(to: 1.0, duration: 0.3)
+                }) {
+                    ZStack {
+                        Circle()
+                            .fill(Color.black.opacity(0.6))
+                            .frame(width: 44, height: 44)
+
+                        Image(systemName: "1.circle")
+                            .font(.system(size: 20, weight: .medium))
+                            .foregroundColor(.white)
+                    }
+                }
+                .accessibilityLabel("ズームリセット")
+                .accessibilityHint("カメラのズームを1倍に戻します")
             }
+            .padding(.trailing, 12)
+            .padding(.bottom, 12)
         }
         .cornerRadius(20)
     }

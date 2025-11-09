@@ -509,7 +509,8 @@ struct FooterView: View {
                 ThumbnailView(
                     imageManager: imageManager,
                     securityManager: securityManager,
-                    selectedImage: $selectedImage
+                    selectedImage: $selectedImage,
+                    isTheaterMode: isTheaterMode
                 )
                 .padding(.leading, 16)
 
@@ -565,6 +566,7 @@ struct ThumbnailView: View {
     @ObservedObject var imageManager: ImageManager
     @ObservedObject var securityManager: SecurityManager
     @Binding var selectedImage: CapturedImage?
+    let isTheaterMode: Bool
 
     @State private var currentTime = Date()
     let timer = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
@@ -572,7 +574,9 @@ struct ThumbnailView: View {
     var body: some View {
         if let latestImage = imageManager.capturedImages.first {
             Button(action: {
-                selectedImage = latestImage
+                if !isTheaterMode {
+                    selectedImage = latestImage
+                }
             }) {
                 ZStack(alignment: .topTrailing) {
                     Image(uiImage: latestImage.image)
@@ -592,8 +596,10 @@ struct ThumbnailView: View {
                     TimeRemainingBadge(remainingTime: latestImage.remainingTime)
                 }
             }
-            .accessibilityLabel("最新の撮影画像")
-            .accessibilityHint("タップして撮影した画像を表示します。残り時間: \(formattedTime(latestImage.remainingTime))")
+            .disabled(isTheaterMode)
+            .opacity(isTheaterMode ? 0.3 : 1.0)
+            .accessibilityLabel(isTheaterMode ? "閲覧不可" : "最新の撮影画像")
+            .accessibilityHint(isTheaterMode ? "シアターモードでは画像を閲覧できません" : "タップして撮影した画像を表示します。残り時間: \(formattedTime(latestImage.remainingTime))")
             .onReceive(timer) { _ in
                 currentTime = Date()
                 imageManager.removeExpiredImages()
