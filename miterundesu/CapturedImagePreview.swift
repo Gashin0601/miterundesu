@@ -102,30 +102,30 @@ struct CapturedImagePreview: View {
                             }
                         }
                 }
+                .blur(radius: securityManager.isScreenRecording ? 50 : 0)
 
-                // 画面録画・スクショ検出時は完全に真っ黒にする
-                if securityManager.isScreenRecording || securityManager.showScreenshotWarning {
-                    Color.black
-                        .ignoresSafeArea()
+                        // 画面録画中の警告
+                        if securityManager.isScreenRecording {
+                            VStack(spacing: 20) {
+                                Image(systemName: "eye.slash.fill")
+                                    .font(.system(size: 80))
+                                    .foregroundColor(.white)
 
-                    VStack(spacing: 20) {
-                        Image(systemName: "eye.slash.fill")
-                            .font(.system(size: 80))
-                            .foregroundColor(.white)
+                                Text(settingsManager.localizationManager.localizedString("screen_recording_warning"))
+                                    .font(.title)
+                                    .fontWeight(.bold)
+                                    .foregroundColor(.white)
 
-                        Text(securityManager.isScreenRecording ?
-                            settingsManager.localizationManager.localizedString("screen_recording_warning") :
-                            settingsManager.localizationManager.localizedString("screenshot_taken"))
-                            .font(.title)
-                            .fontWeight(.bold)
-                            .foregroundColor(.white)
-
-                        Text(settingsManager.localizationManager.localizedString("no_recording_message"))
-                            .font(.body)
-                            .foregroundColor(.white.opacity(0.8))
-                    }
-                    .padding(40)
-                }
+                                Text(settingsManager.localizationManager.localizedString("no_recording_message"))
+                                    .font(.body)
+                                    .foregroundColor(.white.opacity(0.8))
+                            }
+                            .padding(40)
+                            .background(
+                                RoundedRectangle(cornerRadius: 20)
+                                    .fill(Color.black.opacity(0.8))
+                            )
+                        }
 
                 // 右側：ズームコントロールと倍率表示
                 VStack(alignment: .trailing, spacing: 8) {
@@ -305,6 +305,29 @@ struct CapturedImagePreview: View {
                     .accessibilityLabel("閉じる")
                     .accessibilityHint("プレビューを閉じてカメラに戻ります")
                 }
+
+            // 画面録画警告（上部に常時表示）
+            if securityManager.showRecordingWarning {
+                VStack {
+                    RecordingWarningView()
+                    Spacer()
+                }
+                .transition(.move(edge: .top).combined(with: .opacity))
+                .animation(.easeInOut, value: securityManager.showRecordingWarning)
+            }
+
+            // スクリーンショット警告（中央にモーダル表示）
+            if securityManager.showScreenshotWarning {
+                Color.black.opacity(0.4)
+                    .ignoresSafeArea()
+                    .onTapGesture {
+                        securityManager.showScreenshotWarning = false
+                    }
+
+                ScreenshotWarningView()
+                    .transition(.scale.combined(with: .opacity))
+                    .animation(.spring(), value: securityManager.showScreenshotWarning)
+            }
         }
         .fullScreenCover(isPresented: $showSettings) {
             SettingsView(settingsManager: settingsManager, isTheaterMode: false)
