@@ -102,6 +102,7 @@ struct CapturedImagePreview: View {
                             }
                         }
                 }
+                .preventScreenCapture() // 最新のスクリーンショット保護
                 .blur(radius: securityManager.isScreenRecording ? 50 : 0)
 
                         // 画面録画中の警告

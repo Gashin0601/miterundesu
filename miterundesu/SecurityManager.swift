@@ -138,6 +138,121 @@ class SecurityManager: ObservableObject {
     }
 }
 
+// MARK: - Secure View Modifier (スクリーンショット・画面録画対策)
+// 最新の実装方法（2024-2025年版）
+// 参考: https://www.createwithswift.com/prevent-screenshot-capture-of-sensitive-swiftui-views/
+
+// UIViewの拡張 - セキュアキャプチャビューを取得
+private extension UIView {
+    static var secureCaptureView: UIView {
+        let textField = UITextField()
+        textField.isSecureTextEntry = true
+        textField.isUserInteractionEnabled = false
+        // subviewsの最初の要素を取得（より安定的な方法）
+        return textField.subviews.first ?? UIView()
+    }
+}
+
+// PreferenceKey for size tracking
+fileprivate struct SizeKey: PreferenceKey {
+    static var defaultValue: CGSize = .zero
+
+    static func reduce(value: inout CGSize, nextValue: () -> CGSize) {
+        value = nextValue()
+    }
+}
+
+// UIViewRepresentable Helper
+fileprivate struct ScreenshotPreventHelper<Content: View>: UIViewRepresentable {
+    @Binding var hostingController: UIHostingController<Content>?
+
+    func makeUIView(context: Context) -> UIView {
+        print("🔐 secureCaptureView を作成")
+        return UIView.secureCaptureView
+    }
+
+    func updateUIView(_ uiView: UIView, context: Context) {
+        // ホスティングコントローラーのビューを追加（タグで重複を防ぐ）
+        if let hostingController = hostingController,
+           !uiView.subviews.contains(where: { $0.tag == 1001 }) {
+            let view = hostingController.view!
+            view.tag = 1001
+            view.backgroundColor = .clear
+            uiView.addSubview(view)
+
+            // 制約を設定
+            view.translatesAutoresizingMaskIntoConstraints = false
+            NSLayoutConstraint.activate([
+                view.topAnchor.constraint(equalTo: uiView.topAnchor),
+                view.bottomAnchor.constraint(equalTo: uiView.bottomAnchor),
+                view.leadingAnchor.constraint(equalTo: uiView.leadingAnchor),
+                view.trailingAnchor.constraint(equalTo: uiView.trailingAnchor)
+            ])
+            print("🔐 ホスティングコントローラーのビューを追加完了")
+        }
+    }
+}
+
+// メインのスクリーンショット防止ビュー
+struct ScreenshotPreventView<Content: View>: View {
+    var content: Content
+
+    init(@ViewBuilder content: @escaping () -> Content) {
+        self.content = content()
+    }
+
+    @State private var hostingController: UIHostingController<Content>?
+
+    var body: some View {
+        ScreenshotPreventHelper(hostingController: $hostingController)
+            .overlay(
+                GeometryReader { geometry in
+                    Color.clear
+                        .preference(key: SizeKey.self, value: geometry.size)
+                        .onPreferenceChange(SizeKey.self) { size in
+                            if hostingController == nil {
+                                hostingController = UIHostingController(rootView: content)
+                                hostingController?.view.backgroundColor = .clear
+                                hostingController?.view.frame = CGRect(origin: .zero, size: size)
+                                print("🔐 ホスティングコントローラー初期化完了 - サイズ: \(size)")
+                            }
+                        }
+                }
+            )
+    }
+}
+
+// ViewModifier
+struct HideWithScreenshot: ViewModifier {
+    @State private var size: CGSize?
+
+    func body(content: Content) -> some View {
+        ScreenshotPreventView {
+            content
+                .background(
+                    GeometryReader { proxy in
+                        Color.clear
+                            .onAppear {
+                                size = proxy.size
+                            }
+                            .onChange(of: proxy.size) { _, newSize in
+                                size = newSize
+                            }
+                    }
+                )
+        }
+        .frame(width: size?.width, height: size?.height)
+    }
+}
+
+// View Extension
+extension View {
+    /// スクリーンショット・画面録画から保護（最新実装）
+    func preventScreenCapture() -> some View {
+        modifier(HideWithScreenshot())
+    }
+}
+
 // MARK: - Screenshot Warning View
 struct ScreenshotWarningView: View {
     var body: some View {

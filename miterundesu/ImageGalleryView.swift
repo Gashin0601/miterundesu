@@ -535,6 +535,7 @@ struct ZoomableImageView: View {
                     }
                 }
         }
+        .preventScreenCapture() // 最新のスクリーンショット保護
     }
 
     // 境界制約を適用したオフセットを計算（ベストプラクティスに基づく）
