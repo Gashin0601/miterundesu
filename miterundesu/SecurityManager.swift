@@ -19,6 +19,7 @@ class SecurityManager: ObservableObject {
     private var recordingCheckTimer: Timer?
 
     init() {
+        print("🔒 SecurityManager: 初期化")
         setupScreenshotDetection()
         setupScreenRecordingDetection()
         setupAppLifecycleObservers()
@@ -143,6 +144,7 @@ class SecurityManager: ObservableObject {
 
 extension UIView {
     func makeSecure() {
+        print("🔐 makeSecure() 呼び出し")
         DispatchQueue.main.async {
             let field = UITextField()
             field.isSecureTextEntry = true
@@ -152,6 +154,7 @@ extension UIView {
             field.centerXAnchor.constraint(equalTo: self.centerXAnchor).isActive = true
             self.layer.superlayer?.addSublayer(field.layer)
             field.layer.sublayers?.first?.addSublayer(self.layer)
+            print("🔐 makeSecure() 適用完了")
         }
     }
 }
@@ -186,6 +189,7 @@ class RestrictCaptureViewController<Content: View>: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
+        print("📱 RestrictCaptureViewController: viewDidLoad()")
 
         // ホスティングコントローラーをビュー階層に追加
         hostingController.view.backgroundColor = .clear
