@@ -265,24 +265,6 @@ struct ContentView: View {
             // 最大拡大率が変更されたらカメラに適用
             cameraManager.setMaxZoomFactor(newValue)
         }
-        .onChange(of: showSettings) { oldValue, newValue in
-            // 設定画面が開いている時はセキュリティマスクを無効化
-            securityManager.isSecurityMaskEnabled = !newValue
-            if newValue {
-                print("🔒 設定画面表示: セキュリティマスクを無効化")
-            } else {
-                print("🔒 設定画面閉じる: セキュリティマスクを有効化")
-            }
-        }
-        .onChange(of: showExplanation) { oldValue, newValue in
-            // 説明画面が開いている時はセキュリティマスクを無効化
-            securityManager.isSecurityMaskEnabled = !newValue
-            if newValue {
-                print("🔒 説明画面表示: セキュリティマスクを無効化")
-            } else {
-                print("🔒 説明画面閉じる: セキュリティマスクを有効化")
-            }
-        }
     }
 
     // UIを表示すべきかどうか

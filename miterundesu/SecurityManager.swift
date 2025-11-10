@@ -14,13 +14,11 @@ class SecurityManager: ObservableObject {
     @Published var isScreenRecording = false
     @Published var showScreenshotWarning = false
     @Published var showRecordingWarning = false
-    @Published var showSecurityMask = true // 起動時・復帰時のセキュリティマスク
-    @Published var isSecurityMaskEnabled = true // セキュリティマスクの有効/無効フラグ
     @Published var hideContent = false // スクリーンショット検出時にコンテンツを隠す
+    @Published var shouldDismissToCamera = false // スクリーンショット検出時にカメラビューに戻る
 
     private var cancellables = Set<AnyCancellable>()
     private var recordingCheckTimer: Timer?
-    private var securityMaskWindow: UIWindow?
 
     static let shared = SecurityManager() // シングルトンインスタンス
 
@@ -28,8 +26,6 @@ class SecurityManager: ObservableObject {
         print("🔒 SecurityManager: 初期化")
         setupScreenshotDetection()
         setupScreenRecordingDetection()
-        setupAppLifecycleObservers()
-        setupSecurityMask()
     }
 
     deinit {
@@ -63,45 +59,6 @@ class SecurityManager: ObservableObject {
         }
     }
 
-    // アプリのライフサイクル監視
-    private func setupAppLifecycleObservers() {
-        // アプリがアクティブになった時に即座にチェックして除去
-        NotificationCenter.default.publisher(for: UIApplication.didBecomeActiveNotification)
-            .sink { [weak self] _ in
-                print("🔒 アプリがアクティブになりました")
-                self?.checkScreenRecordingStatus()
-                // 即座にマスクを除去（遅延なし）
-                DispatchQueue.main.async {
-                    self?.removeMaskIfSafe()
-                }
-            }
-            .store(in: &cancellables)
-
-        // アプリがフォアグラウンドに入る時はマスクを表示
-        NotificationCenter.default.publisher(for: UIApplication.willEnterForegroundNotification)
-            .sink { [weak self] _ in
-                print("🔒 アプリがフォアグラウンドに入ります")
-                self?.checkScreenRecordingStatus()
-                self?.showMask()
-            }
-            .store(in: &cancellables)
-
-        // アプリが非アクティブになる時（バックグラウンドに移行、マルチタスク画面など）
-        NotificationCenter.default.publisher(for: UIApplication.willResignActiveNotification)
-            .sink { [weak self] _ in
-                print("🔒 アプリが非アクティブになります")
-                self?.showMask()
-            }
-            .store(in: &cancellables)
-
-        // アプリがバックグラウンドに入る時
-        NotificationCenter.default.publisher(for: UIApplication.didEnterBackgroundNotification)
-            .sink { [weak self] _ in
-                print("🔒 アプリがバックグラウンドに入りました")
-                self?.showMask()
-            }
-            .store(in: &cancellables)
-    }
 
     // スクリーンショット検出時の処理
     private func handleScreenshotDetected() {
@@ -111,8 +68,8 @@ class SecurityManager: ObservableObject {
             // 即座にコンテンツを隠す（最優先）
             self.hideContent = true
 
-            // マスクを表示
-            self.showMask()
+            // カメラビューに戻るフラグを立てる
+            self.shouldDismissToCamera = true
 
             self.showScreenshotWarning = true
 
@@ -120,6 +77,8 @@ class SecurityManager: ObservableObject {
             DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
                 self.showScreenshotWarning = false
                 self.hideContent = false
+                // フラグをリセット
+                self.shouldDismissToCamera = false
             }
         }
     }
@@ -168,165 +127,6 @@ class SecurityManager: ObservableObject {
         }
     }
 
-    // セキュリティマスクのセットアップ
-    private func setupSecurityMask() {
-        DispatchQueue.main.async { [weak self] in
-            guard let self = self else { return }
-
-            // セキュリティマスクが無効化されている場合はスキップ
-            if !self.isSecurityMaskEnabled {
-                print("🔒 セキュリティマスクは無効化されています（セットアップスキップ）")
-                return
-            }
-
-            // セキュリティマスク用のウィンドウを作成
-            if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene {
-                let maskWindow = UIWindow(windowScene: windowScene)
-
-                // 最前面に表示（アラートよりは下、通常のウィンドウよりは上）
-                maskWindow.windowLevel = .statusBar
-                maskWindow.backgroundColor = .black
-
-                // ブラービューを追加（iOS標準のぼかし効果）
-                let blurEffect = UIBlurEffect(style: .dark)
-                let blurView = UIVisualEffectView(effect: blurEffect)
-                blurView.frame = maskWindow.bounds
-                blurView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
-                maskWindow.addSubview(blurView)
-
-                // アイコンとメッセージを追加
-                let containerView = UIView()
-                containerView.translatesAutoresizingMaskIntoConstraints = false
-                maskWindow.addSubview(containerView)
-
-                let iconView = UIImageView(image: UIImage(systemName: "lock.shield.fill"))
-                iconView.tintColor = .white
-                iconView.contentMode = .scaleAspectFit
-                iconView.translatesAutoresizingMaskIntoConstraints = false
-                containerView.addSubview(iconView)
-
-                let messageLabel = UILabel()
-                messageLabel.text = "セキュリティチェック中..."
-                messageLabel.textColor = .white
-                messageLabel.font = .systemFont(ofSize: 16, weight: .medium)
-                messageLabel.textAlignment = .center
-                messageLabel.translatesAutoresizingMaskIntoConstraints = false
-                containerView.addSubview(messageLabel)
-
-                NSLayoutConstraint.activate([
-                    containerView.centerXAnchor.constraint(equalTo: maskWindow.centerXAnchor),
-                    containerView.centerYAnchor.constraint(equalTo: maskWindow.centerYAnchor),
-
-                    iconView.topAnchor.constraint(equalTo: containerView.topAnchor),
-                    iconView.centerXAnchor.constraint(equalTo: containerView.centerXAnchor),
-                    iconView.widthAnchor.constraint(equalToConstant: 60),
-                    iconView.heightAnchor.constraint(equalToConstant: 60),
-
-                    messageLabel.topAnchor.constraint(equalTo: iconView.bottomAnchor, constant: 16),
-                    messageLabel.leadingAnchor.constraint(equalTo: containerView.leadingAnchor),
-                    messageLabel.trailingAnchor.constraint(equalTo: containerView.trailingAnchor),
-                    messageLabel.bottomAnchor.constraint(equalTo: containerView.bottomAnchor)
-                ])
-
-                self.securityMaskWindow = maskWindow
-                maskWindow.makeKeyAndVisible()
-                print("🔒 セキュリティマスクを初期化")
-            }
-        }
-    }
-
-    // セキュリティマスクを表示
-    func showMask() {
-        DispatchQueue.main.async { [weak self] in
-            guard let self = self else { return }
-
-            // セキュリティマスクが無効化されている場合はスキップ
-            if !self.isSecurityMaskEnabled {
-                print("🔒 セキュリティマスクは無効化されています")
-                return
-            }
-
-            self.showSecurityMask = true
-
-            if let maskWindow = self.securityMaskWindow {
-                // 既存のマスクウィンドウを再表示
-                maskWindow.isHidden = false
-                maskWindow.alpha = 1.0
-                maskWindow.makeKeyAndVisible()
-                print("🔒 セキュリティマスクを表示")
-            } else {
-                // マスクウィンドウが存在しない場合は作成
-                print("🔒 セキュリティマスクウィンドウを再作成")
-                self.setupSecurityMask()
-            }
-        }
-    }
-
-    // 安全な場合のみマスクを除去
-    private func removeMaskIfSafe() {
-        DispatchQueue.main.async { [weak self] in
-            guard let self = self else { return }
-
-            // セキュリティマスクが無効化されている場合は即座に除去
-            if !self.isSecurityMaskEnabled {
-                self.securityMaskWindow?.isHidden = true
-                self.securityMaskWindow = nil
-                self.showSecurityMask = false
-                print("🔒 セキュリティマスクは無効化されています（即座に除去）")
-                return
-            }
-
-            // 画面録画状態をチェック
-            let isCaptured: Bool
-
-            if #available(iOS 18.0, *) {
-                if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
-                   let window = windowScene.windows.first {
-                    isCaptured = window.traitCollection.sceneCaptureState == .active
-                } else {
-                    isCaptured = UIScreen.main.isCaptured
-                }
-            } else {
-                isCaptured = UIScreen.main.isCaptured
-            }
-
-            print("🔒 セキュリティチェック: 録画中=\(isCaptured)")
-
-            if !isCaptured {
-                // 安全な状態 - マスクを即座にフェードアウト（0.05秒）
-                UIView.animate(withDuration: 0.05, animations: {
-                    self.securityMaskWindow?.alpha = 0.0
-                }) { _ in
-                    self.securityMaskWindow?.isHidden = true
-                    // ウィンドウを完全に削除
-                    self.securityMaskWindow = nil
-                    self.showSecurityMask = false
-                    print("🔒 セキュリティマスクを除去（安全確認済み）")
-                }
-            } else {
-                // 録画中 - マスクを維持
-                print("⚠️ 画面録画中のためマスクを維持")
-                self.showSecurityMask = true
-            }
-
-            // タイムアウト機能：0.3秒後に強制的にマスクを除去（短縮）
-            // （録画チェックが正しく動作しない場合の保険）
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) { [weak self] in
-                guard let self = self else { return }
-                if self.securityMaskWindow != nil && !self.isScreenRecording {
-                    print("🔒 タイムアウトによりセキュリティマスクを強制除去")
-                    UIView.animate(withDuration: 0.05) {
-                        self.securityMaskWindow?.alpha = 0.0
-                    } completion: { _ in
-                        self.securityMaskWindow?.isHidden = true
-                        // ウィンドウを完全に削除
-                        self.securityMaskWindow = nil
-                        self.showSecurityMask = false
-                    }
-                }
-            }
-        }
-    }
 
     // メモリクリア（画像データの安全な削除）
     func clearSensitiveData() {
