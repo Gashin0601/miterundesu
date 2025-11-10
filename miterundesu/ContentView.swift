@@ -113,7 +113,7 @@ struct ContentView: View {
                     if securityManager.hideContent {
                         // スクリーンショット検出時：完全に黒画面
                         Color.black
-                            .frame(maxWidth: .infinity, maxHeight: .infinity)
+                            .aspectRatio(3/4, contentMode: .fit)
                     } else {
                         // 保護されたカメラプレビュー
                         Group {
@@ -156,7 +156,8 @@ struct ContentView: View {
                         .opacity(shouldShowUI ? 1 : 0)
                         .allowsHitTesting(false) // タッチイベントを透過
                 }
-                .frame(maxWidth: .infinity) // maxHeight を削除して VStack が自然にレイアウト
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .layoutPriority(1) // カメラプレビューが優先的にスペースを取得
                 .padding(.horizontal, 16)
                 .padding(.top, 12)
                 .padding(.bottom, 8)

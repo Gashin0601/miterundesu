@@ -265,7 +265,7 @@ struct HideWithScreenshot: ViewModifier {
                     }
                 )
         }
-        .frame(width: size?.width, height: size?.height)
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
 }
 
