@@ -331,7 +331,11 @@ private class PhotoCaptureDelegate: NSObject, AVCapturePhotoCaptureDelegate {
             return
         }
 
-        completion(image)
+        // ウォーターマークを焼き込む
+        let watermarkText = WatermarkHelper.generateWatermarkText()
+        let watermarkedImage = image.withWatermark(text: watermarkText, position: .bottomLeft)
+
+        completion(watermarkedImage)
     }
 }
 

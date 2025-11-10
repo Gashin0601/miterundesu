@@ -105,18 +105,6 @@ struct CapturedImagePreview: View {
                 .preventScreenCapture() // 最新のスクリーンショット保護
                 .blur(radius: securityManager.isScreenRecording ? 50 : 0)
 
-                // 左下：ウォーターマーク（常時表示）
-                VStack {
-                    Spacer()
-                    HStack {
-                        WatermarkView(isDarkBackground: true)
-                            .padding(.leading, 12)
-                            .padding(.bottom, 12)
-                        Spacer()
-                    }
-                }
-                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottomLeading)
-
                 // 画面録画中の警告（中央）
                 if securityManager.isScreenRecording {
                     VStack(spacing: 20) {
