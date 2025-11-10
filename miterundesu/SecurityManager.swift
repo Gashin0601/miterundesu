@@ -15,6 +15,7 @@ class SecurityManager: ObservableObject {
     @Published var showScreenshotWarning = false
     @Published var showRecordingWarning = false
     @Published var showSecurityMask = true // 起動時・復帰時のセキュリティマスク
+    @Published var isSecurityMaskEnabled = true // セキュリティマスクの有効/無効フラグ
 
     private var cancellables = Set<AnyCancellable>()
     private var recordingCheckTimer: Timer?
@@ -167,6 +168,12 @@ class SecurityManager: ObservableObject {
         DispatchQueue.main.async { [weak self] in
             guard let self = self else { return }
 
+            // セキュリティマスクが無効化されている場合はスキップ
+            if !self.isSecurityMaskEnabled {
+                print("🔒 セキュリティマスクは無効化されています（セットアップスキップ）")
+                return
+            }
+
             // セキュリティマスク用のウィンドウを作成
             if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene {
                 let maskWindow = UIWindow(windowScene: windowScene)
@@ -228,6 +235,12 @@ class SecurityManager: ObservableObject {
         DispatchQueue.main.async { [weak self] in
             guard let self = self else { return }
 
+            // セキュリティマスクが無効化されている場合はスキップ
+            if !self.isSecurityMaskEnabled {
+                print("🔒 セキュリティマスクは無効化されています")
+                return
+            }
+
             self.showSecurityMask = true
 
             if let maskWindow = self.securityMaskWindow {
@@ -249,6 +262,15 @@ class SecurityManager: ObservableObject {
         DispatchQueue.main.async { [weak self] in
             guard let self = self else { return }
 
+            // セキュリティマスクが無効化されている場合は即座に除去
+            if !self.isSecurityMaskEnabled {
+                self.securityMaskWindow?.isHidden = true
+                self.securityMaskWindow = nil
+                self.showSecurityMask = false
+                print("🔒 セキュリティマスクは無効化されています（即座に除去）")
+                return
+            }
+
             // 画面録画状態をチェック
             let isCaptured: Bool
 
@@ -266,8 +288,8 @@ class SecurityManager: ObservableObject {
             print("🔒 セキュリティチェック: 録画中=\(isCaptured)")
 
             if !isCaptured {
-                // 安全な状態 - マスクを即座にフェードアウト（0.1秒）
-                UIView.animate(withDuration: 0.1, animations: {
+                // 安全な状態 - マスクを即座にフェードアウト（0.05秒）
+                UIView.animate(withDuration: 0.05, animations: {
                     self.securityMaskWindow?.alpha = 0.0
                 }) { _ in
                     self.securityMaskWindow?.isHidden = true
@@ -282,13 +304,13 @@ class SecurityManager: ObservableObject {
                 self.showSecurityMask = true
             }
 
-            // タイムアウト機能：0.5秒後に強制的にマスクを除去
+            // タイムアウト機能：0.3秒後に強制的にマスクを除去（短縮）
             // （録画チェックが正しく動作しない場合の保険）
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) { [weak self] in
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) { [weak self] in
                 guard let self = self else { return }
                 if self.securityMaskWindow != nil && !self.isScreenRecording {
                     print("🔒 タイムアウトによりセキュリティマスクを強制除去")
-                    UIView.animate(withDuration: 0.1) {
+                    UIView.animate(withDuration: 0.05) {
                         self.securityMaskWindow?.alpha = 0.0
                     } completion: { _ in
                         self.securityMaskWindow?.isHidden = true
