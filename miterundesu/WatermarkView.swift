@@ -22,53 +22,97 @@ extension UIImage {
             // 元の画像を描画
             self.draw(in: CGRect(origin: .zero, size: imageSize))
 
-            // ウォーターマークテキストのスタイル設定
-            let fontSize: CGFloat = imageSize.width * 0.025 // 画像幅の2.5%
-            let font = UIFont.monospacedSystemFont(ofSize: fontSize, weight: .medium)
+            // パディング設定
+            let padding: CGFloat = imageSize.width * 0.015 // 画像幅の1.5%をパディング
 
-            let paragraphStyle = NSMutableParagraphStyle()
-            paragraphStyle.alignment = .left
+            // 上段テキスト（アプリ名）のスタイル設定
+            let titleFontSize: CGFloat = imageSize.width * 0.02 // 画像幅の2%
+            let titleFont = UIFont.systemFont(ofSize: titleFontSize, weight: .bold)
 
-            // 水のような透明感のある属性
-            let attributes: [NSAttributedString.Key: Any] = [
-                .font: font,
-                .foregroundColor: UIColor.white.withAlphaComponent(0.85), // より透明に
-                .paragraphStyle: paragraphStyle
+            let titleAttributes: [NSAttributedString.Key: Any] = [
+                .font: titleFont,
+                .foregroundColor: UIColor.white.withAlphaComponent(0.95),
+                .paragraphStyle: NSMutableParagraphStyle()
             ]
 
+            // 下段テキスト（日付・ID）のスタイル設定
+            let infoFontSize: CGFloat = imageSize.width * 0.015 // 画像幅の1.5%
+            let infoFont = UIFont.monospacedSystemFont(ofSize: infoFontSize, weight: .medium)
+
+            let infoAttributes: [NSAttributedString.Key: Any] = [
+                .font: infoFont,
+                .foregroundColor: UIColor.white.withAlphaComponent(0.9),
+                .paragraphStyle: NSMutableParagraphStyle()
+            ]
+
+            // テキストを分割
+            let titleText = "ミテルンデス"
+            let infoText = text // "2025/01/10 15:30 | ID: ABC123" 形式
+
             // テキストサイズを計算
-            let textSize = text.size(withAttributes: attributes)
+            let titleSize = titleText.size(withAttributes: titleAttributes)
+            let infoSize = infoText.size(withAttributes: infoAttributes)
+
+            // 全体の高さを計算
+            let totalHeight = titleSize.height + infoSize.height + 2 // 2pxスペース
 
             // ウォーターマークの位置を計算
-            let padding: CGFloat = imageSize.width * 0.02 // 画像幅の2%をパディング
-            let textOrigin: CGPoint
+            let titleOrigin: CGPoint
+            let infoOrigin: CGPoint
 
             switch position {
             case .bottomLeft:
-                textOrigin = CGPoint(
+                titleOrigin = CGPoint(
                     x: padding,
-                    y: imageSize.height - textSize.height - padding
+                    y: imageSize.height - totalHeight - padding
+                )
+                infoOrigin = CGPoint(
+                    x: padding,
+                    y: imageSize.height - infoSize.height - padding
                 )
             case .bottomRight:
-                textOrigin = CGPoint(
-                    x: imageSize.width - textSize.width - padding,
-                    y: imageSize.height - textSize.height - padding
+                titleOrigin = CGPoint(
+                    x: imageSize.width - max(titleSize.width, infoSize.width) - padding,
+                    y: imageSize.height - totalHeight - padding
+                )
+                infoOrigin = CGPoint(
+                    x: imageSize.width - infoSize.width - padding,
+                    y: imageSize.height - infoSize.height - padding
                 )
             case .topLeft:
-                textOrigin = CGPoint(
+                titleOrigin = CGPoint(
                     x: padding,
                     y: padding
                 )
+                infoOrigin = CGPoint(
+                    x: padding,
+                    y: padding + titleSize.height + 2
+                )
             case .topRight:
-                textOrigin = CGPoint(
-                    x: imageSize.width - textSize.width - padding,
+                titleOrigin = CGPoint(
+                    x: imageSize.width - max(titleSize.width, infoSize.width) - padding,
                     y: padding
+                )
+                infoOrigin = CGPoint(
+                    x: imageSize.width - infoSize.width - padding,
+                    y: padding + titleSize.height + 2
                 )
             }
 
+            // 背景矩形を描画
+            let bgRect = CGRect(
+                x: titleOrigin.x - 6,
+                y: titleOrigin.y - 4,
+                width: max(titleSize.width, infoSize.width) + 12,
+                height: totalHeight + 8
+            )
+            let bgPath = UIBezierPath(roundedRect: bgRect, cornerRadius: 4)
+            UIColor.black.withAlphaComponent(0.7).setFill()
+            bgPath.fill()
+
             // テキストを描画
-            let textRect = CGRect(origin: textOrigin, size: textSize)
-            text.draw(in: textRect, withAttributes: attributes)
+            titleText.draw(at: titleOrigin, withAttributes: titleAttributes)
+            infoText.draw(at: infoOrigin, withAttributes: infoAttributes)
         }
 
         return watermarkedImage
@@ -82,7 +126,7 @@ extension UIImage {
 
 // MARK: - Watermark Helper
 class WatermarkHelper {
-    /// ウォーターマークテキストを生成
+    /// ウォーターマークテキストを生成（日付時間とデバイスIDのみ）
     static func generateWatermarkText() -> String {
         let dateFormatter = DateFormatter()
         dateFormatter.dateFormat = "yyyy/MM/dd HH:mm"
@@ -90,7 +134,7 @@ class WatermarkHelper {
 
         let deviceID = generateShortDeviceID()
 
-        return "miterundesu  |  \(dateString)  |  ID: \(deviceID)"
+        return "\(dateString) | ID: \(deviceID)"
     }
 
     /// 短縮された端末IDを生成
@@ -118,64 +162,37 @@ struct WatermarkView: View {
     }
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 2) {
-            Text(viewModel.watermarkText)
-                .font(.system(size: 13, weight: .semibold, design: .monospaced))
+        VStack(alignment: .leading, spacing: 1) {
+            // 上段: アプリ名ロゴ
+            Text("ミテルンデス")
+                .font(.system(size: 10, weight: .bold, design: .rounded))
                 .foregroundColor(.white)
-                .shadow(color: .black.opacity(0.5), radius: 2, x: 0, y: 1)
-                .shadow(color: .white.opacity(0.3), radius: 8, x: 0, y: 0) // 水のような光沢
-        }
-        .padding(.horizontal, 16)
-        .padding(.vertical, 12)
-        .background {
-            // グラスモーフィズム効果（水のような透明感）
-            ZStack {
-                // 半透明のグラデーション背景（水滴のような）
-                LinearGradient(
-                    colors: [
-                        Color.white.opacity(0.25),
-                        Color.white.opacity(0.15),
-                        Color.white.opacity(0.2)
-                    ],
-                    startPoint: .topLeading,
-                    endPoint: .bottomTrailing
-                )
 
-                // 薄いブラーオーバーレイ（フロストガラス効果）
-                Color.white.opacity(0.1)
-            }
-            .background(.ultraThinMaterial) // SwiftUIのMaterial（水のようなぼかし）
-            .cornerRadius(12)
-            .overlay(
-                RoundedRectangle(cornerRadius: 12)
-                    .stroke(
-                        LinearGradient(
-                            colors: [
-                                Color.white.opacity(0.6),
-                                Color.white.opacity(0.2),
-                                Color.white.opacity(0.4)
-                            ],
-                            startPoint: .topLeading,
-                            endPoint: .bottomTrailing
-                        ),
-                        lineWidth: 1.5
-                    )
-            )
-            .shadow(color: .black.opacity(0.2), radius: 8, x: 0, y: 4) // 水のような影
+            // 下段: 日付時間とデバイスID
+            Text(viewModel.watermarkInfo)
+                .font(.system(size: 8, weight: .medium, design: .monospaced))
+                .foregroundColor(.white.opacity(0.9))
         }
+        .padding(.horizontal, 8)
+        .padding(.vertical, 6)
+        .background(
+            RoundedRectangle(cornerRadius: 6)
+                .fill(Color.black.opacity(0.7)) // 不透明度高め
+        )
+        .shadow(color: .black.opacity(0.4), radius: 2, x: 0, y: 1)
     }
 }
 
 // MARK: - Watermark ViewModel
 class WatermarkViewModel: ObservableObject {
-    @Published var watermarkText: String = ""
+    @Published var watermarkInfo: String = ""
     private var timer: Timer?
     private let deviceID: String
 
     init() {
         // 端末IDの短縮版を生成（最初の6文字）
         self.deviceID = WatermarkViewModel.generateShortDeviceID()
-        updateWatermarkText()
+        updateWatermarkInfo()
         startTimer()
     }
 
@@ -186,16 +203,16 @@ class WatermarkViewModel: ObservableObject {
     private func startTimer() {
         // 1分ごとに時刻を更新
         timer = Timer.scheduledTimer(withTimeInterval: 60, repeats: true) { [weak self] _ in
-            self?.updateWatermarkText()
+            self?.updateWatermarkInfo()
         }
     }
 
-    private func updateWatermarkText() {
+    private func updateWatermarkInfo() {
         let dateFormatter = DateFormatter()
         dateFormatter.dateFormat = "yyyy/MM/dd HH:mm"
         let dateString = dateFormatter.string(from: Date())
 
-        watermarkText = "miterundesu  |  \(dateString)  |  ID: \(deviceID)"
+        watermarkInfo = "\(dateString) | ID: \(deviceID)"
     }
 
     private static func generateShortDeviceID() -> String {
