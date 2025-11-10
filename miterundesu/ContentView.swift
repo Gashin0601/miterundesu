@@ -286,13 +286,15 @@ struct ContentView: View {
                 justCapturedImage = nil
                 selectedImage = nil
 
-                // カメラセッションが停止している場合は再起動
-                print("📷 カメラセッション状態確認: isSessionRunning=\(cameraManager.isSessionRunning)")
-                if !cameraManager.isSessionRunning {
-                    print("📷 カメラセッションを再起動します")
+                // カメラセッションを強制的に再起動（状態チェックなし）
+                // エラー -17281 でセッションが無効化されても isSessionRunning が true のままの場合があるため
+                print("📷 カメラセッションを強制的に再起動します")
+                cameraManager.stopSession()
+                // 少し待ってから再起動
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
                     cameraManager.startSession()
+                    print("🔒 カメラプレビューに復帰しました")
                 }
-                print("🔒 カメラプレビューに復帰しました")
             }
         }
     }
@@ -363,9 +365,10 @@ struct ContentView: View {
             // フォアグラウンド復帰時に期限切れ画像を削除
             imageManager.removeExpiredImages()
 
-            // カメラセッションが停止している場合は再起動
-            if !cameraManager.isSessionRunning {
-                print("📷 カメラセッションが停止中 - 再起動します")
+            // カメラセッションを強制的に再起動（常に実行）
+            print("📷 カメラセッションを強制的に再起動します")
+            cameraManager.stopSession()
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
                 cameraManager.startSession()
             }
         }
