@@ -279,6 +279,16 @@ struct ContentView: View {
                 print("🔒 画像プレビューをnilに設定しました")
             }
         }
+        .onChange(of: securityManager.showScreenshotWarning) { oldValue, newValue in
+            // 警告が閉じた時（false）に、確実にカメラプレビューに戻す
+            if oldValue == true && newValue == false {
+                print("🔒 スクリーンショット警告が閉じました - カメラプレビューに戻ります")
+                // 明示的に画像プレビューを閉じる
+                justCapturedImage = nil
+                selectedImage = nil
+                print("🔒 カメラプレビューに復帰しました")
+            }
+        }
     }
 
     // UIを表示すべきかどうか
