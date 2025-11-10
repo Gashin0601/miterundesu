@@ -42,7 +42,7 @@ struct CapturedImagePreview: View {
                 .ignoresSafeArea()
 
             // 画像表示エリア
-            ZStack(alignment: .bottomTrailing) {
+            ZStack {
                 if securityManager.hideContent {
                     // スクリーンショット検出時：完全に黒画面
                     Color.black
@@ -115,19 +115,6 @@ struct CapturedImagePreview: View {
                     .preventScreenCapture() // 画像のみ保護
                 }
 
-                // 左下：ウォーターマークオーバーレイ（常に表示）
-                VStack {
-                    Spacer()
-                    HStack {
-                        WatermarkView(isDarkBackground: true)
-                            .padding(.leading, 12)
-                            .padding(.bottom, 12)
-                        Spacer()
-                    }
-                }
-                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottomLeading)
-                .allowsHitTesting(false)
-
                 // 画面録画中の警告（中央）
                 if securityManager.isScreenRecording {
                     VStack(spacing: 20) {
@@ -149,13 +136,29 @@ struct CapturedImagePreview: View {
                         RoundedRectangle(cornerRadius: 20)
                             .fill(Color.black.opacity(0.8))
                     )
-                    .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
                 }
+            }
 
-                // 右下：ズームコントロールと倍率表示
-                VStack(alignment: .trailing, spacing: 8) {
-                    // ズームコントロールボタン
-                    VStack(spacing: 12) {
+            // 左下：ウォーターマークオーバーレイ（常に表示・画像の外側）
+            VStack {
+                Spacer()
+                HStack {
+                    WatermarkView(isDarkBackground: true)
+                        .padding(.leading, 12)
+                        .padding(.bottom, 12)
+                    Spacer()
+                }
+            }
+            .allowsHitTesting(false)
+
+            // 右下：ズームコントロールと倍率表示（画像の外側）
+            VStack {
+                Spacer()
+                HStack {
+                    Spacer()
+                    VStack(alignment: .trailing, spacing: 8) {
+                        // ズームコントロールボタン
+                        VStack(spacing: 12) {
                         // ズームイン
                         ZStack {
                             Circle()
@@ -235,13 +238,14 @@ struct CapturedImagePreview: View {
                             RoundedRectangle(cornerRadius: 10)
                                 .fill(Color.white.opacity(0.2))
                         )
+                    }
+                    .padding(.trailing, 12)
+                    .padding(.bottom, 12)
                 }
-                .padding(.trailing, 12)
-                .padding(.bottom, 12)
             }
 
-                // 上部コントロール（オーバーレイ）
-                VStack {
+            // 上部コントロール（オーバーレイ）
+            VStack {
                     HStack {
                         // 左：残り時間表示
                         Text(formattedRemainingTime)
@@ -403,20 +407,30 @@ struct CapturedImagePreview: View {
         zoomStartTime = Date()
         continuousZoomCount = 0
 
-        // タイマー間隔を0.06秒（約16FPS）に変更してパフォーマンス向上
-        zoomTimer = Timer.scheduledTimer(withTimeInterval: 0.06, repeats: true) { _ in
+        // カメラプレビューと同じ間隔（0.03秒）でスムーズに
+        zoomTimer = Timer.scheduledTimer(withTimeInterval: 0.03, repeats: true) { _ in
             continuousZoomCount += 1
 
+            // 経過時間を計算
             let elapsedTime = Date().timeIntervalSince(zoomStartTime ?? Date())
-            let baseStep: CGFloat = 0.04 // ステップ幅を調整（0.06秒間隔に合わせて増加）
+
+            // 基本ステップ（カメラプレビューと同じ）
+            let baseStep: CGFloat = 0.03
+
+            // 時間に応じた加速度（指数関数的に加速）
             let timeAcceleration = 1.0 + pow(min(elapsedTime / 2.0, 1.0), 1.5) * 3.0
-            let zoomMultiplier = max(1.0, sqrt(scale / 5.0))
+
+            // 現在の倍率に応じた速度調整（カメラプレビューと同じ計算）
+            let zoomMultiplier = max(1.0, sqrt(scale / 10.0))
+
+            // 最終的なステップサイズ
             let step = baseStep * timeAcceleration * zoomMultiplier
 
             switch direction {
             case .in:
                 scale = min(scale + step, CGFloat(settingsManager.maxZoomFactor))
             case .out:
+                // ズームアウトは少し遅めに（70%）
                 let outStep = step * 0.7
                 scale = max(scale - outStep, 1.0)
                 if scale == 1.0 {

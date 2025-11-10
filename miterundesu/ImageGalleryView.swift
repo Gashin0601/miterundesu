@@ -418,19 +418,30 @@ struct ImageGalleryView: View {
         isZooming = true
         zoomStartTime = Date()
 
-        // タイマー間隔を0.06秒（約16FPS）に変更してパフォーマンス向上
-        zoomTimer = Timer.scheduledTimer(withTimeInterval: 0.06, repeats: true) { _ in
+        // カメラプレビューと同じ間隔（0.03秒）でスムーズに
+        zoomTimer = Timer.scheduledTimer(withTimeInterval: 0.03, repeats: true) { _ in
             let currentScale = imageScales[id] ?? 1.0
+
+            // 経過時間を計算
             let elapsedTime = Date().timeIntervalSince(zoomStartTime ?? Date())
-            let baseStep: CGFloat = 0.04 // ステップ幅を調整（0.06秒間隔に合わせて増加）
+
+            // 基本ステップ（カメラプレビューと同じ）
+            let baseStep: CGFloat = 0.03
+
+            // 時間に応じた加速度（指数関数的に加速）
             let timeAcceleration = 1.0 + pow(min(elapsedTime / 2.0, 1.0), 1.5) * 3.0
-            let zoomMultiplier = max(1.0, sqrt(currentScale / 5.0))
+
+            // 現在の倍率に応じた速度調整（カメラプレビューと同じ計算）
+            let zoomMultiplier = max(1.0, sqrt(currentScale / 10.0))
+
+            // 最終的なステップサイズ
             let step = baseStep * timeAcceleration * zoomMultiplier
 
             switch direction {
             case .in:
                 imageScales[id] = min(currentScale + step, CGFloat(settingsManager.maxZoomFactor))
             case .out:
+                // ズームアウトは少し遅めに（70%）
                 let outStep = step * 0.7
                 imageScales[id] = max(currentScale - outStep, 1.0)
                 if imageScales[id] == 1.0 {
