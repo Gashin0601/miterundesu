@@ -42,7 +42,7 @@ struct CapturedImagePreview: View {
                 .ignoresSafeArea()
 
             // 画像表示エリア
-            ZStack {
+            ZStack(alignment: .bottomTrailing) {
                 GeometryReader { geometry in
                     Image(uiImage: capturedImage.image)
                         .resizable()
@@ -115,31 +115,33 @@ struct CapturedImagePreview: View {
                         Spacer()
                     }
                 }
+                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottomLeading)
 
-                        // 画面録画中の警告
-                        if securityManager.isScreenRecording {
-                            VStack(spacing: 20) {
-                                Image(systemName: "eye.slash.fill")
-                                    .font(.system(size: 80))
-                                    .foregroundColor(.white)
+                // 画面録画中の警告（中央）
+                if securityManager.isScreenRecording {
+                    VStack(spacing: 20) {
+                        Image(systemName: "eye.slash.fill")
+                            .font(.system(size: 80))
+                            .foregroundColor(.white)
 
-                                Text(settingsManager.localizationManager.localizedString("screen_recording_warning"))
-                                    .font(.title)
-                                    .fontWeight(.bold)
-                                    .foregroundColor(.white)
+                        Text(settingsManager.localizationManager.localizedString("screen_recording_warning"))
+                            .font(.title)
+                            .fontWeight(.bold)
+                            .foregroundColor(.white)
 
-                                Text(settingsManager.localizationManager.localizedString("no_recording_message"))
-                                    .font(.body)
-                                    .foregroundColor(.white.opacity(0.8))
-                            }
-                            .padding(40)
-                            .background(
-                                RoundedRectangle(cornerRadius: 20)
-                                    .fill(Color.black.opacity(0.8))
-                            )
-                        }
+                        Text(settingsManager.localizationManager.localizedString("no_recording_message"))
+                            .font(.body)
+                            .foregroundColor(.white.opacity(0.8))
+                    }
+                    .padding(40)
+                    .background(
+                        RoundedRectangle(cornerRadius: 20)
+                            .fill(Color.black.opacity(0.8))
+                    )
+                    .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
+                }
 
-                // 右側：ズームコントロールと倍率表示
+                // 右下：ズームコントロールと倍率表示
                 VStack(alignment: .trailing, spacing: 8) {
                     // ズームコントロールボタン
                     VStack(spacing: 12) {
