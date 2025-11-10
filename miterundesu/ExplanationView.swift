@@ -163,7 +163,6 @@ struct ExplanationView: View {
             }
         }
         .preferredColorScheme(.dark)
-        }
     }
 
     private var bodyText: String {
