@@ -37,7 +37,7 @@ struct ContentView: View {
             let bottomPadding = screenHeight * 0.005    // 画面高さの0.5%
             let cameraHorizontalPadding = screenWidth * 0.015  // 画面幅の1.5%
             let cameraTopPadding = screenHeight * 0.005        // 画面高さの0.5%
-            let cameraBottomPadding = screenHeight * 0.001    // 画面高さの0.1%（大幅削減）
+            let cameraBottomPadding = screenHeight * 0.0    // 画面高さの0%（完全削除）
 
             ZStack {
                 if isLoading {
@@ -445,15 +445,15 @@ struct HeaderView: View {
     @ObservedObject var settingsManager: SettingsManager
 
     var body: some View {
-        VStack(spacing: 10) {
+        VStack(spacing: 14) {
             // 無限スクロールテキスト
             InfiniteScrollingText(text: settingsManager.scrollingMessage)
-                .frame(height: 28)
+                .frame(height: 32)
                 .clipped()
 
             // ロゴ
             Text(settingsManager.localizationManager.localizedString("app_name"))
-                .font(.system(size: 24, weight: .bold, design: .default))
+                .font(.system(size: 28, weight: .bold, design: .default))
                 .foregroundColor(.white)
         }
     }
@@ -466,7 +466,7 @@ struct InfiniteScrollingText: View {
 
     var body: some View {
         GeometryReader { geometry in
-            let textWidth = text.widthOfString(usingFont: .systemFont(ofSize: 16))
+            let textWidth = text.widthOfString(usingFont: .systemFont(ofSize: 18))
             let spacing: CGFloat = 40
             let itemWidth = textWidth + spacing
 
@@ -474,7 +474,7 @@ struct InfiniteScrollingText: View {
                 // 十分な数のテキストを配置してシームレスなループを実現
                 ForEach(0..<20, id: \.self) { _ in
                     Text(text)
-                        .font(.system(size: 16, weight: .medium))
+                        .font(.system(size: 18, weight: .medium))
                         .foregroundColor(.white.opacity(0.8))
                         .fixedSize()
                 }
@@ -628,7 +628,7 @@ struct FooterView: View {
 
     var body: some View {
         let horizontalPadding = screenWidth * 0.05  // 画面幅の5%
-        let verticalTopPadding = screenHeight * 0.005  // 画面高さの0.5%（削減してカメラプレビュー拡大）
+        let verticalTopPadding = screenHeight * 0.002  // 画面高さの0.2%（さらに削減してカメラプレビュー拡大）
         let verticalBottomPadding = screenHeight * 0.025  // 画面高さの2.5%
         let shutterSize = screenWidth * 0.22  // 画面幅の22%（拡大）
         let thumbnailSize = screenWidth * 0.18  // 画面幅の18%（拡大）
