@@ -220,6 +220,7 @@ fileprivate struct ScreenshotPreventHelper<Content: View>: UIViewRepresentable {
 // メインのスクリーンショット防止ビュー
 struct ScreenshotPreventView<Content: View>: View {
     var content: Content
+    @Environment(\.isPressMode) var isPressMode
 
     init(@ViewBuilder content: @escaping () -> Content) {
         self.content = content()
@@ -229,6 +230,7 @@ struct ScreenshotPreventView<Content: View>: View {
 
     var body: some View {
         ScreenshotPreventHelper(hostingController: $hostingController)
+            .id("screenshotPrevent-\(isPressMode)")
             .overlay(
                 GeometryReader { geometry in
                     Color.clear
