@@ -265,12 +265,18 @@ struct ContentView: View {
             // 最大拡大率が変更されたらカメラに適用
             cameraManager.setMaxZoomFactor(newValue)
         }
-        .onChange(of: securityManager.showScreenshotWarning) { oldValue, newValue in
-            // スクリーンショット警告が表示された時に画像プレビューを閉じる
+        .onChange(of: securityManager.hideContent) { oldValue, newValue in
+            // スクリーンショット検出でコンテンツを隠す時に画像プレビューを閉じる
             if newValue {
-                print("🔒 スクリーンショット警告表示: 画像プレビューを閉じます")
+                print("🔒 hideContent=true: 画像プレビューを閉じます")
+                print("🔒 justCapturedImage: \(justCapturedImage != nil ? "あり" : "なし")")
+                print("🔒 selectedImage: \(selectedImage != nil ? "あり" : "なし")")
+
+                // 画像プレビューを閉じてカメラビューに戻る
                 justCapturedImage = nil
                 selectedImage = nil
+
+                print("🔒 画像プレビューをnilに設定しました")
             }
         }
     }
