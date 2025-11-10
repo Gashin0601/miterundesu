@@ -135,33 +135,48 @@ class CameraManager: NSObject, ObservableObject, AVCaptureSessionControlsDelegat
 
     // カメラセッション開始
     func startSession() {
+        print("📷 startSession() called")
         sessionQueue.async { [weak self] in
             guard let self = self else { return }
 
+            print("📷 Current session.isRunning: \(self.session.isRunning)")
             if !self.session.isRunning {
+                print("📷 Calling session.startRunning()...")
                 self.session.startRunning()
                 DispatchQueue.main.async {
                     self.isSessionRunning = self.session.isRunning
+                    print("📷 Session started: isSessionRunning=\(self.isSessionRunning)")
                     // セッションが開始されたらカメラ準備完了
                     if self.session.isRunning {
                         self.isCameraReady = true
+                        print("📷 Camera ready!")
+                    } else {
+                        print("⚠️ Session failed to start!")
                     }
                 }
+            } else {
+                print("📷 Session already running, skipping start")
             }
         }
     }
 
     // カメラセッション停止
     func stopSession() {
+        print("📷 stopSession() called")
         sessionQueue.async { [weak self] in
             guard let self = self else { return }
 
+            print("📷 Current session.isRunning: \(self.session.isRunning)")
             if self.session.isRunning {
+                print("📷 Calling session.stopRunning()...")
                 self.session.stopRunning()
                 DispatchQueue.main.async {
                     self.isSessionRunning = false
                     self.isCameraReady = false
+                    print("📷 Session stopped: isSessionRunning=\(self.isSessionRunning)")
                 }
+            } else {
+                print("📷 Session already stopped, skipping stop")
             }
         }
     }

@@ -265,8 +265,10 @@ struct ContentView: View {
             cameraManager.setMaxZoomFactor(newValue)
         }
         .onChange(of: securityManager.hideContent) { oldValue, newValue in
-            // スクリーンショット検出でコンテンツを隠す時に画像プレビューを閉じる
+            print("🔒 hideContent changed: \(oldValue) -> \(newValue)")
+
             if newValue {
+                // コンテンツを隠す
                 print("🔒 hideContent=true: 画像プレビューを閉じます")
                 print("🔒 justCapturedImage: \(justCapturedImage != nil ? "あり" : "なし")")
                 print("🔒 selectedImage: \(selectedImage != nil ? "あり" : "なし")")
@@ -276,6 +278,9 @@ struct ContentView: View {
                 selectedImage = nil
 
                 print("🔒 画像プレビューをnilに設定しました")
+            } else {
+                // コンテンツを再表示
+                print("🔒 hideContent=false: コンテンツを再表示します")
             }
         }
         .onChange(of: securityManager.showScreenshotWarning) { oldValue, newValue in

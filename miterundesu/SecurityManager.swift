@@ -65,15 +65,16 @@ class SecurityManager: ObservableObject {
 
         DispatchQueue.main.async {
             // 即座にコンテンツを隠す（最優先）
+            print("🔒 Setting hideContent=true, showScreenshotWarning=true")
             self.hideContent = true
-
-            // 警告を表示
             self.showScreenshotWarning = true
 
             // 3秒後に警告を閉じてコンテンツを再表示
             DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
+                print("🔒 3秒経過 - Setting showScreenshotWarning=false, hideContent=false")
                 self.showScreenshotWarning = false
                 self.hideContent = false
+                print("🔒 hideContent=\(self.hideContent), showScreenshotWarning=\(self.showScreenshotWarning)")
             }
         }
     }
