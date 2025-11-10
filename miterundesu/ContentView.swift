@@ -223,6 +223,7 @@ struct ContentView: View {
                 settingsManager: settingsManager,
                 initialImage: capturedImage
             )
+            .environment(\.isPressMode, settingsManager.isPressMode)
         }
         .fullScreenCover(item: $justCapturedImage) { capturedImage in
             CapturedImagePreview(
@@ -230,6 +231,7 @@ struct ContentView: View {
                 settingsManager: settingsManager,
                 capturedImage: capturedImage
             )
+            .environment(\.isPressMode, settingsManager.isPressMode)
         }
         .preferredColorScheme(.dark)
         .environment(\.isPressMode, settingsManager.isPressMode)
