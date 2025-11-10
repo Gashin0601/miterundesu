@@ -31,7 +31,7 @@ extension UIImage {
 
             let titleAttributes: [NSAttributedString.Key: Any] = [
                 .font: titleFont,
-                .foregroundColor: UIColor.white.withAlphaComponent(0.95),
+                .foregroundColor: UIColor.white.withAlphaComponent(0.4),
                 .paragraphStyle: NSMutableParagraphStyle()
             ]
 
@@ -41,7 +41,7 @@ extension UIImage {
 
             let infoAttributes: [NSAttributedString.Key: Any] = [
                 .font: infoFont,
-                .foregroundColor: UIColor.white.withAlphaComponent(0.9),
+                .foregroundColor: UIColor.white.withAlphaComponent(0.35),
                 .paragraphStyle: NSMutableParagraphStyle()
             ]
 
@@ -99,18 +99,7 @@ extension UIImage {
                 )
             }
 
-            // 背景矩形を描画
-            let bgRect = CGRect(
-                x: titleOrigin.x - 6,
-                y: titleOrigin.y - 4,
-                width: max(titleSize.width, infoSize.width) + 12,
-                height: totalHeight + 8
-            )
-            let bgPath = UIBezierPath(roundedRect: bgRect, cornerRadius: 4)
-            UIColor.black.withAlphaComponent(0.7).setFill()
-            bgPath.fill()
-
-            // テキストを描画
+            // テキストを描画（背景なし）
             titleText.draw(at: titleOrigin, withAttributes: titleAttributes)
             infoText.draw(at: infoOrigin, withAttributes: infoAttributes)
         }
@@ -166,20 +155,14 @@ struct WatermarkView: View {
             // 上段: アプリ名ロゴ
             Text("ミテルンデス")
                 .font(.system(size: 10, weight: .bold, design: .rounded))
-                .foregroundColor(.white)
+                .foregroundColor(.white.opacity(0.4))
 
             // 下段: 日付時間とデバイスID
             Text(viewModel.watermarkInfo)
                 .font(.system(size: 8, weight: .medium, design: .monospaced))
-                .foregroundColor(.white.opacity(0.9))
+                .foregroundColor(.white.opacity(0.35))
         }
-        .padding(.horizontal, 8)
-        .padding(.vertical, 6)
-        .background(
-            RoundedRectangle(cornerRadius: 6)
-                .fill(Color.black.opacity(0.7)) // 不透明度高め
-        )
-        .shadow(color: .black.opacity(0.4), radius: 2, x: 0, y: 1)
+        .shadow(color: .black.opacity(0.6), radius: 1, x: 0, y: 0.5)
     }
 }
 
