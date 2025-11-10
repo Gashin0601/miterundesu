@@ -62,6 +62,7 @@ struct CameraPreviewWithZoom: View {
     var body: some View {
         ZStack(alignment: .bottomTrailing) {
             CameraPreview(cameraManager: cameraManager)
+                .aspectRatio(3/4, contentMode: .fit) // .photo プリセットは 4:3（縦向きなので 3:4）
                 .gesture(
                     MagnificationGesture()
                         .onChanged { value in
