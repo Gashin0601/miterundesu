@@ -143,7 +143,7 @@ class WatermarkHelper {
 
 // MARK: - Watermark View
 struct WatermarkView: View {
-    @StateObject private var viewModel = WatermarkViewModel()
+    @ObservedObject private var viewModel = WatermarkViewModel.shared
     let isDarkBackground: Bool
 
     init(isDarkBackground: Bool = true) {
@@ -168,11 +168,13 @@ struct WatermarkView: View {
 
 // MARK: - Watermark ViewModel
 class WatermarkViewModel: ObservableObject {
+    static let shared = WatermarkViewModel()
+
     @Published var watermarkInfo: String = ""
     private var timer: Timer?
     private let deviceID: String
 
-    init() {
+    private init() {
         // 端末IDの短縮版を生成（最初の6文字）
         self.deviceID = WatermarkViewModel.generateShortDeviceID()
         updateWatermarkInfo()
