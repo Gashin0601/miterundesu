@@ -201,7 +201,7 @@ struct SettingsView: View {
                         dismiss()
                     }) {
                         Image(systemName: "xmark.circle.fill")
-                            .font(.system(size: 28))
+                            .font(.system(size: UIScreen.main.bounds.width * 0.07))
                             .foregroundColor(.white)
                     }
                 }

@@ -221,12 +221,17 @@ struct WatermarkOverlay: ViewModifier {
     let isDarkBackground: Bool
 
     func body(content: Content) -> some View {
-        ZStack(alignment: .bottomLeading) {
-            content
+        GeometryReader { geometry in
+            let screenWidth = geometry.size.width
+            let padding = screenWidth * 0.04  // 4%
 
-            WatermarkView(isDarkBackground: isDarkBackground)
-                .padding(.leading, 16)
-                .padding(.bottom, 16)
+            ZStack(alignment: .bottomLeading) {
+                content
+
+                WatermarkView(isDarkBackground: isDarkBackground)
+                    .padding(.leading, padding)
+                    .padding(.bottom, padding)
+            }
         }
     }
 }

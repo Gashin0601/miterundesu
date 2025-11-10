@@ -161,8 +161,10 @@ struct ExplanationView: View {
                     .padding(.bottom, 40)
                 }
             }
+                }
+            }
+            .preferredColorScheme(.dark)
         }
-        .preferredColorScheme(.dark)
     }
 
     private var bodyText: String {
