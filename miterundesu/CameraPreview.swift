@@ -86,8 +86,8 @@ struct CameraPreviewWithZoom: View {
                             }
                     )
                     .onCameraCaptureEvent { event in
-                        // Camera Controlボタンの押下を検知
-                        if event.phase == .ended && !isTheaterMode {
+                        // Camera Controlボタンの押下を検知（撮影中でない場合のみ）
+                        if event.phase == .ended && !isTheaterMode && !cameraManager.isCapturing {
                             onCapture()
                         }
                     }

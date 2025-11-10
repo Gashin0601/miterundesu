@@ -381,6 +381,12 @@ struct ContentView: View {
     }
 
     private func capturePhoto() {
+        // 二重チェック：既に撮影中またはシアターモードの場合は処理しない
+        guard !cameraManager.isCapturing && !settingsManager.isTheaterMode else {
+            print("⚠️ 撮影をスキップ: isCapturing=\(cameraManager.isCapturing), isTheaterMode=\(settingsManager.isTheaterMode)")
+            return
+        }
+
         cameraManager.capturePhoto { image in
             if let image = image {
                 imageManager.addImage(image)
@@ -674,6 +680,11 @@ struct ShutterButton: View {
 
         VStack(spacing: 8) {
             Button(action: {
+                // 二重チェック：無効状態でも実行しない
+                guard !isDisabled else {
+                    print("⚠️ シャッターボタン押下をスキップ: disabled状態")
+                    return
+                }
                 onCapture()
             }) {
                 ZStack {
