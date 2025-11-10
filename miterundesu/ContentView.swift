@@ -285,6 +285,13 @@ struct ContentView: View {
                 // 明示的に画像プレビューを閉じる
                 justCapturedImage = nil
                 selectedImage = nil
+
+                // カメラセッションが停止している場合は再起動
+                print("📷 カメラセッション状態確認: isSessionRunning=\(cameraManager.isSessionRunning)")
+                if !cameraManager.isSessionRunning {
+                    print("📷 カメラセッションを再起動します")
+                    cameraManager.startSession()
+                }
                 print("🔒 カメラプレビューに復帰しました")
             }
         }
@@ -351,9 +358,16 @@ struct ContentView: View {
             forName: UIApplication.willEnterForegroundNotification,
             object: nil,
             queue: .main
-        ) { [imageManager] _ in
+        ) { [imageManager, cameraManager] _ in
+            print("⏯️ アプリがフォアグラウンドに復帰しました")
             // フォアグラウンド復帰時に期限切れ画像を削除
             imageManager.removeExpiredImages()
+
+            // カメラセッションが停止している場合は再起動
+            if !cameraManager.isSessionRunning {
+                print("📷 カメラセッションが停止中 - 再起動します")
+                cameraManager.startSession()
+            }
         }
 
         // アプリがバックグラウンドに移行する際にセキュリティデータのみクリア
@@ -362,7 +376,17 @@ struct ContentView: View {
             object: nil,
             queue: .main
         ) { [securityManager] _ in
+            print("⏸️ アプリが非アクティブになりました")
             securityManager.clearSensitiveData()
+        }
+
+        // アプリがバックグラウンドに移行した時
+        NotificationCenter.default.addObserver(
+            forName: UIApplication.didEnterBackgroundNotification,
+            object: nil,
+            queue: .main
+        ) { _ in
+            print("🔒 アプリがバックグラウンドに移行しました")
         }
     }
 }
