@@ -109,7 +109,7 @@ struct ContentView: View {
                     .padding(.top, 4)
 
                 // カメラプレビュー領域
-                ZStack {
+                ZStack(alignment: .bottomLeading) {
                     CameraPreviewWithZoom(
                         cameraManager: cameraManager,
                         isTheaterMode: $settingsManager.isTheaterMode,
@@ -135,7 +135,14 @@ struct ContentView: View {
                             RoundedRectangle(cornerRadius: 12)
                                 .fill(Color.black.opacity(0.7))
                         )
+                        .frame(maxWidth: .infinity, maxHeight: .infinity)
                     }
+
+                    // ウォーターマーク（常時表示・左下）
+                    WatermarkView(isDarkBackground: true)
+                        .padding(.leading, 12)
+                        .padding(.bottom, 12)
+                        .opacity(shouldShowUI ? 1 : 0)
                 }
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
                 .padding(.horizontal, 16)

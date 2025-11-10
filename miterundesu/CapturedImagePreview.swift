@@ -42,7 +42,7 @@ struct CapturedImagePreview: View {
                 .ignoresSafeArea()
 
             // 画像表示エリア
-            ZStack(alignment: .bottomTrailing) {
+            ZStack {
                 GeometryReader { geometry in
                     Image(uiImage: capturedImage.image)
                         .resizable()
@@ -104,6 +104,17 @@ struct CapturedImagePreview: View {
                 }
                 .preventScreenCapture() // 最新のスクリーンショット保護
                 .blur(radius: securityManager.isScreenRecording ? 50 : 0)
+
+                // 左下：ウォーターマーク（常時表示）
+                VStack {
+                    Spacer()
+                    HStack {
+                        WatermarkView(isDarkBackground: true)
+                            .padding(.leading, 12)
+                            .padding(.bottom, 12)
+                        Spacer()
+                    }
+                }
 
                         // 画面録画中の警告
                         if securityManager.isScreenRecording {
