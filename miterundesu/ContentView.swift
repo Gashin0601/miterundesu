@@ -154,7 +154,7 @@ struct ContentView: View {
                         .opacity(shouldShowUI ? 1 : 0)
                         .allowsHitTesting(false) // タッチイベントを透過
                 }
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .frame(maxWidth: .infinity) // maxHeight を削除して VStack が自然にレイアウト
                 .padding(.horizontal, 16)
                 .padding(.top, 12)
                 .padding(.bottom, 8)
