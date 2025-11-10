@@ -27,16 +27,28 @@ struct ContentView: View {
     @State private var isLoading = true
 
     var body: some View {
-        ZStack {
-            if isLoading {
-                // ロード画面
-                LoadingView(settingsManager: settingsManager)
-            } else {
-                // メインカラー（背景）
-                (settingsManager.isTheaterMode ? Color("TheaterOrange") : Color("MainGreen"))
-                    .ignoresSafeArea()
+        GeometryReader { geometry in
+            let screenWidth = geometry.size.width
+            let screenHeight = geometry.size.height
 
-                VStack(spacing: 0) {
+            // レスポンシブなパディング値を計算
+            let horizontalPadding = screenWidth * 0.03  // 画面幅の3%
+            let topPadding = screenHeight * 0.005       // 画面高さの0.5%
+            let bottomPadding = screenHeight * 0.005    // 画面高さの0.5%
+            let cameraHorizontalPadding = screenWidth * 0.03  // 画面幅の3%
+            let cameraTopPadding = screenHeight * 0.01        // 画面高さの1%
+            let cameraBottomPadding = screenHeight * 0.005    // 画面高さの0.5%
+
+            ZStack {
+                if isLoading {
+                    // ロード画面
+                    LoadingView(settingsManager: settingsManager)
+                } else {
+                    // メインカラー（背景）
+                    (settingsManager.isTheaterMode ? Color("TheaterOrange") : Color("MainGreen"))
+                        .ignoresSafeArea()
+
+                    VStack(spacing: 0) {
                 // 上部コントロール（シアター、説明ボタン、設定）
                 HStack(alignment: .center, spacing: 0) {
                     // 左：シアターモードトグル
@@ -47,7 +59,7 @@ struct ContentView: View {
                         },
                         settingsManager: settingsManager
                     )
-                    .padding(.leading, 20)
+                    .padding(.leading, horizontalPadding)
                     .opacity(shouldShowUI ? 1 : 0)
 
                     Spacer()
@@ -96,17 +108,17 @@ struct ContentView: View {
                                 .fill(Color.white.opacity(0.25))
                         )
                     }
-                    .padding(.trailing, 20)
+                    .padding(.trailing, horizontalPadding)
                     .opacity(shouldShowUI ? 1 : 0)
                     .accessibilityLabel(settingsManager.localizationManager.localizedString("settings"))
                 }
-                .padding(.top, 4)
-                .padding(.bottom, 4)
+                .padding(.top, topPadding)
+                .padding(.bottom, bottomPadding)
 
                 // ヘッダー部分（無限スクロールとロゴ）
                 HeaderView(settingsManager: settingsManager)
                     .opacity(shouldShowUI ? 1 : 0)
-                    .padding(.top, 2)
+                    .padding(.top, topPadding * 0.5)
 
                 // カメラプレビュー領域
                 ZStack(alignment: .bottomLeading) {
@@ -151,16 +163,16 @@ struct ContentView: View {
 
                     // ウォーターマーク（左下・常に表示）
                     WatermarkView(isDarkBackground: true)
-                        .padding(.leading, 12)
-                        .padding(.bottom, 12)
+                        .padding(.leading, cameraHorizontalPadding)
+                        .padding(.bottom, cameraBottomPadding * 2)
                         .opacity(shouldShowUI ? 1 : 0)
                         .allowsHitTesting(false) // タッチイベントを透過
                 }
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
                 .layoutPriority(1) // カメラプレビューが優先的にスペースを取得
-                .padding(.horizontal, 12)
-                .padding(.top, 8)
-                .padding(.bottom, 4)
+                .padding(.horizontal, cameraHorizontalPadding)
+                .padding(.top, cameraTopPadding)
+                .padding(.bottom, cameraBottomPadding)
 
                 // フッター部分
                 FooterView(
@@ -172,10 +184,12 @@ struct ContentView: View {
                     selectedImage: $selectedImage,
                     onCapture: {
                         capturePhoto()
-                    }
+                    },
+                    screenWidth: screenWidth,
+                    screenHeight: screenHeight
                 )
                 .opacity(shouldShowUI ? 1 : 0)
-            }
+                }
 
 
                 // シアターモード時のタップ領域
@@ -208,6 +222,7 @@ struct ContentView: View {
                     ScreenshotWarningView()
                         .transition(.scale.combined(with: .opacity))
                         .animation(.spring(), value: securityManager.showScreenshotWarning)
+                }
                 }
             }
         }
@@ -600,14 +615,23 @@ struct FooterView: View {
     @ObservedObject var settingsManager: SettingsManager
     @Binding var selectedImage: CapturedImage?
     let onCapture: () -> Void
+    let screenWidth: CGFloat
+    let screenHeight: CGFloat
 
     var body: some View {
+        let horizontalPadding = screenWidth * 0.04  // 画面幅の4%
+        let verticalTopPadding = screenHeight * 0.01  // 画面高さの1%
+        let verticalBottomPadding = screenHeight * 0.02  // 画面高さの2%
+        let shutterSize = screenWidth * 0.18  // 画面幅の18%
+        let thumbnailSize = screenWidth * 0.15  // 画面幅の15%
+
         ZStack {
             // シャッターボタン（中央）
             ShutterButton(
                 isTheaterMode: isTheaterMode,
                 onCapture: onCapture,
-                settingsManager: settingsManager
+                settingsManager: settingsManager,
+                buttonSize: shutterSize
             )
 
             HStack {
@@ -617,19 +641,20 @@ struct FooterView: View {
                     securityManager: securityManager,
                     selectedImage: $selectedImage,
                     isTheaterMode: isTheaterMode,
-                    settingsManager: settingsManager
+                    settingsManager: settingsManager,
+                    thumbnailSize: thumbnailSize
                 )
-                .padding(.leading, 16)
+                .padding(.leading, horizontalPadding)
 
                 Spacer()
 
                 // 倍率表示（右下）
                 ZoomLevelView(zoomLevel: currentZoom)
-                    .padding(.trailing, 16)
+                    .padding(.trailing, horizontalPadding)
             }
         }
-        .padding(.top, 8)
-        .padding(.bottom, 16)
+        .padding(.top, verticalTopPadding)
+        .padding(.bottom, verticalBottomPadding)
     }
 }
 
@@ -638,6 +663,7 @@ struct ShutterButton: View {
     let isTheaterMode: Bool
     let onCapture: () -> Void
     @ObservedObject var settingsManager: SettingsManager
+    let buttonSize: CGFloat
 
     var body: some View {
         VStack(spacing: 8) {
@@ -646,12 +672,12 @@ struct ShutterButton: View {
             }) {
                 ZStack {
                     Circle()
-                        .stroke(Color.white, lineWidth: 4)
-                        .frame(width: 70, height: 70)
+                        .stroke(Color.white, lineWidth: buttonSize * 0.057)  // 4/70 ≈ 0.057
+                        .frame(width: buttonSize, height: buttonSize)
 
                     Circle()
                         .fill(isTheaterMode ? Color.gray : Color.white)
-                        .frame(width: 60, height: 60)
+                        .frame(width: buttonSize * 0.857, height: buttonSize * 0.857)  // 60/70 ≈ 0.857
                 }
             }
             .disabled(isTheaterMode)
@@ -669,11 +695,16 @@ struct ThumbnailView: View {
     @Binding var selectedImage: CapturedImage?
     let isTheaterMode: Bool
     @ObservedObject var settingsManager: SettingsManager
+    let thumbnailSize: CGFloat
 
     @State private var currentTime = Date()
     let timer = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
 
     var body: some View {
+        let cornerRadius = thumbnailSize * 0.167  // 10/60 ≈ 0.167
+        let iconSize = thumbnailSize * 0.4  // 24/60 = 0.4
+        let blurRadius = thumbnailSize * 0.167  // 10/60 ≈ 0.167
+
         if let latestImage = imageManager.capturedImages.first {
             Button(action: {
                 if !isTheaterMode {
@@ -686,13 +717,13 @@ struct ThumbnailView: View {
                         Image(uiImage: latestImage.image)
                             .resizable()
                             .scaledToFill()
-                            .frame(width: 60, height: 60)
-                            .clipShape(RoundedRectangle(cornerRadius: 10))
+                            .frame(width: thumbnailSize, height: thumbnailSize)
+                            .clipShape(RoundedRectangle(cornerRadius: cornerRadius))
                             .overlay(
-                                RoundedRectangle(cornerRadius: 10)
+                                RoundedRectangle(cornerRadius: cornerRadius)
                                     .stroke(Color.white, lineWidth: 2)
                             )
-                            .blur(radius: securityManager.isScreenRecording ? 10 : 0)
+                            .blur(radius: securityManager.isScreenRecording ? blurRadius : 0)
                     }
                     .contextMenu { } // コンテキストメニューを無効化
 
@@ -708,12 +739,12 @@ struct ThumbnailView: View {
                 imageManager.removeExpiredImages()
             }
         } else {
-            RoundedRectangle(cornerRadius: 10)
+            RoundedRectangle(cornerRadius: cornerRadius)
                 .fill(Color.white.opacity(0.2))
-                .frame(width: 60, height: 60)
+                .frame(width: thumbnailSize, height: thumbnailSize)
                 .overlay(
                     Image(systemName: "photo")
-                        .font(.system(size: 24))
+                        .font(.system(size: iconSize))
                         .foregroundColor(.white.opacity(0.5))
                 )
         }
