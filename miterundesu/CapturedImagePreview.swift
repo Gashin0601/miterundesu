@@ -43,9 +43,14 @@ struct CapturedImagePreview: View {
 
             // 画像表示エリア
             ZStack(alignment: .bottomTrailing) {
-                // 保護された画像表示
-                ZStack {
-                    GeometryReader { geometry in
+                if securityManager.hideContent {
+                    // スクリーンショット検出時：完全に黒画面
+                    Color.black
+                        .frame(maxWidth: .infinity, maxHeight: .infinity)
+                } else {
+                    // 保護された画像表示
+                    ZStack {
+                        GeometryReader { geometry in
                         Image(uiImage: capturedImage.image)
                             .resizable()
                             .aspectRatio(contentMode: .fit)
@@ -105,10 +110,11 @@ struct CapturedImagePreview: View {
                             }
                     }
                     .blur(radius: securityManager.isScreenRecording ? 50 : 0)
+                    }
+                    .preventScreenCapture() // 画像のみ保護
                 }
-                .preventScreenCapture() // 画像のみ保護
 
-                // 左下：ウォーターマークオーバーレイ（preventScreenCapture外で表示）
+                // 左下：ウォーターマークオーバーレイ（常に表示）
                 VStack {
                     Spacer()
                     HStack {

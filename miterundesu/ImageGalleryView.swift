@@ -47,8 +47,13 @@ struct ImageGalleryView: View {
                     Color("MainGreen")
                         .ignoresSafeArea()
 
-                    // 画像スクロールビュー
-                    GeometryReader { geometry in
+                    if securityManager.hideContent {
+                        // スクリーンショット検出時：完全に黒画面
+                        Color.black
+                            .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    } else {
+                        // 画像スクロールビュー
+                        GeometryReader { geometry in
                             ScrollView(.horizontal, showsIndicators: false) {
                                 LazyHStack(spacing: 0) {
                                     ForEach(Array(imageManager.capturedImages.enumerated()), id: \.element.id) { index, capturedImage in
@@ -285,16 +290,17 @@ struct ImageGalleryView: View {
                         }
                     }
 
-                    // ウォーターマークオーバーレイ（左下・二重保護）
-                    VStack {
-                        Spacer()
-
-                        HStack {
-                            WatermarkView(isDarkBackground: true)
-                                .padding(.leading, 12)
-                                .padding(.bottom, 50)
-
+                        // ウォーターマークオーバーレイ（左下・二重保護）
+                        VStack {
                             Spacer()
+
+                            HStack {
+                                WatermarkView(isDarkBackground: true)
+                                    .padding(.leading, 12)
+                                    .padding(.bottom, 50)
+
+                                Spacer()
+                            }
                         }
                     }
                 }

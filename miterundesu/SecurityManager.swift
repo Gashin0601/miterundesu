@@ -16,6 +16,7 @@ class SecurityManager: ObservableObject {
     @Published var showRecordingWarning = false
     @Published var showSecurityMask = true // 起動時・復帰時のセキュリティマスク
     @Published var isSecurityMaskEnabled = true // セキュリティマスクの有効/無効フラグ
+    @Published var hideContent = false // スクリーンショット検出時にコンテンツを隠す
 
     private var cancellables = Set<AnyCancellable>()
     private var recordingCheckTimer: Timer?
@@ -107,14 +108,18 @@ class SecurityManager: ObservableObject {
         print("⚠️ スクリーンショットが検出されました")
 
         DispatchQueue.main.async {
-            // 即座にマスクを表示
+            // 即座にコンテンツを隠す（最優先）
+            self.hideContent = true
+
+            // マスクを表示
             self.showMask()
 
             self.showScreenshotWarning = true
 
-            // 3秒後に警告を自動で閉じる
+            // 3秒後に警告を閉じてコンテンツを再表示
             DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
                 self.showScreenshotWarning = false
+                self.hideContent = false
             }
         }
     }
