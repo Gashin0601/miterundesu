@@ -281,10 +281,21 @@ extension View {
 // MARK: - Conditional Prevent Capture Modifier
 struct ConditionalPreventCapture: ViewModifier {
     let isEnabled: Bool
+    @State private var isProtectionReady = false
 
     func body(content: Content) -> some View {
         if isEnabled {
-            content.preventScreenCapture()
+            content
+                .opacity(isProtectionReady ? 1 : 0)
+                .preventScreenCapture()
+                .onAppear {
+                    // ホスティングコントローラーの準備を待ってから表示
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.15) {
+                        withAnimation(.easeIn(duration: 0.1)) {
+                            isProtectionReady = true
+                        }
+                    }
+                }
         } else {
             content
         }
