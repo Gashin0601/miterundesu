@@ -276,6 +276,14 @@ struct ContentView: View {
             // プレスモードが変更されたらSecurityManagerに同期
             securityManager.isPressMode = newValue
             print("📰 プレスモード: \(newValue ? "有効" : "無効")")
+
+            // UI再構築中はローディング画面を表示
+            isLoading = true
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                withAnimation(.easeOut(duration: 0.3)) {
+                    isLoading = false
+                }
+            }
         }
         .onChange(of: securityManager.hideContent) { oldValue, newValue in
             print("🔒 hideContent changed: \(oldValue) -> \(newValue)")
