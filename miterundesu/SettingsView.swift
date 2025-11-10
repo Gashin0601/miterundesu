@@ -124,6 +124,25 @@ struct SettingsView: View {
                     }
                     .listRowBackground(Color.white.opacity(0.2))
 
+                    // プレスモード設定
+                    Section(header: Text(settingsManager.localizationManager.localizedString("press_mode_settings")).foregroundColor(.white)) {
+                        VStack(alignment: .leading, spacing: 12) {
+                            Toggle(isOn: $settingsManager.isPressMode) {
+                                Text(settingsManager.localizationManager.localizedString("press_mode"))
+                                    .font(.body)
+                                    .foregroundColor(.white)
+                            }
+                            .tint(.white)
+
+                            Text(settingsManager.localizationManager.localizedString("press_mode_description"))
+                                .font(.caption)
+                                .foregroundColor(.white.opacity(0.7))
+                                .fixedSize(horizontal: false, vertical: true)
+                        }
+                        .padding(.vertical, 8)
+                    }
+                    .listRowBackground(Color.white.opacity(0.2))
+
                     // アプリ情報
                     Section(header: Text(settingsManager.localizationManager.localizedString("app_info")).foregroundColor(.white)) {
                         HStack {

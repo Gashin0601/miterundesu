@@ -116,35 +116,37 @@ struct ContentView: View {
                             .frame(maxWidth: .infinity, maxHeight: .infinity)
                     } else {
                         // 保護されたカメラプレビュー
-                        ZStack {
-                            CameraPreviewWithZoom(
-                                cameraManager: cameraManager,
-                                isTheaterMode: $settingsManager.isTheaterMode,
-                                onCapture: {
-                                    capturePhoto()
-                                }
-                            )
-                            .blur(radius: securityManager.isScreenRecording ? 30 : 0)
-
-                            // 画面録画中の警告（中央）
-                            if securityManager.isScreenRecording {
-                                VStack(spacing: 12) {
-                                    Image(systemName: "eye.slash.fill")
-                                        .font(.system(size: 40))
-                                        .foregroundColor(.white)
-
-                                    Text(settingsManager.localizationManager.localizedString("screen_recording_warning"))
-                                        .font(.headline)
-                                        .foregroundColor(.white)
-                                }
-                                .padding(20)
-                                .background(
-                                    RoundedRectangle(cornerRadius: 12)
-                                        .fill(Color.black.opacity(0.7))
+                        Group {
+                            ZStack {
+                                CameraPreviewWithZoom(
+                                    cameraManager: cameraManager,
+                                    isTheaterMode: $settingsManager.isTheaterMode,
+                                    onCapture: {
+                                        capturePhoto()
+                                    }
                                 )
+                                .blur(radius: securityManager.isScreenRecording ? 30 : 0)
+
+                                // 画面録画中の警告（中央）
+                                if securityManager.isScreenRecording {
+                                    VStack(spacing: 12) {
+                                        Image(systemName: "eye.slash.fill")
+                                            .font(.system(size: 40))
+                                            .foregroundColor(.white)
+
+                                        Text(settingsManager.localizationManager.localizedString("screen_recording_warning"))
+                                            .font(.headline)
+                                            .foregroundColor(.white)
+                                    }
+                                    .padding(20)
+                                    .background(
+                                        RoundedRectangle(cornerRadius: 12)
+                                            .fill(Color.black.opacity(0.7))
+                                    )
+                                }
                             }
                         }
-                        .preventScreenCapture() // カメラプレビューと警告のみ保護
+                        .modifier(ConditionalScreenCaptureProtection(isEnabled: !settingsManager.isPressMode))
                     }
 
                     // ウォーターマーク（左下・常に表示）
@@ -238,6 +240,8 @@ struct ContentView: View {
             setupBackgroundNotification()
             // 設定から最大拡大率を適用
             cameraManager.setMaxZoomFactor(settingsManager.maxZoomFactor)
+            // プレスモードをSecurityManagerに同期
+            securityManager.isPressMode = settingsManager.isPressMode
         }
         .onChange(of: cameraManager.isCameraReady) { oldValue, newValue in
             if newValue {
@@ -263,6 +267,11 @@ struct ContentView: View {
         .onChange(of: settingsManager.maxZoomFactor) { oldValue, newValue in
             // 最大拡大率が変更されたらカメラに適用
             cameraManager.setMaxZoomFactor(newValue)
+        }
+        .onChange(of: settingsManager.isPressMode) { oldValue, newValue in
+            // プレスモードが変更されたらSecurityManagerに同期
+            securityManager.isPressMode = newValue
+            print("📰 プレスモード: \(newValue ? "有効" : "無効")")
         }
         .onChange(of: securityManager.hideContent) { oldValue, newValue in
             print("🔒 hideContent changed: \(oldValue) -> \(newValue)")
@@ -669,19 +678,21 @@ struct ThumbnailView: View {
             }) {
                 ZStack(alignment: .topTrailing) {
                     // 画像を表示（スクリーンショット保護付き）
-                    ZStack {
-                        Image(uiImage: latestImage.image)
-                            .resizable()
-                            .scaledToFill()
-                            .frame(width: 60, height: 60)
-                            .clipShape(RoundedRectangle(cornerRadius: 10))
-                            .overlay(
-                                RoundedRectangle(cornerRadius: 10)
-                                    .stroke(Color.white, lineWidth: 2)
-                            )
-                            .blur(radius: securityManager.isScreenRecording ? 10 : 0)
+                    Group {
+                        ZStack {
+                            Image(uiImage: latestImage.image)
+                                .resizable()
+                                .scaledToFill()
+                                .frame(width: 60, height: 60)
+                                .clipShape(RoundedRectangle(cornerRadius: 10))
+                                .overlay(
+                                    RoundedRectangle(cornerRadius: 10)
+                                        .stroke(Color.white, lineWidth: 2)
+                                )
+                                .blur(radius: securityManager.isScreenRecording ? 10 : 0)
+                        }
                     }
-                    .preventScreenCapture() // スクリーンショット保護
+                    .modifier(ConditionalScreenCaptureProtection(isEnabled: !settingsManager.isPressMode))
                     .contextMenu { } // コンテキストメニューを無効化
 
                     // 残り時間バッジ（保護の外側）
@@ -807,6 +818,19 @@ extension String {
         let fontAttributes = [NSAttributedString.Key.font: font]
         let size = self.size(withAttributes: fontAttributes)
         return size.width
+    }
+}
+
+// MARK: - Conditional Screen Capture Protection
+struct ConditionalScreenCaptureProtection: ViewModifier {
+    let isEnabled: Bool
+
+    func body(content: Content) -> some View {
+        if isEnabled {
+            content.preventScreenCapture()
+        } else {
+            content
+        }
     }
 }
 

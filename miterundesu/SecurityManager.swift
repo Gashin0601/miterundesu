@@ -16,6 +16,8 @@ class SecurityManager: ObservableObject {
     @Published var showRecordingWarning = false
     @Published var hideContent = false // スクリーンショット検出時にコンテンツを隠す
 
+    var isPressMode: Bool = false // プレスモード（報道・開発用）
+
     private var cancellables = Set<AnyCancellable>()
     private var recordingCheckTimer: Timer?
 
@@ -61,6 +63,12 @@ class SecurityManager: ObservableObject {
 
     // スクリーンショット検出時の処理
     private func handleScreenshotDetected() {
+        // プレスモード時はスクリーンショット検出を無効化
+        guard !isPressMode else {
+            print("📰 プレスモード: スクリーンショット許可")
+            return
+        }
+
         print("⚠️ スクリーンショットが検出されました")
 
         DispatchQueue.main.async {
@@ -81,6 +89,11 @@ class SecurityManager: ObservableObject {
 
     // 画面録画状態のチェック（高速化版）
     private func checkScreenRecordingStatus() {
+        // プレスモード時は画面録画検出を無効化
+        guard !isPressMode else {
+            return
+        }
+
         let isCaptured: Bool
 
         // iOS 18対応：sceneCaptureStateを優先的に使用

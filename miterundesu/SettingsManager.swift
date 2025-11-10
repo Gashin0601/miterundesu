@@ -18,6 +18,7 @@ class SettingsManager: ObservableObject {
         static let isTheaterMode = "isTheaterMode"
         static let scrollingMessageNormal = "scrollingMessageNormal"
         static let scrollingMessageTheater = "scrollingMessageTheater"
+        static let isPressMode = "isPressMode"
     }
 
     // 最大拡大率（デフォルト: ×100）
@@ -28,6 +29,9 @@ class SettingsManager: ObservableObject {
 
     // シアターモード（デフォルト: オフ）
     @Published var isTheaterMode: Bool = false
+
+    // プレスモード（報道・開発用、デフォルト: オフ）
+    @Published var isPressMode: Bool = false
 
     // スクロールメッセージ - 通常モード用
     @Published var scrollingMessageNormal: String = ""
@@ -59,6 +63,8 @@ class SettingsManager: ObservableObject {
         self.localizationManager = LocalizationManager(language: self.language)
 
         self.isTheaterMode = UserDefaults.standard.bool(forKey: Keys.isTheaterMode)
+
+        self.isPressMode = UserDefaults.standard.bool(forKey: Keys.isPressMode)
 
         // 通常モード用メッセージの読み込み
         if let savedMessageNormal = UserDefaults.standard.string(forKey: Keys.scrollingMessageNormal), !savedMessageNormal.isEmpty {
@@ -97,6 +103,12 @@ class SettingsManager: ObservableObject {
             }
             .store(in: &cancellables)
 
+        $isPressMode
+            .sink { newValue in
+                UserDefaults.standard.set(newValue, forKey: Keys.isPressMode)
+            }
+            .store(in: &cancellables)
+
         $scrollingMessageNormal
             .sink { newValue in
                 UserDefaults.standard.set(newValue, forKey: Keys.scrollingMessageNormal)
@@ -115,6 +127,7 @@ class SettingsManager: ObservableObject {
         maxZoomFactor = 100.0
         language = "ja"
         isTheaterMode = false
+        isPressMode = false
         scrollingMessageNormal = "撮影・録画は行っていません。スマートフォンを拡大鏡として使っています。画像は一時的に保存できますが、10分後には自動的に削除されます。共有やスクリーンショットはできません。"
         scrollingMessageTheater = "撮影・録画は行っていません。スマートフォンを拡大鏡として使用しています。スクリーンショットや画面収録を含め、一切の保存ができないカメラアプリですので、ご安心ください。"
     }
