@@ -43,69 +43,72 @@ struct CapturedImagePreview: View {
 
             // 画像表示エリア
             ZStack(alignment: .bottomTrailing) {
-                GeometryReader { geometry in
-                    Image(uiImage: capturedImage.image)
-                        .resizable()
-                        .aspectRatio(contentMode: .fit)
-                        .frame(width: geometry.size.width, height: geometry.size.height)
-                        .scaleEffect(scale)
-                        .offset(offset)
-                        .clipped()
-                        .highPriorityGesture(
-                            MagnificationGesture(minimumScaleDelta: 0)
-                                .onChanged { value in
-                                    let delta = value / lastScale
-                                    lastScale = value
-                                    let newScale = min(max(scale * delta, 1), CGFloat(settingsManager.maxZoomFactor))
-                                    scale = newScale
-                                    // スケール変更時にオフセットを境界内に制限
-                                    offset = boundedOffset(offset, scale: newScale, imageSize: capturedImage.image.size, viewSize: geometry.size)
-                                    lastOffset = offset
-                                }
-                                .onEnded { _ in
-                                    lastScale = 1.0
-                                }
-                        )
-                        .simultaneousGesture(
-                            DragGesture(minimumDistance: scale > 1.0 ? 0 : 10)
-                                .onChanged { value in
-                                    if scale > 1.0 {
-                                        let newOffset = CGSize(
-                                            width: lastOffset.width + value.translation.width,
-                                            height: lastOffset.height + value.translation.height
-                                        )
-                                        // ドラッグ時にオフセットを境界内に制限
-                                        offset = boundedOffset(newOffset, scale: scale, imageSize: capturedImage.image.size, viewSize: geometry.size)
-                                    }
-                                }
-                                .onEnded { _ in
-                                    if scale > 1.0 {
+                // 保護された画像表示
+                ZStack {
+                    GeometryReader { geometry in
+                        Image(uiImage: capturedImage.image)
+                            .resizable()
+                            .aspectRatio(contentMode: .fit)
+                            .frame(width: geometry.size.width, height: geometry.size.height)
+                            .scaleEffect(scale)
+                            .offset(offset)
+                            .clipped()
+                            .highPriorityGesture(
+                                MagnificationGesture(minimumScaleDelta: 0)
+                                    .onChanged { value in
+                                        let delta = value / lastScale
+                                        lastScale = value
+                                        let newScale = min(max(scale * delta, 1), CGFloat(settingsManager.maxZoomFactor))
+                                        scale = newScale
+                                        // スケール変更時にオフセットを境界内に制限
+                                        offset = boundedOffset(offset, scale: newScale, imageSize: capturedImage.image.size, viewSize: geometry.size)
                                         lastOffset = offset
                                     }
+                                    .onEnded { _ in
+                                        lastScale = 1.0
+                                    }
+                            )
+                            .simultaneousGesture(
+                                DragGesture(minimumDistance: scale > 1.0 ? 0 : 10)
+                                    .onChanged { value in
+                                        if scale > 1.0 {
+                                            let newOffset = CGSize(
+                                                width: lastOffset.width + value.translation.width,
+                                                height: lastOffset.height + value.translation.height
+                                            )
+                                            // ドラッグ時にオフセットを境界内に制限
+                                            offset = boundedOffset(newOffset, scale: scale, imageSize: capturedImage.image.size, viewSize: geometry.size)
+                                        }
+                                    }
+                                    .onEnded { _ in
+                                        if scale > 1.0 {
+                                            lastOffset = offset
+                                        }
+                                    }
+                            )
+                            .onTapGesture(count: 2) {
+                                withAnimation(.easeInOut(duration: 0.3)) {
+                                    scale = 1.0
+                                    offset = .zero
+                                    lastOffset = .zero
                                 }
-                        )
-                        .onTapGesture(count: 2) {
-                            withAnimation(.easeInOut(duration: 0.3)) {
-                                scale = 1.0
-                                offset = .zero
-                                lastOffset = .zero
                             }
-                        }
-                        .onChange(of: scale) { oldValue, newValue in
-                            if newValue <= 1.0 {
-                                offset = .zero
-                                lastOffset = .zero
-                            } else {
-                                // スケール変更時にオフセットを境界内に調整
-                                offset = boundedOffset(offset, scale: newValue, imageSize: capturedImage.image.size, viewSize: geometry.size)
-                                lastOffset = offset
+                            .onChange(of: scale) { oldValue, newValue in
+                                if newValue <= 1.0 {
+                                    offset = .zero
+                                    lastOffset = .zero
+                                } else {
+                                    // スケール変更時にオフセットを境界内に調整
+                                    offset = boundedOffset(offset, scale: newValue, imageSize: capturedImage.image.size, viewSize: geometry.size)
+                                    lastOffset = offset
+                                }
                             }
-                        }
+                    }
+                    .blur(radius: securityManager.isScreenRecording ? 50 : 0)
                 }
-                .preventScreenCapture() // 最新のスクリーンショット保護
-                .blur(radius: securityManager.isScreenRecording ? 50 : 0)
+                .preventScreenCapture() // 画像のみ保護
 
-                // 左下：ウォーターマークオーバーレイ（二重保護）
+                // 左下：ウォーターマークオーバーレイ（preventScreenCapture外で表示）
                 VStack {
                     Spacer()
                     HStack {
@@ -116,6 +119,7 @@ struct CapturedImagePreview: View {
                     }
                 }
                 .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottomLeading)
+                .allowsHitTesting(false)
 
                 // 画面録画中の警告（中央）
                 if securityManager.isScreenRecording {

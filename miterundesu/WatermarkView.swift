@@ -120,16 +120,16 @@ struct WatermarkView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 2) {
             Text(viewModel.watermarkText)
-                .font(.system(size: 11, weight: .medium, design: .monospaced))
+                .font(.system(size: 13, weight: .semibold, design: .monospaced))
                 .foregroundColor(isDarkBackground ? .white : .black)
-                .opacity(0.6)
-                .shadow(color: isDarkBackground ? .black.opacity(0.5) : .white.opacity(0.5), radius: 2, x: 0, y: 0)
+                .opacity(0.9) // 視認性向上
+                .shadow(color: isDarkBackground ? .black.opacity(0.8) : .white.opacity(0.8), radius: 3, x: 0, y: 0)
         }
-        .padding(.horizontal, 12)
-        .padding(.vertical, 8)
+        .padding(.horizontal, 14)
+        .padding(.vertical, 10)
         .background(
-            RoundedRectangle(cornerRadius: 6)
-                .fill(isDarkBackground ? Color.black.opacity(0.3) : Color.white.opacity(0.3))
+            RoundedRectangle(cornerRadius: 8)
+                .fill(isDarkBackground ? Color.black.opacity(0.5) : Color.white.opacity(0.5)) // 背景を濃く
         )
     }
 }
