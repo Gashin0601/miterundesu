@@ -17,7 +17,7 @@ class CameraManager: NSObject, ObservableObject, AVCaptureSessionControlsDelegat
 
     var maxZoomFactor: CGFloat = 100.0 // デフォルト最大拡大率
 
-    private let session = AVCaptureSession()
+    let session = AVCaptureSession() // internal に変更（CameraPreview から直接アクセス可能に）
     private let videoOutput = AVCaptureVideoDataOutput()
     private let photoOutput = AVCapturePhotoOutput()
     private var videoDeviceInput: AVCaptureDeviceInput?
