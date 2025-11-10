@@ -124,7 +124,6 @@ struct ContentView: View {
                                     capturePhoto()
                                 }
                             )
-                            .id("cameraPreview-\(cameraManager.isSessionRunning)-\(cameraManager.isCameraReady)")
                             .blur(radius: securityManager.isScreenRecording ? 30 : 0)
 
                             // 画面録画中の警告（中央）
@@ -296,8 +295,8 @@ struct ContentView: View {
                 // エラー -17281 でセッションが無効化されても isSessionRunning が true のままの場合があるため
                 print("📷 カメラセッションを強制的に再起動します")
                 cameraManager.stopSession()
-                // 少し待ってから再起動
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
+                // セッションの完全停止を待ってから再起動（安定性のため）
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) {
                     cameraManager.startSession()
                     print("🔒 カメラプレビューに復帰しました")
                 }
@@ -374,7 +373,7 @@ struct ContentView: View {
             // カメラセッションを強制的に再起動（常に実行）
             print("📷 カメラセッションを強制的に再起動します")
             cameraManager.stopSession()
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) {
                 cameraManager.startSession()
             }
         }

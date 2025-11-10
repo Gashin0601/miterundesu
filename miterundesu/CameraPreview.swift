@@ -13,23 +13,17 @@ struct CameraPreview: UIViewRepresentable {
     @ObservedObject var cameraManager: CameraManager
 
     func makeUIView(context: Context) -> PreviewView {
-        print("📹 CameraPreview makeUIView called")
         let view = PreviewView()
         view.videoPreviewLayer.session = cameraManager.session // 直接 session を参照
         view.videoPreviewLayer.videoGravity = .resizeAspectFill
-        print("📹 CameraPreview created with session: \(view.videoPreviewLayer.session != nil)")
+        print("📹 CameraPreview created")
         return view
     }
 
     func updateUIView(_ uiView: PreviewView, context: Context) {
-        print("📹 CameraPreview updateUIView called")
-        print("📹 Current session: \(uiView.videoPreviewLayer.session != nil)")
-        print("📹 Manager session: \(cameraManager.session)")
-        print("📹 Session running: \(cameraManager.isSessionRunning)")
-
-        // セッションを再割り当てして確実に接続
+        // セッションを確実に接続（preventScreenCapture の再構築後も維持）
         if uiView.videoPreviewLayer.session !== cameraManager.session {
-            print("📹 Re-assigning session to preview layer")
+            print("📹 Re-assigning camera session to preview layer")
             uiView.videoPreviewLayer.session = cameraManager.session
         }
     }
