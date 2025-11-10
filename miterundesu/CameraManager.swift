@@ -327,15 +327,20 @@ private class PhotoCaptureDelegate: NSObject, AVCapturePhotoCaptureDelegate {
             return
         }
 
-        guard let imageData = photo.fileDataRepresentation(),
-              let image = UIImage(data: imageData) else {
+        guard let imageData = photo.fileDataRepresentation() else {
+            completion(nil)
+            return
+        }
+
+        // メモリ効率的にダウンサンプリング（最大4096px）
+        guard let downsampledImage = UIImage.downsample(imageData: imageData, maxDimension: 4096) else {
             completion(nil)
             return
         }
 
         // ウォーターマークを焼き込む
         let watermarkText = WatermarkHelper.generateWatermarkText()
-        let watermarkedImage = image.withWatermark(text: watermarkText, position: .bottomLeft)
+        let watermarkedImage = downsampledImage.withWatermark(text: watermarkText, position: .bottomLeft)
 
         completion(watermarkedImage)
     }
@@ -356,5 +361,48 @@ enum CameraError: Error, LocalizedError {
         case .cannotCapturePhoto:
             return "写真をキャプチャできません"
         }
+    }
+}
+
+// MARK: - UIImage Downsampling Extension
+extension UIImage {
+    /// メモリ効率的な画像ダウンサンプリング
+    static func downsample(imageData: Data, maxDimension: CGFloat) -> UIImage? {
+        let imageSourceOptions = [kCGImageSourceShouldCache: false] as CFDictionary
+        guard let imageSource = CGImageSourceCreateWithData(imageData as CFData, imageSourceOptions) else {
+            return nil
+        }
+
+        // 画像のプロパティを取得（メモリにロードせず）
+        guard let properties = CGImageSourceCopyPropertiesAtIndex(imageSource, 0, nil) as? [CFString: Any],
+              let width = properties[kCGImagePropertyPixelWidth] as? CGFloat,
+              let height = properties[kCGImagePropertyPixelHeight] as? CGFloat else {
+            return nil
+        }
+
+        // 最大寸法を超えている場合のみダウンサンプリング
+        let maxOriginalDimension = max(width, height)
+        if maxOriginalDimension <= maxDimension {
+            // 元のサイズが小さい場合はそのまま
+            return UIImage(data: imageData)
+        }
+
+        // ダウンサンプリング倍率を計算
+        let downsampleScale = maxDimension / maxOriginalDimension
+
+        let downsampleOptions = [
+            kCGImageSourceCreateThumbnailFromImageAlways: true,
+            kCGImageSourceShouldCacheImmediately: true,
+            kCGImageSourceCreateThumbnailWithTransform: true,
+            kCGImageSourceThumbnailMaxPixelSize: maxDimension
+        ] as CFDictionary
+
+        guard let downsampledImage = CGImageSourceCreateThumbnailAtIndex(imageSource, 0, downsampleOptions) else {
+            return nil
+        }
+
+        print("📸 画像をダウンサンプリング: \(Int(width))x\(Int(height)) -> \(Int(width * downsampleScale))x\(Int(height * downsampleScale))")
+
+        return UIImage(cgImage: downsampledImage)
     }
 }
