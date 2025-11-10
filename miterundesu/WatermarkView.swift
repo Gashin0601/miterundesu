@@ -29,10 +29,10 @@ extension UIImage {
             let paragraphStyle = NSMutableParagraphStyle()
             paragraphStyle.alignment = .left
 
+            // 水のような透明感のある属性
             let attributes: [NSAttributedString.Key: Any] = [
                 .font: font,
-                .foregroundColor: UIColor.white.withAlphaComponent(0.7),
-                .backgroundColor: UIColor.black.withAlphaComponent(0.4),
+                .foregroundColor: UIColor.white.withAlphaComponent(0.85), // より透明に
                 .paragraphStyle: paragraphStyle
             ]
 
@@ -121,16 +121,48 @@ struct WatermarkView: View {
         VStack(alignment: .leading, spacing: 2) {
             Text(viewModel.watermarkText)
                 .font(.system(size: 13, weight: .semibold, design: .monospaced))
-                .foregroundColor(isDarkBackground ? .white : .black)
-                .opacity(0.9) // 視認性向上
-                .shadow(color: isDarkBackground ? .black.opacity(0.8) : .white.opacity(0.8), radius: 3, x: 0, y: 0)
+                .foregroundColor(.white)
+                .shadow(color: .black.opacity(0.5), radius: 2, x: 0, y: 1)
+                .shadow(color: .white.opacity(0.3), radius: 8, x: 0, y: 0) // 水のような光沢
         }
-        .padding(.horizontal, 14)
-        .padding(.vertical, 10)
-        .background(
-            RoundedRectangle(cornerRadius: 8)
-                .fill(isDarkBackground ? Color.black.opacity(0.5) : Color.white.opacity(0.5)) // 背景を濃く
-        )
+        .padding(.horizontal, 16)
+        .padding(.vertical, 12)
+        .background {
+            // グラスモーフィズム効果（水のような透明感）
+            ZStack {
+                // 半透明のグラデーション背景（水滴のような）
+                LinearGradient(
+                    colors: [
+                        Color.white.opacity(0.25),
+                        Color.white.opacity(0.15),
+                        Color.white.opacity(0.2)
+                    ],
+                    startPoint: .topLeading,
+                    endPoint: .bottomTrailing
+                )
+
+                // 薄いブラーオーバーレイ（フロストガラス効果）
+                Color.white.opacity(0.1)
+            }
+            .background(.ultraThinMaterial) // SwiftUIのMaterial（水のようなぼかし）
+            .cornerRadius(12)
+            .overlay(
+                RoundedRectangle(cornerRadius: 12)
+                    .stroke(
+                        LinearGradient(
+                            colors: [
+                                Color.white.opacity(0.6),
+                                Color.white.opacity(0.2),
+                                Color.white.opacity(0.4)
+                            ],
+                            startPoint: .topLeading,
+                            endPoint: .bottomTrailing
+                        ),
+                        lineWidth: 1.5
+                    )
+            )
+            .shadow(color: .black.opacity(0.2), radius: 8, x: 0, y: 4) // 水のような影
+        }
     }
 }
 
