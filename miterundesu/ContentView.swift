@@ -100,13 +100,13 @@ struct ContentView: View {
                     .opacity(shouldShowUI ? 1 : 0)
                     .accessibilityLabel(settingsManager.localizationManager.localizedString("settings"))
                 }
-                .padding(.top, 8)
-                .padding(.bottom, 8)
+                .padding(.top, 4)
+                .padding(.bottom, 4)
 
                 // ヘッダー部分（無限スクロールとロゴ）
                 HeaderView(settingsManager: settingsManager)
                     .opacity(shouldShowUI ? 1 : 0)
-                    .padding(.top, 4)
+                    .padding(.top, 2)
 
                 // カメラプレビュー領域
                 ZStack(alignment: .bottomLeading) {
@@ -158,9 +158,9 @@ struct ContentView: View {
                 }
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
                 .layoutPriority(1) // カメラプレビューが優先的にスペースを取得
-                .padding(.horizontal, 16)
-                .padding(.top, 12)
-                .padding(.bottom, 8)
+                .padding(.horizontal, 12)
+                .padding(.top, 8)
+                .padding(.bottom, 4)
 
                 // フッター部分
                 FooterView(
