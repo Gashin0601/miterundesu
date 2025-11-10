@@ -148,6 +148,18 @@ class SecurityManager: ObservableObject {
 // 最新の実装方法（2024-2025年版）
 // 参考: https://www.createwithswift.com/prevent-screenshot-capture-of-sensitive-swiftui-views/
 
+// MARK: - Press Mode Environment Key
+private struct PressModeKey: EnvironmentKey {
+    static let defaultValue: Bool = false
+}
+
+extension EnvironmentValues {
+    var isPressMode: Bool {
+        get { self[PressModeKey.self] }
+        set { self[PressModeKey.self] = newValue }
+    }
+}
+
 // UIViewの拡張 - セキュアキャプチャビューを取得
 private extension UIView {
     static var secureCaptureView: UIView {
@@ -171,8 +183,14 @@ fileprivate struct SizeKey: PreferenceKey {
 // UIViewRepresentable Helper
 fileprivate struct ScreenshotPreventHelper<Content: View>: UIViewRepresentable {
     @Binding var hostingController: UIHostingController<Content>?
+    @Environment(\.isPressMode) var isPressMode
 
     func makeUIView(context: Context) -> UIView {
+        // プレスモード時は通常のUIViewを返す（スクリーンショット保護なし）
+        if isPressMode {
+            print("📰 プレスモード: スクリーンショット保護を無効化")
+            return UIView()
+        }
         print("🔐 secureCaptureView を作成")
         return UIView.secureCaptureView
     }

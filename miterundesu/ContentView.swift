@@ -146,7 +146,7 @@ struct ContentView: View {
                                 }
                             }
                         }
-                        .modifier(ConditionalScreenCaptureProtection(isEnabled: !settingsManager.isPressMode))
+                        .preventScreenCapture()
                     }
 
                     // ウォーターマーク（左下・常に表示）
@@ -231,6 +231,7 @@ struct ContentView: View {
             )
         }
         .preferredColorScheme(.dark)
+        .environment(\.isPressMode, settingsManager.isPressMode)
         .onAppear {
             // 画面向きを縦向きに固定
             AppDelegate.orientationLock = .portrait
@@ -686,7 +687,7 @@ struct ThumbnailView: View {
                                 .blur(radius: securityManager.isScreenRecording ? 10 : 0)
                         }
                     }
-                    .modifier(ConditionalScreenCaptureProtection(isEnabled: !settingsManager.isPressMode))
+                    .preventScreenCapture()
                     .contextMenu { } // コンテキストメニューを無効化
 
                     // 残り時間バッジ（保護の外側）
@@ -812,19 +813,6 @@ extension String {
         let fontAttributes = [NSAttributedString.Key.font: font]
         let size = self.size(withAttributes: fontAttributes)
         return size.width
-    }
-}
-
-// MARK: - Conditional Screen Capture Protection
-struct ConditionalScreenCaptureProtection: ViewModifier {
-    let isEnabled: Bool
-
-    func body(content: Content) -> some View {
-        if isEnabled {
-            content.preventScreenCapture()
-        } else {
-            content
-        }
     }
 }
 
