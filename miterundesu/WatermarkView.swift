@@ -12,9 +12,8 @@ import UIKit
 extension UIImage {
     /// 画像にウォーターマークを焼き込む（画像データそのものを変更）
     func withWatermark(text: String, position: WatermarkPosition = .bottomLeft) -> UIImage {
-        // 画像のサイズとスケールを取得
+        // 画像のサイズを取得
         let imageSize = self.size
-        let scale = self.scale
 
         // レンダラーを作成（非推奨のUIGraphicsBeginImageContextを使わない）
         let renderer = UIGraphicsImageRenderer(size: imageSize, format: UIGraphicsImageRendererFormat())
