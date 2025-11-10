@@ -246,6 +246,8 @@ struct ContentView: View {
             cameraManager.setMaxZoomFactor(settingsManager.maxZoomFactor)
             // プレスモードをSecurityManagerに同期
             securityManager.isPressMode = settingsManager.isPressMode
+            // 画面録画状態を再チェック（プレスモード同期後）
+            securityManager.recheckScreenRecordingStatus()
         }
         .onChange(of: cameraManager.isCameraReady) { oldValue, newValue in
             if newValue {
@@ -276,6 +278,8 @@ struct ContentView: View {
             // プレスモードが変更されたらSecurityManagerに同期
             securityManager.isPressMode = newValue
             print("📰 プレスモード: \(newValue ? "有効" : "無効")")
+            // 画面録画状態を再チェック
+            securityManager.recheckScreenRecordingStatus()
 
             // UI再構築中はローディング画面を表示
             isLoading = true

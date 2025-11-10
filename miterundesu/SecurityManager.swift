@@ -91,6 +91,14 @@ class SecurityManager: ObservableObject {
     private func checkScreenRecordingStatus() {
         // プレスモード時は画面録画検出を無効化
         guard !isPressMode else {
+            // プレスモード時は警告をクリア
+            if isScreenRecording || showRecordingWarning {
+                DispatchQueue.main.async { [weak self] in
+                    self?.isScreenRecording = false
+                    self?.showRecordingWarning = false
+                    print("📰 プレスモード: 画面録画警告をクリア")
+                }
+            }
             return
         }
 
@@ -141,6 +149,11 @@ class SecurityManager: ObservableObject {
     func clearSensitiveData() {
         // 機密データをゼロクリア
         print("🧹 機密データをクリア")
+    }
+
+    // 画面録画状態を強制的に再チェック（プレスモード同期後に使用）
+    func recheckScreenRecordingStatus() {
+        checkScreenRecordingStatus()
     }
 }
 
