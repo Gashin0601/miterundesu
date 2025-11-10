@@ -265,6 +265,13 @@ struct ContentView: View {
             // 最大拡大率が変更されたらカメラに適用
             cameraManager.setMaxZoomFactor(newValue)
         }
+        .onChange(of: securityManager.shouldDismissToCamera) { oldValue, newValue in
+            // スクリーンショット検出時に画像プレビューを閉じる
+            if newValue {
+                justCapturedImage = nil
+                selectedImage = nil
+            }
+        }
     }
 
     // UIを表示すべきかどうか
@@ -606,7 +613,16 @@ struct ThumbnailView: View {
     let timer = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
 
     var body: some View {
-        if let latestImage = imageManager.capturedImages.first {
+        if securityManager.hideContent {
+            // スクリーンショット検出時：黒い四角を表示
+            RoundedRectangle(cornerRadius: 10)
+                .fill(Color.black)
+                .frame(width: 60, height: 60)
+                .overlay(
+                    RoundedRectangle(cornerRadius: 10)
+                        .stroke(Color.white, lineWidth: 2)
+                )
+        } else if let latestImage = imageManager.capturedImages.first {
             Button(action: {
                 if !isTheaterMode {
                     selectedImage = latestImage
