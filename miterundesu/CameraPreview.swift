@@ -13,14 +13,25 @@ struct CameraPreview: UIViewRepresentable {
     @ObservedObject var cameraManager: CameraManager
 
     func makeUIView(context: Context) -> PreviewView {
+        print("📹 CameraPreview makeUIView called")
         let view = PreviewView()
         view.videoPreviewLayer.session = cameraManager.previewLayer.session
         view.videoPreviewLayer.videoGravity = .resizeAspectFill
+        print("📹 CameraPreview created with session: \(view.videoPreviewLayer.session != nil)")
         return view
     }
 
     func updateUIView(_ uiView: PreviewView, context: Context) {
-        // 特に何もしない - PreviewViewが自動的にフレームを管理
+        print("📹 CameraPreview updateUIView called")
+        print("📹 Current session: \(uiView.videoPreviewLayer.session != nil)")
+        print("📹 Manager session: \(cameraManager.previewLayer.session != nil)")
+        print("📹 Session running: \(cameraManager.isSessionRunning)")
+
+        // セッションを再割り当てして確実に接続
+        if uiView.videoPreviewLayer.session !== cameraManager.previewLayer.session {
+            print("📹 Re-assigning session to preview layer")
+            uiView.videoPreviewLayer.session = cameraManager.previewLayer.session
+        }
     }
 
     func makeCoordinator() -> Coordinator {

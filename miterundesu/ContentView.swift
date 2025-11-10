@@ -124,6 +124,7 @@ struct ContentView: View {
                                     capturePhoto()
                                 }
                             )
+                            .id("cameraPreview-\(cameraManager.isSessionRunning)-\(cameraManager.isCameraReady)")
                             .blur(radius: securityManager.isScreenRecording ? 30 : 0)
 
                             // 画面録画中の警告（中央）
