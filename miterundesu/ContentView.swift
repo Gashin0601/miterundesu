@@ -31,13 +31,14 @@ struct ContentView: View {
             let screenWidth = geometry.size.width
             let screenHeight = geometry.size.height
 
-            // レスポンシブなパディング値を計算
-            let horizontalPadding = screenWidth * 0.03  // 画面幅の3%
-            let topPadding = screenHeight * 0.005       // 画面高さの0.5%
-            let bottomPadding = screenHeight * 0.005    // 画面高さの0.5%
-            let cameraHorizontalPadding = screenWidth * 0.015  // 画面幅の1.5%
-            let cameraTopPadding = screenHeight * 0.005        // 画面高さの0.5%
-            let cameraBottomPadding = screenHeight * 0.0    // 画面高さの0%（完全削除）
+            // レスポンシブなパディング値を計算（8ptグリッドシステムに準拠）
+            // iPhone 15基準: 393pt幅、852pt高さ
+            let horizontalPadding = screenWidth * 0.041  // 16pt (画面全体の統一マージン)
+            let topPadding = screenHeight * 0.009       // 約8pt
+            let bottomPadding = screenHeight * 0.009    // 約8pt
+            let cameraHorizontalPadding = screenWidth * 0.031  // 12pt (カメラ周り)
+            let cameraTopPadding = screenHeight * 0.009        // 約8pt
+            let cameraBottomPadding = screenHeight * 0.014    // 約12pt（呼吸感を確保）
 
             ZStack {
                 if isLoading {
@@ -121,52 +122,50 @@ struct ContentView: View {
                     .padding(.top, topPadding * 0.5)
 
                 // カメラプレビュー領域
-                ZStack(alignment: .bottomLeading) {
+                Group {
                     if securityManager.hideContent {
                         // スクリーンショット検出時：完全に黒画面
                         Color.black
                             .aspectRatio(3/4, contentMode: .fit)
                     } else {
                         // 保護されたカメラプレビュー
-                        Group {
-                            ZStack {
-                                CameraPreviewWithZoom(
-                                    cameraManager: cameraManager,
-                                    isTheaterMode: $settingsManager.isTheaterMode,
-                                    onCapture: {
-                                        capturePhoto()
-                                    }
-                                )
-                                .blur(radius: securityManager.isScreenRecording ? 30 : 0)
-
-                                // 画面録画中の警告（中央）
-                                if securityManager.isScreenRecording {
-                                    VStack(spacing: 12) {
-                                        Image(systemName: "eye.slash.fill")
-                                            .font(.system(size: 40))
-                                            .foregroundColor(.white)
-
-                                        Text(settingsManager.localizationManager.localizedString("screen_recording_warning"))
-                                            .font(.headline)
-                                            .foregroundColor(.white)
-                                    }
-                                    .padding(20)
-                                    .background(
-                                        RoundedRectangle(cornerRadius: 12)
-                                            .fill(Color.black.opacity(0.7))
-                                    )
+                        ZStack(alignment: .bottomLeading) {
+                            CameraPreviewWithZoom(
+                                cameraManager: cameraManager,
+                                isTheaterMode: $settingsManager.isTheaterMode,
+                                onCapture: {
+                                    capturePhoto()
                                 }
+                            )
+                            .blur(radius: securityManager.isScreenRecording ? 30 : 0)
+
+                            // 画面録画中の警告（中央）
+                            if securityManager.isScreenRecording {
+                                VStack(spacing: 12) {
+                                    Image(systemName: "eye.slash.fill")
+                                        .font(.system(size: 40))
+                                        .foregroundColor(.white)
+
+                                    Text(settingsManager.localizationManager.localizedString("screen_recording_warning"))
+                                        .font(.headline)
+                                        .foregroundColor(.white)
+                                }
+                                .padding(20)
+                                .background(
+                                    RoundedRectangle(cornerRadius: 12)
+                                        .fill(Color.black.opacity(0.7))
+                                )
                             }
+
+                            // ウォーターマーク（カメラプレビュー上の左下）
+                            WatermarkView(isDarkBackground: true)
+                                .padding(.leading, screenWidth * 0.031)  // 12pt
+                                .padding(.bottom, screenWidth * 0.031)   // 12pt
+                                .opacity(shouldShowUI ? 1 : 0)
+                                .allowsHitTesting(false) // タッチイベントを透過
                         }
                         .preventScreenCapture()
                     }
-
-                    // ウォーターマーク（左下・常に表示）
-                    WatermarkView(isDarkBackground: true)
-                        .padding(.leading, cameraHorizontalPadding)
-                        .padding(.bottom, cameraBottomPadding * 2)
-                        .opacity(shouldShowUI ? 1 : 0)
-                        .allowsHitTesting(false) // タッチイベントを透過
                 }
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
                 .layoutPriority(1) // カメラプレビューが優先的にスペースを取得
@@ -627,11 +626,11 @@ struct FooterView: View {
     let screenHeight: CGFloat
 
     var body: some View {
-        let horizontalPadding = screenWidth * 0.05  // 画面幅の5%
-        let verticalTopPadding = screenHeight * 0.002  // 画面高さの0.2%（さらに削減してカメラプレビュー拡大）
-        let verticalBottomPadding = screenHeight * 0.025  // 画面高さの2.5%
-        let shutterSize = screenWidth * 0.22  // 画面幅の22%（拡大）
-        let thumbnailSize = screenWidth * 0.18  // 画面幅の18%（拡大）
+        let horizontalPadding = screenWidth * 0.051  // 20pt (フッター左右マージン)
+        let verticalTopPadding = screenHeight * 0.009  // 約8pt（カメラとフッターの間）
+        let verticalBottomPadding = screenHeight * 0.023  // 約20pt（下部余白）
+        let shutterSize = screenWidth * 0.22  // 画面幅の22%
+        let thumbnailSize = screenWidth * 0.18  // 画面幅の18%
 
         ZStack {
             // シャッターボタン（中央）
