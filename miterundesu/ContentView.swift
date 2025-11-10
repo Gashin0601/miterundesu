@@ -109,7 +109,7 @@ struct ContentView: View {
                     .padding(.top, 4)
 
                 // カメラプレビュー領域
-                ZStack {
+                ZStack(alignment: .bottomLeading) {
                     CameraPreviewWithZoom(
                         cameraManager: cameraManager,
                         isTheaterMode: $settingsManager.isTheaterMode,
@@ -118,8 +118,9 @@ struct ContentView: View {
                         }
                     )
                     .blur(radius: securityManager.isScreenRecording ? 30 : 0)
+                    .preventScreenCapture() // スクリーンショット・画面録画保護
 
-                    // 画面録画中の警告
+                    // 画面録画中の警告（中央）
                     if securityManager.isScreenRecording {
                         VStack(spacing: 12) {
                             Image(systemName: "eye.slash.fill")
@@ -135,7 +136,14 @@ struct ContentView: View {
                             RoundedRectangle(cornerRadius: 12)
                                 .fill(Color.black.opacity(0.7))
                         )
+                        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
                     }
+
+                    // ウォーターマーク（左下・常時表示）
+                    WatermarkView(isDarkBackground: true)
+                        .padding(.leading, 12)
+                        .padding(.bottom, 12)
+                        .opacity(shouldShowUI ? 1 : 0)
                 }
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
                 .padding(.horizontal, 16)

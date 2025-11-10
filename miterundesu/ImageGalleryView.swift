@@ -284,6 +284,19 @@ struct ImageGalleryView: View {
                             .padding(.bottom, 50)
                         }
                     }
+
+                    // ウォーターマークオーバーレイ（左下・二重保護）
+                    VStack {
+                        Spacer()
+
+                        HStack {
+                            WatermarkView(isDarkBackground: true)
+                                .padding(.leading, 12)
+                                .padding(.bottom, 50)
+
+                            Spacer()
+                        }
+                    }
                 }
             } else {
                 // 画像が削除された場合
