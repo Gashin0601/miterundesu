@@ -35,9 +35,9 @@ struct ContentView: View {
             let horizontalPadding = screenWidth * 0.03  // 画面幅の3%
             let topPadding = screenHeight * 0.005       // 画面高さの0.5%
             let bottomPadding = screenHeight * 0.005    // 画面高さの0.5%
-            let cameraHorizontalPadding = screenWidth * 0.03  // 画面幅の3%
-            let cameraTopPadding = screenHeight * 0.01        // 画面高さの1%
-            let cameraBottomPadding = screenHeight * 0.005    // 画面高さの0.5%
+            let cameraHorizontalPadding = screenWidth * 0.015  // 画面幅の1.5% (広げるため削減)
+            let cameraTopPadding = screenHeight * 0.005        // 画面高さの0.5% (広げるため削減)
+            let cameraBottomPadding = screenHeight * 0.0025    // 画面高さの0.25% (広げるため削減)
 
             ZStack {
                 if isLoading {
