@@ -16,8 +16,11 @@ struct CapturedImage: Identifiable {
     let expiresAt: Date
     private let imageData: Data
 
+    // キャッシュされたUIImage（パフォーマンス最適化）
+    private let _cachedImage: UIImage
+
     var image: UIImage {
-        UIImage(data: imageData) ?? UIImage()
+        _cachedImage
     }
 
     var remainingTime: TimeInterval {
@@ -32,7 +35,16 @@ struct CapturedImage: Identifiable {
         self.id = id
         self.capturedAt = capturedAt
         self.expiresAt = capturedAt.addingTimeInterval(600) // 10分後
+
+        // 画像を0.8品質でJPEG圧縮して保存
         self.imageData = image.jpegData(compressionQuality: 0.8) ?? Data()
+
+        // 表示用に最適化された画像をキャッシュ
+        if let optimizedImage = UIImage(data: self.imageData) {
+            self._cachedImage = optimizedImage
+        } else {
+            self._cachedImage = image
+        }
     }
 
     // CoreDataから復元
@@ -41,6 +53,13 @@ struct CapturedImage: Identifiable {
         self.capturedAt = entity.capturedAt
         self.expiresAt = entity.expirationDate
         self.imageData = entity.imageData
+
+        // データから画像を復元してキャッシュ
+        if let restoredImage = UIImage(data: entity.imageData) {
+            self._cachedImage = restoredImage
+        } else {
+            self._cachedImage = UIImage()
+        }
     }
 }
 
