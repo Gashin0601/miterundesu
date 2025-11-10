@@ -162,8 +162,8 @@ struct ExplanationView: View {
                 }
             }
             }
+            .preferredColorScheme(.dark)
         }
-        .preferredColorScheme(.dark)
     }
 
     private var bodyText: String {
@@ -272,12 +272,18 @@ struct IllustrationCard: View {
     }
 }
 
-#Preview {
-    ExplanationView(settingsManager: SettingsManager())
-}
+struct ExplanationView_Previews: PreviewProvider {
+    static var previews: some View {
+        Group {
+            ExplanationView(settingsManager: SettingsManager())
+                .previewDisplayName("Normal Mode")
 
-#Preview("Theater Mode") {
-    let settingsManager = SettingsManager()
-    settingsManager.isTheaterMode = true
-    ExplanationView(settingsManager: settingsManager)
+            ExplanationView(settingsManager: {
+                let manager = SettingsManager()
+                manager.isTheaterMode = true
+                return manager
+            }())
+            .previewDisplayName("Theater Mode")
+        }
+    }
 }
