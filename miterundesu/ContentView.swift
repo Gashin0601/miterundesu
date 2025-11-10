@@ -648,12 +648,6 @@ struct ShutterButton: View {
             .opacity(isTheaterMode ? 0.3 : 1.0)
             .accessibilityLabel(settingsManager.localizationManager.localizedString(isTheaterMode ? "capture_disabled" : "capture_disabled"))
             .accessibilityAddTraits(.isButton)
-
-            if isTheaterMode {
-                Text(settingsManager.localizationManager.localizedString("capture_disabled"))
-                    .font(.system(size: 10, weight: .medium))
-                    .foregroundColor(.white.opacity(0.6))
-            }
         }
     }
 }
