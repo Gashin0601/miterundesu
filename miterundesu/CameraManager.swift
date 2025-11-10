@@ -44,10 +44,8 @@ class CameraManager: NSObject, ObservableObject, AVCaptureSessionControlsDelegat
 
             self.session.beginConfiguration()
 
-            // セッションプリセットを設定（4:3アスペクト比）
-            if self.session.canSetSessionPreset(.hd1280x960) {
-                self.session.sessionPreset = .hd1280x960
-            } else if self.session.canSetSessionPreset(.photo) {
+            // セッションプリセットを設定（.photoは4:3アスペクト比）
+            if self.session.canSetSessionPreset(.photo) {
                 self.session.sessionPreset = .photo
             }
 
