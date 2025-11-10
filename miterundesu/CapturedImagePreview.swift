@@ -13,7 +13,7 @@ struct CapturedImagePreview: View {
     @ObservedObject var settingsManager: SettingsManager
     let capturedImage: CapturedImage
     @Environment(\.dismiss) var dismiss
-    @StateObject private var securityManager = SecurityManager()
+    @ObservedObject private var securityManager = SecurityManager.shared
 
     @State private var scale: CGFloat = 1.0
     @State private var lastScale: CGFloat = 1.0
