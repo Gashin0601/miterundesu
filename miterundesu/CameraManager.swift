@@ -14,6 +14,7 @@ class CameraManager: NSObject, ObservableObject, AVCaptureSessionControlsDelegat
     @Published var isSessionRunning = false
     @Published var isCameraReady = false
     @Published var error: CameraError?
+    @Published var isCapturing = false // 撮影処理中フラグ
 
     var maxZoomFactor: CGFloat = 100.0 // デフォルト最大拡大率
 
@@ -233,10 +234,30 @@ class CameraManager: NSObject, ObservableObject, AVCaptureSessionControlsDelegat
 
     // 写真をキャプチャ
     func capturePhoto(completion: @escaping (UIImage?) -> Void) {
+        // 既に撮影中の場合は処理しない
+        guard !isCapturing else {
+            print("⚠️ 撮影処理中のため、新しい撮影をスキップします")
+            return
+        }
+
+        // 撮影開始
+        DispatchQueue.main.async {
+            self.isCapturing = true
+            print("📷 撮影開始 - isCapturing = true")
+        }
+
         let settings = AVCapturePhotoSettings()
         settings.photoQualityPrioritization = .quality
 
-        let photoCaptureDelegate = PhotoCaptureDelegate(completion: completion)
+        let photoCaptureDelegate = PhotoCaptureDelegate { [weak self] image in
+            // 撮影完了後にフラグを解除
+            DispatchQueue.main.async {
+                self?.isCapturing = false
+                print("📷 撮影完了 - isCapturing = false")
+            }
+            // 元のcompletionを呼び出す
+            completion(image)
+        }
         photoOutput.capturePhoto(with: settings, delegate: photoCaptureDelegate)
 
         // デリゲートを保持（キャプチャ完了まで）

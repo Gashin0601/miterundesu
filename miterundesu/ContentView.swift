@@ -181,6 +181,7 @@ struct ContentView: View {
                     imageManager: imageManager,
                     securityManager: securityManager,
                     settingsManager: settingsManager,
+                    cameraManager: cameraManager,
                     selectedImage: $selectedImage,
                     onCapture: {
                         capturePhoto()
@@ -613,6 +614,7 @@ struct FooterView: View {
     @ObservedObject var imageManager: ImageManager
     @ObservedObject var securityManager: SecurityManager
     @ObservedObject var settingsManager: SettingsManager
+    @ObservedObject var cameraManager: CameraManager
     @Binding var selectedImage: CapturedImage?
     let onCapture: () -> Void
     let screenWidth: CGFloat
@@ -631,6 +633,7 @@ struct FooterView: View {
                 isTheaterMode: isTheaterMode,
                 onCapture: onCapture,
                 settingsManager: settingsManager,
+                cameraManager: cameraManager,
                 buttonSize: shutterSize
             )
 
@@ -663,9 +666,12 @@ struct ShutterButton: View {
     let isTheaterMode: Bool
     let onCapture: () -> Void
     @ObservedObject var settingsManager: SettingsManager
+    @ObservedObject var cameraManager: CameraManager
     let buttonSize: CGFloat
 
     var body: some View {
+        let isDisabled = isTheaterMode || cameraManager.isCapturing
+
         VStack(spacing: 8) {
             Button(action: {
                 onCapture()
@@ -676,13 +682,13 @@ struct ShutterButton: View {
                         .frame(width: buttonSize, height: buttonSize)
 
                     Circle()
-                        .fill(isTheaterMode ? Color.gray : Color.white)
+                        .fill(isDisabled ? Color.gray : Color.white)
                         .frame(width: buttonSize * 0.857, height: buttonSize * 0.857)  // 60/70 ≈ 0.857
                 }
             }
-            .disabled(isTheaterMode)
-            .opacity(isTheaterMode ? 0.3 : 1.0)
-            .accessibilityLabel(settingsManager.localizationManager.localizedString(isTheaterMode ? "capture_disabled" : "capture_disabled"))
+            .disabled(isDisabled)
+            .opacity(isDisabled ? 0.3 : 1.0)
+            .accessibilityLabel(settingsManager.localizationManager.localizedString(isTheaterMode ? "capture_disabled" : (cameraManager.isCapturing ? "capturing" : "capture")))
             .accessibilityAddTraits(.isButton)
         }
     }
