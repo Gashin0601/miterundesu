@@ -15,7 +15,6 @@ class SecurityManager: ObservableObject {
     @Published var showScreenshotWarning = false
     @Published var showRecordingWarning = false
     @Published var hideContent = false // スクリーンショット検出時にコンテンツを隠す
-    @Published var shouldDismissToCamera = false // スクリーンショット検出時にカメラビューに戻る
 
     private var cancellables = Set<AnyCancellable>()
     private var recordingCheckTimer: Timer?
@@ -68,17 +67,13 @@ class SecurityManager: ObservableObject {
             // 即座にコンテンツを隠す（最優先）
             self.hideContent = true
 
-            // カメラビューに戻るフラグを立てる
-            self.shouldDismissToCamera = true
-
+            // 警告を表示
             self.showScreenshotWarning = true
 
             // 3秒後に警告を閉じてコンテンツを再表示
             DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
                 self.showScreenshotWarning = false
                 self.hideContent = false
-                // フラグをリセット
-                self.shouldDismissToCamera = false
             }
         }
     }

@@ -265,9 +265,10 @@ struct ContentView: View {
             // 最大拡大率が変更されたらカメラに適用
             cameraManager.setMaxZoomFactor(newValue)
         }
-        .onChange(of: securityManager.shouldDismissToCamera) { oldValue, newValue in
-            // スクリーンショット検出時に画像プレビューを閉じる
+        .onChange(of: securityManager.showScreenshotWarning) { oldValue, newValue in
+            // スクリーンショット警告が表示された時に画像プレビューを閉じる
             if newValue {
+                print("🔒 スクリーンショット警告表示: 画像プレビューを閉じます")
                 justCapturedImage = nil
                 selectedImage = nil
             }
@@ -613,36 +614,39 @@ struct ThumbnailView: View {
     let timer = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
 
     var body: some View {
-        if securityManager.hideContent {
-            // スクリーンショット検出時：黒い四角を表示
-            RoundedRectangle(cornerRadius: 10)
-                .fill(Color.black)
-                .frame(width: 60, height: 60)
-                .overlay(
-                    RoundedRectangle(cornerRadius: 10)
-                        .stroke(Color.white, lineWidth: 2)
-                )
-        } else if let latestImage = imageManager.capturedImages.first {
+        if let latestImage = imageManager.capturedImages.first {
             Button(action: {
                 if !isTheaterMode {
                     selectedImage = latestImage
                 }
             }) {
                 ZStack(alignment: .topTrailing) {
-                    Image(uiImage: latestImage.image)
-                        .resizable()
-                        .scaledToFill()
-                        .frame(width: 60, height: 60)
-                        .clipShape(RoundedRectangle(cornerRadius: 10))
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 10)
-                                .stroke(Color.white, lineWidth: 2)
-                        )
-                        .blur(radius: securityManager.isScreenRecording ? 10 : 0)
-                        // コンテキストメニューを無効化
-                        .contextMenu { }
+                    if securityManager.hideContent {
+                        // スクリーンショット検出時：画像部分のみ黒い四角を表示
+                        RoundedRectangle(cornerRadius: 10)
+                            .fill(Color.black)
+                            .frame(width: 60, height: 60)
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 10)
+                                    .stroke(Color.white, lineWidth: 2)
+                            )
+                    } else {
+                        // 通常時：画像を表示
+                        Image(uiImage: latestImage.image)
+                            .resizable()
+                            .scaledToFill()
+                            .frame(width: 60, height: 60)
+                            .clipShape(RoundedRectangle(cornerRadius: 10))
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 10)
+                                    .stroke(Color.white, lineWidth: 2)
+                            )
+                            .blur(radius: securityManager.isScreenRecording ? 10 : 0)
+                            // コンテキストメニューを無効化
+                            .contextMenu { }
+                    }
 
-                    // 残り時間バッジ
+                    // 残り時間バッジ（常に表示）
                     TimeRemainingBadge(remainingTime: latestImage.remainingTime)
                 }
             }

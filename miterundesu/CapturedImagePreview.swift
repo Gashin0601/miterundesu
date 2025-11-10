@@ -369,12 +369,6 @@ struct CapturedImagePreview: View {
                 dismiss()
             }
         }
-        .onChange(of: securityManager.shouldDismissToCamera) { oldValue, newValue in
-            // スクリーンショット検出時にカメラビューに戻る
-            if newValue {
-                dismiss()
-            }
-        }
         .preferredColorScheme(.dark)
     }
 
