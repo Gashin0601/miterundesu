@@ -621,17 +621,8 @@ struct ThumbnailView: View {
                 }
             }) {
                 ZStack(alignment: .topTrailing) {
-                    if securityManager.hideContent {
-                        // スクリーンショット検出時：画像部分のみ黒い四角を表示
-                        RoundedRectangle(cornerRadius: 10)
-                            .fill(Color.black)
-                            .frame(width: 60, height: 60)
-                            .overlay(
-                                RoundedRectangle(cornerRadius: 10)
-                                    .stroke(Color.white, lineWidth: 2)
-                            )
-                    } else {
-                        // 通常時：画像を表示
+                    // 画像を表示（スクリーンショット保護付き）
+                    ZStack {
                         Image(uiImage: latestImage.image)
                             .resizable()
                             .scaledToFill()
@@ -642,11 +633,11 @@ struct ThumbnailView: View {
                                     .stroke(Color.white, lineWidth: 2)
                             )
                             .blur(radius: securityManager.isScreenRecording ? 10 : 0)
-                            // コンテキストメニューを無効化
-                            .contextMenu { }
                     }
+                    .preventScreenCapture() // スクリーンショット保護
+                    .contextMenu { } // コンテキストメニューを無効化
 
-                    // 残り時間バッジ（常に表示）
+                    // 残り時間バッジ（保護の外側）
                     TimeRemainingBadge(remainingTime: latestImage.remainingTime)
                 }
             }
