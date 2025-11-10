@@ -40,13 +40,24 @@ struct ImageGalleryView: View {
     }
 
     var body: some View {
-        ZStack {
-            if !imageManager.capturedImages.isEmpty && currentIndex < imageManager.capturedImages.count {
-                // 画像表示エリア（緑の背景・全画面）
-                ZStack {
-                    // 緑の背景
-                    Color("MainGreen")
-                        .ignoresSafeArea()
+        GeometryReader { mainGeometry in
+            let screenWidth = mainGeometry.size.width
+            let screenHeight = mainGeometry.size.height
+
+            // レスポンシブなサイズとパディング値を計算
+            let horizontalPadding = screenWidth * 0.05  // 画面幅の5%
+            let verticalPadding = screenHeight * 0.01   // 画面高さの1%
+            let buttonSize = screenWidth * 0.11         // 画面幅の11% (44/390 ≈ 0.11)
+            let indicatorSize = screenWidth * 0.02      // 画面幅の2%
+            let warningPadding = screenWidth * 0.1      // 画面幅の10%
+
+            ZStack {
+                if !imageManager.capturedImages.isEmpty && currentIndex < imageManager.capturedImages.count {
+                    // 画像表示エリア（緑の背景・全画面）
+                    ZStack {
+                        // 緑の背景
+                        Color("MainGreen")
+                            .ignoresSafeArea()
 
                     if securityManager.hideContent {
                         // スクリーンショット検出時：完全に黒画面
@@ -111,7 +122,7 @@ struct ImageGalleryView: View {
                                 .font(.body)
                                 .foregroundColor(.white.opacity(0.8))
                         }
-                        .padding(40)
+                        .padding(warningPadding)
                         .background(
                             RoundedRectangle(cornerRadius: 20)
                                 .fill(Color.black.opacity(0.8))
@@ -126,13 +137,13 @@ struct ImageGalleryView: View {
                                 Text(formattedRemainingTime)
                                     .font(.system(size: 14, weight: .medium, design: .monospaced))
                                     .foregroundColor(.white)
-                                    .padding(.horizontal, 12)
-                                    .padding(.vertical, 8)
+                                    .padding(.horizontal, horizontalPadding * 0.6)
+                                    .padding(.vertical, verticalPadding * 0.8)
                                     .background(
                                         RoundedRectangle(cornerRadius: 10)
                                             .fill(Color.red.opacity(0.7))
                                     )
-                                    .padding(.leading, 20)
+                                    .padding(.leading, horizontalPadding)
                             }
 
                             Spacer()
@@ -148,8 +159,8 @@ struct ImageGalleryView: View {
                                         .font(.system(size: 14, weight: .medium))
                                 }
                                 .foregroundColor(Color("MainGreen"))
-                                .padding(.horizontal, 16)
-                                .padding(.vertical, 8)
+                                .padding(.horizontal, horizontalPadding * 0.8)
+                                .padding(.vertical, verticalPadding * 0.8)
                                 .background(
                                     RoundedRectangle(cornerRadius: 20)
                                         .fill(Color.white)
@@ -170,17 +181,17 @@ struct ImageGalleryView: View {
                                         .font(.system(size: 13, weight: .medium))
                                 }
                                 .foregroundColor(.white)
-                                .padding(.horizontal, 12)
-                                .padding(.vertical, 6)
+                                .padding(.horizontal, horizontalPadding * 0.6)
+                                .padding(.vertical, verticalPadding * 0.6)
                                 .background(
                                     RoundedRectangle(cornerRadius: 8)
                                         .fill(Color.white.opacity(0.25))
                                 )
                             }
-                            .padding(.trailing, 20)
+                            .padding(.trailing, horizontalPadding)
                             .accessibilityLabel(settingsManager.localizationManager.localizedString("close"))
                         }
-                        .padding(.top, 8)
+                        .padding(.top, verticalPadding)
 
                         Spacer()
                     }
@@ -190,14 +201,14 @@ struct ImageGalleryView: View {
                         VStack {
                             Spacer()
 
-                            HStack(spacing: 8) {
+                            HStack(spacing: indicatorSize * 0.4) {
                                 ForEach(0..<imageManager.capturedImages.count, id: \.self) { index in
                                     Circle()
                                         .fill(index == currentIndex ? Color.white : Color.white.opacity(0.4))
-                                        .frame(width: 8, height: 8)
+                                        .frame(width: indicatorSize, height: indicatorSize)
                                 }
                             }
-                            .padding(.bottom, 16)
+                            .padding(.bottom, verticalPadding * 1.6)
                         }
                     }
 
@@ -208,17 +219,17 @@ struct ImageGalleryView: View {
                         HStack {
                             Spacer()
 
-                            VStack(alignment: .trailing, spacing: 8) {
+                            VStack(alignment: .trailing, spacing: buttonSize * 0.18) {
                                 // ズームコントロールボタン
-                                VStack(spacing: 12) {
+                                VStack(spacing: buttonSize * 0.27) {
                                     // ズームイン
                                     ZStack {
                                         Circle()
                                             .fill(Color.black.opacity(0.6))
-                                            .frame(width: 44, height: 44)
+                                            .frame(width: buttonSize, height: buttonSize)
 
                                         Image(systemName: "plus")
-                                            .font(.system(size: 20, weight: .medium))
+                                            .font(.system(size: buttonSize * 0.45, weight: .medium))
                                             .foregroundColor(.white)
                                     }
                                     .onTapGesture {
@@ -238,10 +249,10 @@ struct ImageGalleryView: View {
                                     ZStack {
                                         Circle()
                                             .fill(Color.black.opacity(0.6))
-                                            .frame(width: 44, height: 44)
+                                            .frame(width: buttonSize, height: buttonSize)
 
                                         Image(systemName: "minus")
-                                            .font(.system(size: 20, weight: .medium))
+                                            .font(.system(size: buttonSize * 0.45, weight: .medium))
                                             .foregroundColor(.white)
                                     }
                                     .onTapGesture {
@@ -264,10 +275,10 @@ struct ImageGalleryView: View {
                                         ZStack {
                                             Circle()
                                                 .fill(Color.black.opacity(0.6))
-                                                .frame(width: 44, height: 44)
+                                                .frame(width: buttonSize, height: buttonSize)
 
                                             Image(systemName: "1.circle")
-                                                .font(.system(size: 20, weight: .medium))
+                                                .font(.system(size: buttonSize * 0.45, weight: .medium))
                                                 .foregroundColor(.white)
                                         }
                                     }
@@ -279,15 +290,15 @@ struct ImageGalleryView: View {
                                 Text("×\(String(format: "%.1f", currentScale))")
                                     .font(.system(size: 16, weight: .bold, design: .monospaced))
                                     .foregroundColor(.white)
-                                    .padding(.horizontal, 12)
-                                    .padding(.vertical, 8)
+                                    .padding(.horizontal, horizontalPadding * 0.6)
+                                    .padding(.vertical, verticalPadding * 0.8)
                                     .background(
                                         RoundedRectangle(cornerRadius: 10)
                                             .fill(Color.white.opacity(0.2))
                                     )
                             }
-                            .padding(.trailing, 12)
-                            .padding(.bottom, 50)
+                            .padding(.trailing, horizontalPadding * 0.6)
+                            .padding(.bottom, screenHeight * 0.06)
                         }
                     }
 
@@ -297,15 +308,15 @@ struct ImageGalleryView: View {
 
                             HStack {
                                 WatermarkView(isDarkBackground: true)
-                                    .padding(.leading, 12)
-                                    .padding(.bottom, 50)
+                                    .padding(.leading, horizontalPadding * 0.6)
+                                    .padding(.bottom, screenHeight * 0.06)
 
                                 Spacer()
                             }
                         }
                     }
                 }
-            } else {
+                } else {
                 // 画像が削除された場合
                 VStack {
                     Text("画像が削除されました")
@@ -341,6 +352,7 @@ struct ImageGalleryView: View {
                 ScreenshotWarningView()
                     .transition(.scale.combined(with: .opacity))
                     .animation(.spring(), value: securityManager.showScreenshotWarning)
+                }
             }
         }
         .fullScreenCover(isPresented: $showExplanation) {

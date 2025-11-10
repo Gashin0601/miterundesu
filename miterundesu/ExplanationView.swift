@@ -12,54 +12,59 @@ struct ExplanationView: View {
     @Environment(\.dismiss) var dismiss
 
     var body: some View {
-        ZStack {
-            // 背景色
-            (settingsManager.isTheaterMode ? Color("TheaterOrange") : Color("MainGreen"))
-                .ignoresSafeArea()
+        GeometryReader { geometry in
+            let screenWidth = geometry.size.width
+            let horizontalPadding = screenWidth * 0.05  // 画面幅の5%
+            let contentPadding = screenWidth * 0.06     // 画面幅の6%
 
-            VStack(spacing: 0) {
-                // 上部固定ヘッダー
-                ZStack {
-                    // 中央：ロゴ（完全に中央配置）
-                    Text(settingsManager.localizationManager.localizedString("app_name"))
-                        .font(.system(size: 20, weight: .bold, design: .default))
-                        .foregroundColor(.white)
+            ZStack {
+                // 背景色
+                (settingsManager.isTheaterMode ? Color("TheaterOrange") : Color("MainGreen"))
+                    .ignoresSafeArea()
 
-                    // 左右のボタンを絶対配置
-                    HStack {
-                        // 左：シアターモードトグル
-                        TheaterModeToggle(
-                            isTheaterMode: $settingsManager.isTheaterMode,
-                            onToggle: {},
-                            settingsManager: settingsManager
-                        )
-                        .padding(.leading, 20)
-
-                        Spacer()
-
-                        // 右：閉じるボタン
-                        Button(action: {
-                            dismiss()
-                        }) {
-                            HStack(spacing: 6) {
-                                Image(systemName: "xmark.circle.fill")
-                                    .font(.system(size: 16))
-                                Text(settingsManager.localizationManager.localizedString("close"))
-                                    .font(.system(size: 13, weight: .medium))
-                            }
+                VStack(spacing: 0) {
+                    // 上部固定ヘッダー
+                    ZStack {
+                        // 中央：ロゴ（完全に中央配置）
+                        Text(settingsManager.localizationManager.localizedString("app_name"))
+                            .font(.system(size: 20, weight: .bold, design: .default))
                             .foregroundColor(.white)
-                            .padding(.horizontal, 12)
-                            .padding(.vertical, 6)
-                            .background(
-                                RoundedRectangle(cornerRadius: 8)
-                                    .fill(Color.white.opacity(0.25))
+
+                        // 左右のボタンを絶対配置
+                        HStack {
+                            // 左：シアターモードトグル
+                            TheaterModeToggle(
+                                isTheaterMode: $settingsManager.isTheaterMode,
+                                onToggle: {},
+                                settingsManager: settingsManager
                             )
+                            .padding(.leading, horizontalPadding)
+
+                            Spacer()
+
+                            // 右：閉じるボタン
+                            Button(action: {
+                                dismiss()
+                            }) {
+                                HStack(spacing: 6) {
+                                    Image(systemName: "xmark.circle.fill")
+                                        .font(.system(size: 16))
+                                    Text(settingsManager.localizationManager.localizedString("close"))
+                                        .font(.system(size: 13, weight: .medium))
+                                }
+                                .foregroundColor(.white)
+                                .padding(.horizontal, horizontalPadding * 0.6)
+                                .padding(.vertical, 6)
+                                .background(
+                                    RoundedRectangle(cornerRadius: 8)
+                                        .fill(Color.white.opacity(0.25))
+                                )
+                            }
+                            .padding(.trailing, horizontalPadding)
                         }
-                        .padding(.trailing, 20)
                     }
-                }
-                .padding(.top, 8)
-                .padding(.bottom, 8)
+                    .padding(.top, 8)
+                    .padding(.bottom, 8)
 
             ScrollView {
                 VStack(alignment: .leading, spacing: 32) {
@@ -72,14 +77,14 @@ struct ExplanationView: View {
                         .font(.system(size: 24, weight: .bold))
                         .foregroundColor(.white)
                         .multilineTextAlignment(.leading)
-                        .padding(.horizontal, 24)
+                        .padding(.horizontal, contentPadding)
 
                     // 本文
                     Text(bodyText)
                         .font(.system(size: 16))
                         .foregroundColor(.white.opacity(0.9))
                         .lineSpacing(8)
-                        .padding(.horizontal, 24)
+                        .padding(.horizontal, contentPadding)
 
                     // イラストセクション
                     if settingsManager.isTheaterMode {
@@ -102,7 +107,7 @@ struct ExplanationView: View {
                             }
                             .foregroundColor(.white)
                             .padding(.vertical, 12)
-                            .padding(.horizontal, 24)
+                            .padding(.horizontal, contentPadding)
                             .background(
                                 RoundedRectangle(cornerRadius: 12)
                                     .fill(Color.white.opacity(0.2))
@@ -110,7 +115,7 @@ struct ExplanationView: View {
                         }
 
                         // SNSリンク
-                        HStack(spacing: 24) {
+                        HStack(spacing: contentPadding * 0.4) {
                             // X (Twitter)
                             Link(destination: URL(string: "https://twitter.com/miterundesu")!) {
                                 VStack(spacing: 8) {
@@ -180,7 +185,7 @@ struct NormalModeIllustrations: View {
                 label: "見えづらい文字も、スマホで拡大。",
                 description: "見えにくい商品ラベルや価格タグをスマホで拡大して確認します。周囲の明るさが強い店舗でも、スマホのカメラ拡大で文字を読み取りやすくできます。"
             )
-            .padding(.horizontal, 24)
+            .padding(.horizontal, contentPadding)
 
             // イラスト2：八百屋でスマホを使うおばあさん（老眼）
             IllustrationCard(
@@ -188,7 +193,7 @@ struct NormalModeIllustrations: View {
                 label: "小さな文字も、しっかり読める。",
                 description: "細かい値札や産地表示をスマホで拡大し、眼鏡をかけ直さずに確認します。手元が見えづらいときも、少し離して見ることで楽に読めます。"
             )
-            .padding(.horizontal, 24)
+            .padding(.horizontal, contentPadding)
 
             // イラスト3：上の棚を見上げる代わりにスマホを掲げる人（車椅子ユーザー）
             IllustrationCard(
@@ -196,7 +201,7 @@ struct NormalModeIllustrations: View {
                 label: "届かない場所も、見えるように。",
                 description: "物理的に見えにくい高い場所を、スマホを掲げて拡大して確認します。商品棚の上部や掲示物なども、スマホを通して安全に見ることができます。"
             )
-            .padding(.horizontal, 24)
+            .padding(.horizontal, contentPadding)
         }
     }
 }
@@ -212,7 +217,7 @@ struct TheaterModeIllustrations: View {
                 description: "見えづらい字幕や表情を、スマホのカメラで少し拡大して鑑賞します。光を最小限に抑えた画面で、周囲の邪魔にならずに映画を楽しめます。",
                 backgroundColor: Color.white.opacity(0.15)
             )
-            .padding(.horizontal, 24)
+            .padding(.horizontal, contentPadding)
 
             // イラスト2：美術館で像と説明文を見るおばあさん（老眼）
             IllustrationCard(
@@ -221,7 +226,7 @@ struct TheaterModeIllustrations: View {
                 description: "展示物のそばにある小さな文字や説明プレートを拡大して読みます。暗い照明の中でも、拡大表示で文字がはっきり見えます。",
                 backgroundColor: Color.white.opacity(0.15)
             )
-            .padding(.horizontal, 24)
+            .padding(.horizontal, contentPadding)
 
             // イラスト3：ライブ会場で遠くのステージを拡大して見る若者
             IllustrationCard(
@@ -230,7 +235,7 @@ struct TheaterModeIllustrations: View {
                 description: "遠くのステージをスマホで一時的に拡大して、表情や演出を見やすくします。撮影や録画はできず、あくまで「見るためだけ」の拡大ツールとして利用します。",
                 backgroundColor: Color.white.opacity(0.15)
             )
-            .padding(.horizontal, 24)
+            .padding(.horizontal, contentPadding)
         }
     }
 }

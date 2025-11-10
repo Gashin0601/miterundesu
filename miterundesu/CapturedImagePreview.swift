@@ -37,10 +37,21 @@ struct CapturedImagePreview: View {
     }
 
     var body: some View {
-        ZStack {
-            // 緑の背景（全画面）
-            Color("MainGreen")
-                .ignoresSafeArea()
+        GeometryReader { mainGeometry in
+            let screenWidth = mainGeometry.size.width
+            let screenHeight = mainGeometry.size.height
+
+            // レスポンシブなサイズとパディング値を計算
+            let horizontalPadding = screenWidth * 0.05  // 画面幅の5%
+            let verticalPadding = screenHeight * 0.01   // 画面高さの1%
+            let buttonSize = screenWidth * 0.11         // 画面幅の11%
+            let closeButtonSize = screenWidth * 0.18    // 画面幅の18%
+            let warningPadding = screenWidth * 0.1      // 画面幅の10%
+
+            ZStack {
+                // 緑の背景（全画面）
+                Color("MainGreen")
+                    .ignoresSafeArea()
 
             // 画像表示エリア
             ZStack {
@@ -131,7 +142,7 @@ struct CapturedImagePreview: View {
                             .font(.body)
                             .foregroundColor(.white.opacity(0.8))
                     }
-                    .padding(40)
+                    .padding(warningPadding)
                     .background(
                         RoundedRectangle(cornerRadius: 20)
                             .fill(Color.black.opacity(0.8))
@@ -144,8 +155,8 @@ struct CapturedImagePreview: View {
                 Spacer()
                 HStack {
                     WatermarkView(isDarkBackground: true)
-                        .padding(.leading, 12)
-                        .padding(.bottom, 12)
+                        .padding(.leading, horizontalPadding * 0.6)
+                        .padding(.bottom, verticalPadding * 1.2)
                     Spacer()
                 }
             }
@@ -156,17 +167,17 @@ struct CapturedImagePreview: View {
                 Spacer()
                 HStack {
                     Spacer()
-                    VStack(alignment: .trailing, spacing: 8) {
+                    VStack(alignment: .trailing, spacing: buttonSize * 0.18) {
                         // ズームコントロールボタン
-                        VStack(spacing: 12) {
+                        VStack(spacing: buttonSize * 0.27) {
                         // ズームイン
                         ZStack {
                             Circle()
                                 .fill(Color.black.opacity(0.6))
-                                .frame(width: 44, height: 44)
+                                .frame(width: buttonSize, height: buttonSize)
 
                             Image(systemName: "plus")
-                                .font(.system(size: 20, weight: .medium))
+                                .font(.system(size: buttonSize * 0.45, weight: .medium))
                                 .foregroundColor(.white)
                         }
                         .onTapGesture {
@@ -186,10 +197,10 @@ struct CapturedImagePreview: View {
                         ZStack {
                             Circle()
                                 .fill(Color.black.opacity(0.6))
-                                .frame(width: 44, height: 44)
+                                .frame(width: buttonSize, height: buttonSize)
 
                             Image(systemName: "minus")
-                                .font(.system(size: 20, weight: .medium))
+                                .font(.system(size: buttonSize * 0.45, weight: .medium))
                                 .foregroundColor(.white)
                         }
                         .onTapGesture {
@@ -217,10 +228,10 @@ struct CapturedImagePreview: View {
                             ZStack {
                                 Circle()
                                     .fill(Color.black.opacity(0.6))
-                                    .frame(width: 44, height: 44)
+                                    .frame(width: buttonSize, height: buttonSize)
 
                                 Image(systemName: "1.circle")
-                                    .font(.system(size: 20, weight: .medium))
+                                    .font(.system(size: buttonSize * 0.45, weight: .medium))
                                     .foregroundColor(.white)
                             }
                         }
@@ -232,15 +243,15 @@ struct CapturedImagePreview: View {
                     Text("×\(String(format: "%.1f", scale))")
                         .font(.system(size: 16, weight: .bold, design: .monospaced))
                         .foregroundColor(.white)
-                        .padding(.horizontal, 12)
-                        .padding(.vertical, 8)
+                        .padding(.horizontal, horizontalPadding * 0.6)
+                        .padding(.vertical, verticalPadding * 0.8)
                         .background(
                             RoundedRectangle(cornerRadius: 10)
                                 .fill(Color.white.opacity(0.2))
                         )
                     }
-                    .padding(.trailing, 12)
-                    .padding(.bottom, 12)
+                    .padding(.trailing, horizontalPadding * 0.6)
+                    .padding(.bottom, verticalPadding * 1.2)
                 }
             }
 
@@ -251,13 +262,13 @@ struct CapturedImagePreview: View {
                         Text(formattedRemainingTime)
                             .font(.system(size: 14, weight: .medium, design: .monospaced))
                             .foregroundColor(.white)
-                            .padding(.horizontal, 12)
-                            .padding(.vertical, 8)
+                            .padding(.horizontal, horizontalPadding * 0.6)
+                            .padding(.vertical, verticalPadding * 0.8)
                             .background(
                                 RoundedRectangle(cornerRadius: 10)
                                     .fill(Color.red.opacity(0.7))
                             )
-                            .padding(.leading, 20)
+                            .padding(.leading, horizontalPadding)
 
                         Spacer()
 
@@ -272,8 +283,8 @@ struct CapturedImagePreview: View {
                                     .font(.system(size: 14, weight: .medium))
                             }
                             .foregroundColor(Color("MainGreen"))
-                            .padding(.horizontal, 16)
-                            .padding(.vertical, 8)
+                            .padding(.horizontal, horizontalPadding * 0.8)
+                            .padding(.vertical, verticalPadding * 0.8)
                             .background(
                                 RoundedRectangle(cornerRadius: 20)
                                     .fill(Color.white)
@@ -294,17 +305,17 @@ struct CapturedImagePreview: View {
                                     .font(.system(size: 13, weight: .medium))
                             }
                             .foregroundColor(.white)
-                            .padding(.horizontal, 12)
-                            .padding(.vertical, 6)
+                            .padding(.horizontal, horizontalPadding * 0.6)
+                            .padding(.vertical, verticalPadding * 0.6)
                             .background(
                                 RoundedRectangle(cornerRadius: 8)
                                     .fill(Color.white.opacity(0.25))
                             )
                         }
-                        .padding(.trailing, 20)
+                        .padding(.trailing, horizontalPadding)
                         .accessibilityLabel(settingsManager.localizationManager.localizedString("settings"))
                     }
-                    .padding(.top, 8)
+                    .padding(.top, verticalPadding)
 
                     Spacer()
                 }
@@ -318,19 +329,19 @@ struct CapturedImagePreview: View {
                     }) {
                         ZStack {
                             Circle()
-                                .stroke(Color.white, lineWidth: 4)
-                                .frame(width: 70, height: 70)
+                                .stroke(Color.white, lineWidth: closeButtonSize * 0.057)
+                                .frame(width: closeButtonSize, height: closeButtonSize)
 
                             Circle()
                                 .fill(Color.white)
-                                .frame(width: 60, height: 60)
+                                .frame(width: closeButtonSize * 0.857, height: closeButtonSize * 0.857)
 
                             Image(systemName: "xmark")
-                                .font(.system(size: 28, weight: .bold))
+                                .font(.system(size: closeButtonSize * 0.4, weight: .bold))
                                 .foregroundColor(.black)
                         }
                     }
-                    .padding(.bottom, 20)
+                    .padding(.bottom, screenHeight * 0.025)
                     .accessibilityLabel("閉じる")
                     .accessibilityHint("プレビューを閉じてカメラに戻ります")
                 }
@@ -356,6 +367,7 @@ struct CapturedImagePreview: View {
                 ScreenshotWarningView()
                     .transition(.scale.combined(with: .opacity))
                     .animation(.spring(), value: securityManager.showScreenshotWarning)
+            }
             }
         }
         .fullScreenCover(isPresented: $showSettings) {
