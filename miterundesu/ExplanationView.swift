@@ -185,7 +185,7 @@ struct NormalModeIllustrations: View {
                 label: "見えづらい文字も、スマホで拡大。",
                 description: "見えにくい商品ラベルや価格タグをスマホで拡大して確認します。周囲の明るさが強い店舗でも、スマホのカメラ拡大で文字を読み取りやすくできます。"
             )
-            .padding(.horizontal, contentPadding)
+            .padding(.horizontal, 24)
 
             // イラスト2：八百屋でスマホを使うおばあさん（老眼）
             IllustrationCard(
@@ -193,7 +193,7 @@ struct NormalModeIllustrations: View {
                 label: "小さな文字も、しっかり読める。",
                 description: "細かい値札や産地表示をスマホで拡大し、眼鏡をかけ直さずに確認します。手元が見えづらいときも、少し離して見ることで楽に読めます。"
             )
-            .padding(.horizontal, contentPadding)
+            .padding(.horizontal, 24)
 
             // イラスト3：上の棚を見上げる代わりにスマホを掲げる人（車椅子ユーザー）
             IllustrationCard(
@@ -201,7 +201,7 @@ struct NormalModeIllustrations: View {
                 label: "届かない場所も、見えるように。",
                 description: "物理的に見えにくい高い場所を、スマホを掲げて拡大して確認します。商品棚の上部や掲示物なども、スマホを通して安全に見ることができます。"
             )
-            .padding(.horizontal, contentPadding)
+            .padding(.horizontal, 24)
         }
     }
 }
@@ -217,7 +217,7 @@ struct TheaterModeIllustrations: View {
                 description: "見えづらい字幕や表情を、スマホのカメラで少し拡大して鑑賞します。光を最小限に抑えた画面で、周囲の邪魔にならずに映画を楽しめます。",
                 backgroundColor: Color.white.opacity(0.15)
             )
-            .padding(.horizontal, contentPadding)
+            .padding(.horizontal, 24)
 
             // イラスト2：美術館で像と説明文を見るおばあさん（老眼）
             IllustrationCard(
@@ -226,7 +226,7 @@ struct TheaterModeIllustrations: View {
                 description: "展示物のそばにある小さな文字や説明プレートを拡大して読みます。暗い照明の中でも、拡大表示で文字がはっきり見えます。",
                 backgroundColor: Color.white.opacity(0.15)
             )
-            .padding(.horizontal, contentPadding)
+            .padding(.horizontal, 24)
 
             // イラスト3：ライブ会場で遠くのステージを拡大して見る若者
             IllustrationCard(
@@ -235,7 +235,7 @@ struct TheaterModeIllustrations: View {
                 description: "遠くのステージをスマホで一時的に拡大して、表情や演出を見やすくします。撮影や録画はできず、あくまで「見るためだけ」の拡大ツールとして利用します。",
                 backgroundColor: Color.white.opacity(0.15)
             )
-            .padding(.horizontal, contentPadding)
+            .padding(.horizontal, 24)
         }
     }
 }
@@ -279,5 +279,5 @@ struct IllustrationCard: View {
 #Preview("Theater Mode") {
     let settingsManager = SettingsManager()
     settingsManager.isTheaterMode = true
-    return ExplanationView(settingsManager: settingsManager)
+    ExplanationView(settingsManager: settingsManager)
 }
