@@ -35,9 +35,9 @@ struct ContentView: View {
             let horizontalPadding = screenWidth * 0.03  // 画面幅の3%
             let topPadding = screenHeight * 0.005       // 画面高さの0.5%
             let bottomPadding = screenHeight * 0.005    // 画面高さの0.5%
-            let cameraHorizontalPadding = screenWidth * 0.015  // 画面幅の1.5% (広げるため削減)
-            let cameraTopPadding = screenHeight * 0.005        // 画面高さの0.5% (広げるため削減)
-            let cameraBottomPadding = screenHeight * 0.0025    // 画面高さの0.25% (広げるため削減)
+            let cameraHorizontalPadding = screenWidth * 0.015  // 画面幅の1.5%
+            let cameraTopPadding = screenHeight * 0.005        // 画面高さの0.5%
+            let cameraBottomPadding = screenHeight * 0.001    // 画面高さの0.1%（大幅削減）
 
             ZStack {
                 if isLoading {
@@ -627,11 +627,11 @@ struct FooterView: View {
     let screenHeight: CGFloat
 
     var body: some View {
-        let horizontalPadding = screenWidth * 0.04  // 画面幅の4%
-        let verticalTopPadding = screenHeight * 0.01  // 画面高さの1%
-        let verticalBottomPadding = screenHeight * 0.02  // 画面高さの2%
-        let shutterSize = screenWidth * 0.18  // 画面幅の18%
-        let thumbnailSize = screenWidth * 0.15  // 画面幅の15%
+        let horizontalPadding = screenWidth * 0.05  // 画面幅の5%
+        let verticalTopPadding = screenHeight * 0.005  // 画面高さの0.5%（削減してカメラプレビュー拡大）
+        let verticalBottomPadding = screenHeight * 0.025  // 画面高さの2.5%
+        let shutterSize = screenWidth * 0.22  // 画面幅の22%（拡大）
+        let thumbnailSize = screenWidth * 0.18  // 画面幅の18%（拡大）
 
         ZStack {
             // シャッターボタン（中央）
