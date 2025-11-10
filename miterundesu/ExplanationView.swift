@@ -163,9 +163,9 @@ struct ExplanationView: View {
 
     private var bodyText: String {
         if settingsManager.isTheaterMode {
-            return "このアプリは写真や映像を撮るためのものではありません。明るさを抑えた画面で、一時的に文字や作品を\"見やすく\"するために使用しています。保存・録画・共有は一切できません。周囲の方の迷惑にならないよう、光量を落として利用しています。"
+            return "ミテルンデスは、撮影や録画ではなく、拡大鏡としてスマートフォンを使うためのアプリです。\n映画館や美術館、博物館など、静かな環境でも周囲に迷惑をかけずに"見る"ことを助けます。\n写真や動画を撮影することは一切できず、スクリーンショットや画面収録も無効化されています。"
         } else {
-            return "ミテルンデスは、画像を保存・共有する機能を持たないアプリです。撮影ボタンを押しても写真は端末に保存されず、10分後に自動的に消去されます。プライバシーや著作権を守るための設計であり、あくまで\"見やすくするための補助ツール\"です。"
+            return "ミテルンデスは、撮影や録画ではなく、拡大鏡としてスマートフォンを使うためのアプリです。\n弱視や老眼など、見えづらさを感じる方が安心して日常の中で"見る"ことをサポートします。\n撮影した画像は10分後に自動で削除され、スクリーンショットや画面収録もできません。"
         }
     }
 }
@@ -174,38 +174,28 @@ struct ExplanationView: View {
 struct NormalModeIllustrations: View {
     var body: some View {
         VStack(spacing: 24) {
-            HStack(spacing: 16) {
-                // 白杖を持つ人
-                IllustrationCard(
-                    icon: "figure.walk.motion",
-                    label: "視覚支援",
-                    description: "弱視の方の\n日常をサポート"
-                )
-
-                // 高齢者
-                IllustrationCard(
-                    icon: "figure.stand",
-                    label: "老眼対応",
-                    description: "小さな文字を\n拡大表示"
-                )
-            }
+            // イラスト1：商品棚の前でスマホを掲げる人（弱視）
+            IllustrationCard(
+                icon: "cart.fill",
+                label: "見えづらい文字も、スマホで拡大。",
+                description: "見えにくい商品ラベルや価格タグをスマホで拡大して確認します。周囲の明るさが強い店舗でも、スマホのカメラ拡大で文字を読み取りやすくできます。"
+            )
             .padding(.horizontal, 24)
 
-            HStack(spacing: 16) {
-                // 車椅子ユーザー
-                IllustrationCard(
-                    icon: "figure.roll",
-                    label: "届かない場所",
-                    description: "高い位置の\n確認に"
-                )
+            // イラスト2：八百屋でスマホを使うおばあさん（老眼）
+            IllustrationCard(
+                icon: "leaf.fill",
+                label: "小さな文字も、しっかり読める。",
+                description: "細かい値札や産地表示をスマホで拡大し、眼鏡をかけ直さずに確認します。手元が見えづらいときも、少し離して見ることで楽に読めます。"
+            )
+            .padding(.horizontal, 24)
 
-                // スマホで拡大
-                IllustrationCard(
-                    icon: "iphone.gen3",
-                    label: "拡大補助",
-                    description: "棚の上の物を\n確認"
-                )
-            }
+            // イラスト3：上の棚を見上げる代わりにスマホを掲げる人（車椅子ユーザー）
+            IllustrationCard(
+                icon: "figure.roll",
+                label: "届かない場所も、見えるように。",
+                description: "物理的に見えにくい高い場所を、スマホを掲げて拡大して確認します。商品棚の上部や掲示物なども、スマホを通して安全に見ることができます。"
+            )
             .padding(.horizontal, 24)
         }
     }
@@ -215,42 +205,31 @@ struct NormalModeIllustrations: View {
 struct TheaterModeIllustrations: View {
     var body: some View {
         VStack(spacing: 24) {
-            HStack(spacing: 16) {
-                // 映画館
-                IllustrationCard(
-                    icon: "movieclapper.fill",
-                    label: "映画館",
-                    description: "字幕を\n拡大表示",
-                    backgroundColor: Color.white.opacity(0.15)
-                )
-
-                // 博物館
-                IllustrationCard(
-                    icon: "building.columns.fill",
-                    label: "博物館",
-                    description: "解説文を\n見やすく",
-                    backgroundColor: Color.white.opacity(0.15)
-                )
-            }
+            // イラスト1：映画館の客席でスクリーンを拡大して見る人（弱視）
+            IllustrationCard(
+                icon: "movieclapper.fill",
+                label: "映画の字幕を、もう少し大きく。",
+                description: "見えづらい字幕や表情を、スマホのカメラで少し拡大して鑑賞します。光を最小限に抑えた画面で、周囲の邪魔にならずに映画を楽しめます。",
+                backgroundColor: Color.white.opacity(0.15)
+            )
             .padding(.horizontal, 24)
 
-            HStack(spacing: 16) {
-                // 美術館
-                IllustrationCard(
-                    icon: "paintpalette.fill",
-                    label: "美術館",
-                    description: "作品詳細を\n確認",
-                    backgroundColor: Color.white.opacity(0.15)
-                )
+            // イラスト2：美術館で像と説明文を見るおばあさん（老眼）
+            IllustrationCard(
+                icon: "paintpalette.fill",
+                label: "作品の説明も、はっきり読める。",
+                description: "展示物のそばにある小さな文字や説明プレートを拡大して読みます。暗い照明の中でも、拡大表示で文字がはっきり見えます。",
+                backgroundColor: Color.white.opacity(0.15)
+            )
+            .padding(.horizontal, 24)
 
-                // コンサートホール
-                IllustrationCard(
-                    icon: "music.note.house.fill",
-                    label: "コンサート",
-                    description: "歌詞・演目を\n表示",
-                    backgroundColor: Color.white.opacity(0.15)
-                )
-            }
+            // イラスト3：ライブ会場で遠くのステージを拡大して見る若者
+            IllustrationCard(
+                icon: "music.mic.circle.fill",
+                label: "遠くのステージも、近くに感じる。",
+                description: "遠くのステージをスマホで一時的に拡大して、表情や演出を見やすくします。撮影や録画はできず、あくまで"見るためだけ"の拡大ツールとして利用します。",
+                backgroundColor: Color.white.opacity(0.15)
+            )
             .padding(.horizontal, 24)
         }
     }
@@ -264,25 +243,27 @@ struct IllustrationCard: View {
     var backgroundColor: Color = Color.white.opacity(0.2)
 
     var body: some View {
-        VStack(spacing: 12) {
-            Image(systemName: icon)
-                .font(.system(size: 40))
-                .foregroundColor(.white)
-                .frame(height: 60)
+        VStack(alignment: .leading, spacing: 16) {
+            HStack(spacing: 12) {
+                Image(systemName: icon)
+                    .font(.system(size: 32))
+                    .foregroundColor(.white)
+                    .frame(width: 50, height: 50)
 
-            Text(label)
-                .font(.system(size: 14, weight: .bold))
-                .foregroundColor(.white)
+                Text(label)
+                    .font(.system(size: 16, weight: .bold))
+                    .foregroundColor(.white)
+                    .multilineTextAlignment(.leading)
+            }
 
             Text(description)
-                .font(.system(size: 12))
-                .foregroundColor(.white.opacity(0.8))
-                .multilineTextAlignment(.center)
-                .lineLimit(2)
+                .font(.system(size: 14))
+                .foregroundColor(.white.opacity(0.9))
+                .multilineTextAlignment(.leading)
+                .lineSpacing(4)
         }
-        .frame(maxWidth: .infinity)
-        .padding(.vertical, 20)
-        .padding(.horizontal, 12)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(20)
         .background(
             RoundedRectangle(cornerRadius: 16)
                 .fill(backgroundColor)
