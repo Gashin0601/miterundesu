@@ -278,6 +278,19 @@ extension View {
     }
 }
 
+// MARK: - Conditional Prevent Capture Modifier
+struct ConditionalPreventCapture: ViewModifier {
+    let isEnabled: Bool
+
+    func body(content: Content) -> some View {
+        if isEnabled {
+            content.preventScreenCapture()
+        } else {
+            content
+        }
+    }
+}
+
 // MARK: - Screenshot Warning View
 struct ScreenshotWarningView: View {
     var body: some View {

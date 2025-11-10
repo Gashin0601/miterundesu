@@ -13,6 +13,7 @@ struct CapturedImagePreview: View {
     @ObservedObject var settingsManager: SettingsManager
     let capturedImage: CapturedImage
     @Environment(\.dismiss) var dismiss
+    @Environment(\.isPressMode) var isPressMode
     @ObservedObject private var securityManager = SecurityManager.shared
 
     @State private var scale: CGFloat = 1.0
@@ -58,7 +59,6 @@ struct CapturedImagePreview: View {
                             .scaleEffect(scale)
                             .offset(offset)
                             .clipped()
-                            .drawingGroup() // レンダリング最適化
                             .highPriorityGesture(
                                 MagnificationGesture(minimumScaleDelta: 0)
                                     .onChanged { value in
@@ -112,7 +112,7 @@ struct CapturedImagePreview: View {
                     }
                     .blur(radius: securityManager.isScreenRecording ? 50 : 0)
                     }
-                    .preventScreenCapture() // 画像のみ保護
+                    .modifier(ConditionalPreventCapture(isEnabled: !isPressMode))
                 }
 
                 // 画面録画中の警告（中央）

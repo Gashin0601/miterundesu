@@ -12,6 +12,7 @@ struct ImageGalleryView: View {
     @ObservedObject var settingsManager: SettingsManager
     let initialImage: CapturedImage
     @Environment(\.dismiss) var dismiss
+    @Environment(\.isPressMode) var isPressMode
     @ObservedObject private var securityManager = SecurityManager.shared
 
     @State private var currentIndex: Int = 0
@@ -487,7 +488,6 @@ struct ZoomableImageView: View {
                     .scaleEffect(scale)
                     .offset(offset)
                     .clipped()
-                    .drawingGroup() // レンダリング最適化
                 .highPriorityGesture(
                     MagnificationGesture(minimumScaleDelta: 0)
                         .onChanged { value in
@@ -567,7 +567,7 @@ struct ZoomableImageView: View {
                     }
                 }
         }
-        .preventScreenCapture() // 最新のスクリーンショット保護
+        .modifier(ConditionalPreventCapture(isEnabled: !isPressMode))
     }
 
     // 境界制約を適用したオフセットを計算（ベストプラクティスに基づく）
