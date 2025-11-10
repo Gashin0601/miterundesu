@@ -63,16 +63,19 @@ class SecurityManager: ObservableObject {
 
     // アプリのライフサイクル監視
     private func setupAppLifecycleObservers() {
-        // アプリがアクティブになった時に即座にチェック
+        // アプリがアクティブになった時に即座にチェックして除去
         NotificationCenter.default.publisher(for: UIApplication.didBecomeActiveNotification)
             .sink { [weak self] _ in
                 print("🔒 アプリがアクティブになりました")
                 self?.checkScreenRecordingStatus()
-                self?.removeMaskIfSafe()
+                // 即座にマスクを除去（遅延なし）
+                DispatchQueue.main.async {
+                    self?.removeMaskIfSafe()
+                }
             }
             .store(in: &cancellables)
 
-        // アプリがフォアグラウンドに入った時もチェック
+        // アプリがフォアグラウンドに入る時はマスクを表示
         NotificationCenter.default.publisher(for: UIApplication.willEnterForegroundNotification)
             .sink { [weak self] _ in
                 print("🔒 アプリがフォアグラウンドに入ります")
@@ -168,8 +171,8 @@ class SecurityManager: ObservableObject {
             if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene {
                 let maskWindow = UIWindow(windowScene: windowScene)
 
-                // 最前面に表示（すべてのウィンドウより上）
-                maskWindow.windowLevel = .alert + 1
+                // 最前面に表示（アラートよりは下、通常のウィンドウよりは上）
+                maskWindow.windowLevel = .statusBar
                 maskWindow.backgroundColor = .black
 
                 // ブラービューを追加（iOS標準のぼかし効果）
@@ -228,11 +231,14 @@ class SecurityManager: ObservableObject {
             self.showSecurityMask = true
 
             if let maskWindow = self.securityMaskWindow {
+                // 既存のマスクウィンドウを再表示
                 maskWindow.isHidden = false
                 maskWindow.alpha = 1.0
+                maskWindow.makeKeyAndVisible()
                 print("🔒 セキュリティマスクを表示")
             } else {
                 // マスクウィンドウが存在しない場合は作成
+                print("🔒 セキュリティマスクウィンドウを再作成")
                 self.setupSecurityMask()
             }
         }
@@ -260,11 +266,13 @@ class SecurityManager: ObservableObject {
             print("🔒 セキュリティチェック: 録画中=\(isCaptured)")
 
             if !isCaptured {
-                // 安全な状態 - マスクをフェードアウト
-                UIView.animate(withDuration: 0.3, animations: {
+                // 安全な状態 - マスクを即座にフェードアウト（0.1秒）
+                UIView.animate(withDuration: 0.1, animations: {
                     self.securityMaskWindow?.alpha = 0.0
                 }) { _ in
                     self.securityMaskWindow?.isHidden = true
+                    // ウィンドウを完全に削除
+                    self.securityMaskWindow = nil
                     self.showSecurityMask = false
                     print("🔒 セキュリティマスクを除去（安全確認済み）")
                 }
@@ -272,6 +280,23 @@ class SecurityManager: ObservableObject {
                 // 録画中 - マスクを維持
                 print("⚠️ 画面録画中のためマスクを維持")
                 self.showSecurityMask = true
+            }
+
+            // タイムアウト機能：0.5秒後に強制的にマスクを除去
+            // （録画チェックが正しく動作しない場合の保険）
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) { [weak self] in
+                guard let self = self else { return }
+                if self.securityMaskWindow != nil && !self.isScreenRecording {
+                    print("🔒 タイムアウトによりセキュリティマスクを強制除去")
+                    UIView.animate(withDuration: 0.1) {
+                        self.securityMaskWindow?.alpha = 0.0
+                    } completion: { _ in
+                        self.securityMaskWindow?.isHidden = true
+                        // ウィンドウを完全に削除
+                        self.securityMaskWindow = nil
+                        self.showSecurityMask = false
+                    }
+                }
             }
         }
     }
