@@ -302,15 +302,8 @@ struct ContentView: View {
                 justCapturedImage = nil
                 selectedImage = nil
 
-                // カメラセッションを強制的に再起動（状態チェックなし）
-                // エラー -17281 でセッションが無効化されても isSessionRunning が true のままの場合があるため
-                print("📷 カメラセッションを強制的に再起動します")
-                cameraManager.stopSession()
-                // セッションの完全停止を待ってから再起動（安定性のため）
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) {
-                    cameraManager.startSession()
-                    print("🔒 カメラプレビューに復帰しました")
-                }
+                // カメラセッションの再起動は不要（preventScreenCapture()で保護されているため）
+                print("🔒 カメラプレビューに復帰しました")
             }
         }
     }
@@ -381,11 +374,12 @@ struct ContentView: View {
             // フォアグラウンド復帰時に期限切れ画像を削除
             imageManager.removeExpiredImages()
 
-            // カメラセッションを強制的に再起動（常に実行）
-            print("📷 カメラセッションを強制的に再起動します")
-            cameraManager.stopSession()
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) {
+            // カメラセッションが停止している場合のみ再起動
+            if !cameraManager.isSessionRunning {
+                print("📷 カメラセッションが停止しているため再起動します")
                 cameraManager.startSession()
+            } else {
+                print("📷 カメラセッションは既に実行中です")
             }
         }
 
@@ -673,22 +667,19 @@ struct ThumbnailView: View {
                 }
             }) {
                 ZStack(alignment: .topTrailing) {
-                    // 画像を表示（スクリーンショット保護付き）
-                    Group {
-                        ZStack {
-                            Image(uiImage: latestImage.image)
-                                .resizable()
-                                .scaledToFill()
-                                .frame(width: 60, height: 60)
-                                .clipShape(RoundedRectangle(cornerRadius: 10))
-                                .overlay(
-                                    RoundedRectangle(cornerRadius: 10)
-                                        .stroke(Color.white, lineWidth: 2)
-                                )
-                                .blur(radius: securityManager.isScreenRecording ? 10 : 0)
-                        }
+                    // 画像を表示（サムネイルは小さいので保護不要）
+                    ZStack {
+                        Image(uiImage: latestImage.image)
+                            .resizable()
+                            .scaledToFill()
+                            .frame(width: 60, height: 60)
+                            .clipShape(RoundedRectangle(cornerRadius: 10))
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 10)
+                                    .stroke(Color.white, lineWidth: 2)
+                            )
+                            .blur(radius: securityManager.isScreenRecording ? 10 : 0)
                     }
-                    .preventScreenCapture()
                     .contextMenu { } // コンテキストメニューを無効化
 
                     // 残り時間バッジ（保護の外側）

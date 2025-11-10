@@ -234,7 +234,8 @@ struct ScreenshotPreventView<Content: View>: View {
                     Color.clear
                         .preference(key: SizeKey.self, value: geometry.size)
                         .onPreferenceChange(SizeKey.self) { size in
-                            if hostingController == nil {
+                            // サイズが有効な場合のみホスティングコントローラーを作成（幅が100以上）
+                            if hostingController == nil && size.width > 100 && size.height > 100 {
                                 hostingController = UIHostingController(rootView: content)
                                 hostingController?.view.backgroundColor = .clear
                                 hostingController?.view.frame = CGRect(origin: .zero, size: size)
