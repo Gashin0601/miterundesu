@@ -475,6 +475,7 @@ struct ZoomableImageView: View {
     @Binding var isZooming: Bool
     @Binding var scale: CGFloat
     @Binding var offset: CGSize
+    @Environment(\.isPressMode) var isPressMode
 
     @State private var lastScale: CGFloat = 1.0
     @State private var lastOffset: CGSize = .zero
