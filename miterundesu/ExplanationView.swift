@@ -119,21 +119,13 @@ struct ExplanationView: View {
                             // X (Twitter)
                             Link(destination: URL(string: "https://x.com/miterundesu_jp?s=11")!) {
                                 XLogoIcon()
-                                    .frame(width: 60, height: 60)
-                                    .background(
-                                        Circle()
-                                            .fill(Color.white.opacity(0.2))
-                                    )
+                                    .frame(width: 50, height: 50)
                             }
 
                             // Instagram
                             Link(destination: URL(string: "https://www.instagram.com/miterundesu_jp/?utm_source=ig_web_button_share_sheet")!) {
                                 InstagramLogoIcon()
-                                    .frame(width: 60, height: 60)
-                                    .background(
-                                        Circle()
-                                            .fill(Color.white.opacity(0.2))
-                                    )
+                                    .frame(width: 50, height: 50)
                             }
                         }
 
@@ -298,50 +290,53 @@ struct XLogoIcon: View {
             Path { path in
                 // X logo の形状（公式ロゴに近い形）
                 // 左上から右下への太い斜線
-                path.move(to: CGPoint(x: size.width * 0.2, y: size.height * 0.2))
+                path.move(to: CGPoint(x: size.width * 0.15, y: size.height * 0.15))
                 path.addLine(to: CGPoint(x: size.width * 0.5, y: size.height * 0.5))
-                path.addLine(to: CGPoint(x: size.width * 0.8, y: size.height * 0.8))
+                path.addLine(to: CGPoint(x: size.width * 0.85, y: size.height * 0.85))
 
-                path.move(to: CGPoint(x: size.width * 0.2, y: size.height * 0.2))
-                path.addLine(to: CGPoint(x: size.width * 0.3, y: size.height * 0.2))
-                path.addLine(to: CGPoint(x: size.width * 0.8, y: size.height * 0.8))
-                path.addLine(to: CGPoint(x: size.width * 0.7, y: size.height * 0.8))
+                path.move(to: CGPoint(x: size.width * 0.15, y: size.height * 0.15))
+                path.addLine(to: CGPoint(x: size.width * 0.27, y: size.height * 0.15))
+                path.addLine(to: CGPoint(x: size.width * 0.85, y: size.height * 0.85))
+                path.addLine(to: CGPoint(x: size.width * 0.73, y: size.height * 0.85))
                 path.closeSubpath()
 
                 // 右上から左下への太い斜線
-                path.move(to: CGPoint(x: size.width * 0.8, y: size.height * 0.2))
+                path.move(to: CGPoint(x: size.width * 0.85, y: size.height * 0.15))
                 path.addLine(to: CGPoint(x: size.width * 0.5, y: size.height * 0.5))
-                path.addLine(to: CGPoint(x: size.width * 0.2, y: size.height * 0.8))
+                path.addLine(to: CGPoint(x: size.width * 0.15, y: size.height * 0.85))
 
-                path.move(to: CGPoint(x: size.width * 0.8, y: size.height * 0.2))
-                path.addLine(to: CGPoint(x: size.width * 0.7, y: size.height * 0.2))
-                path.addLine(to: CGPoint(x: size.width * 0.2, y: size.height * 0.8))
-                path.addLine(to: CGPoint(x: size.width * 0.3, y: size.height * 0.8))
+                path.move(to: CGPoint(x: size.width * 0.85, y: size.height * 0.15))
+                path.addLine(to: CGPoint(x: size.width * 0.73, y: size.height * 0.15))
+                path.addLine(to: CGPoint(x: size.width * 0.15, y: size.height * 0.85))
+                path.addLine(to: CGPoint(x: size.width * 0.27, y: size.height * 0.85))
                 path.closeSubpath()
             }
             .fill(Color.white)
         }
-        .padding(14)
     }
 }
 
 // MARK: - Instagram Logo Icon
 struct InstagramLogoIcon: View {
     var body: some View {
-        ZStack {
-            // Instagram カメラアイコン風
-            RoundedRectangle(cornerRadius: 12)
-                .stroke(Color.white, lineWidth: 3)
-                .padding(8)
+        GeometryReader { geometry in
+            let size = geometry.size
 
-            Circle()
-                .stroke(Color.white, lineWidth: 3)
-                .frame(width: 24, height: 24)
+            ZStack {
+                // Instagram カメラアイコン風
+                RoundedRectangle(cornerRadius: size.width * 0.24)
+                    .stroke(Color.white, lineWidth: size.width * 0.06)
+                    .padding(size.width * 0.08)
 
-            Circle()
-                .fill(Color.white)
-                .frame(width: 4, height: 4)
-                .offset(x: 12, y: -12)
+                Circle()
+                    .stroke(Color.white, lineWidth: size.width * 0.06)
+                    .frame(width: size.width * 0.48, height: size.width * 0.48)
+
+                Circle()
+                    .fill(Color.white)
+                    .frame(width: size.width * 0.08, height: size.width * 0.08)
+                    .offset(x: size.width * 0.24, y: -size.width * 0.24)
+            }
         }
     }
 }
