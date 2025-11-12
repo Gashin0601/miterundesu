@@ -119,9 +119,7 @@ struct ExplanationView: View {
                             // X (Twitter)
                             Link(destination: URL(string: "https://x.com/miterundesu_jp?s=11")!) {
                                 VStack(spacing: 8) {
-                                    Image(systemName: "xmark")
-                                        .font(.system(size: 32, weight: .bold))
-                                        .foregroundColor(.white)
+                                    XLogoIcon()
                                         .frame(width: 60, height: 60)
                                         .background(
                                             Circle()
@@ -136,9 +134,7 @@ struct ExplanationView: View {
                             // Instagram
                             Link(destination: URL(string: "https://www.instagram.com/miterundesu_jp/?utm_source=ig_web_button_share_sheet")!) {
                                 VStack(spacing: 8) {
-                                    Image(systemName: "camera.circle.fill")
-                                        .font(.system(size: 32))
-                                        .foregroundColor(.white)
+                                    InstagramLogoIcon()
                                         .frame(width: 60, height: 60)
                                         .background(
                                             Circle()
@@ -300,6 +296,48 @@ struct ExplanationItem: View {
                 .lineSpacing(6)
         }
         .frame(maxWidth: .infinity, alignment: .leading)
+    }
+}
+
+// MARK: - X Logo Icon
+struct XLogoIcon: View {
+    var body: some View {
+        ZStack {
+            // X logo using Path
+            Path { path in
+                // X の左上から右下への線
+                path.move(to: CGPoint(x: 0.25, y: 0.25))
+                path.addLine(to: CGPoint(x: 0.75, y: 0.75))
+
+                // X の右上から左下への線
+                path.move(to: CGPoint(x: 0.75, y: 0.25))
+                path.addLine(to: CGPoint(x: 0.25, y: 0.75))
+            }
+            .stroke(Color.white, style: StrokeStyle(lineWidth: 4, lineCap: .round))
+            .aspectRatio(1, contentMode: .fit)
+            .padding(12)
+        }
+    }
+}
+
+// MARK: - Instagram Logo Icon
+struct InstagramLogoIcon: View {
+    var body: some View {
+        ZStack {
+            // Instagram カメラアイコン風
+            RoundedRectangle(cornerRadius: 12)
+                .stroke(Color.white, lineWidth: 3)
+                .padding(8)
+
+            Circle()
+                .stroke(Color.white, lineWidth: 3)
+                .frame(width: 24, height: 24)
+
+            Circle()
+                .fill(Color.white)
+                .frame(width: 4, height: 4)
+                .offset(x: 12, y: -12)
+        }
     }
 }
 
