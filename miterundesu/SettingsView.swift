@@ -216,12 +216,24 @@ struct SettingsView: View {
                             Divider()
                                 .background(.white.opacity(0.3))
 
-                            // プレスモードトグル（アクセスコード入力必須）
+                            // プレスモードトグル
                             Button(action: {
                                 if pressModeManager.isPressModeEnabled {
-                                    // 権限がある場合：アクセスコード画面を表示
-                                    pressModeTargetState = !settingsManager.isPressMode
-                                    showingPressModeAccess = true
+                                    // 権限がある場合
+                                    if settingsManager.isPressMode {
+                                        // オフにする場合：認証不要で直接オフ
+                                        settingsManager.isPressMode = false
+                                    } else {
+                                        // オンにする場合：認証チェック
+                                        if pressModeManager.isAuthenticated() {
+                                            // 認証済み：直接オン
+                                            settingsManager.isPressMode = true
+                                        } else {
+                                            // 未認証：アクセスコード画面を表示
+                                            pressModeTargetState = true
+                                            showingPressModeAccess = true
+                                        }
+                                    }
                                 } else {
                                     // 権限がない場合：案内画面を表示
                                     showingPressModeInfo = true

@@ -172,6 +172,7 @@ struct PressModeAccessView: View {
                 await MainActor.run {
                     if let device = response.first, device.isValid {
                         // アクセスコードが正しく、期限も有効
+                        pressModeManager.recordAuthentication()
                         isPressMode = targetState
                         dismiss()
                     } else {

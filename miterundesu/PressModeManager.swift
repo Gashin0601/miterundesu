@@ -20,6 +20,7 @@ class PressModeManager: ObservableObject {
     @Published var error: String?
 
     private let deviceIdKey = "miterundesu.deviceId"
+    private let authenticationDateKey = "miterundesu.authenticationDate"
 
     private init() {}
 
@@ -70,6 +71,8 @@ class PressModeManager: ObservableObject {
                     print("✅ プレスモード有効: \(device.organization) - 期限: \(device.expirationDisplayString)")
                 } else {
                     isPressModeEnabled = false
+                    // 期限切れまたは無効化の場合は認証情報をクリア
+                    clearAuthentication()
                     if !device.isActive {
                         error = "このデバイスのプレスモードは無効化されています。"
                     } else {
@@ -81,11 +84,13 @@ class PressModeManager: ObservableObject {
                 // デバイスが登録されていない
                 isPressModeEnabled = false
                 pressDevice = nil
+                clearAuthentication()
                 print("ℹ️ プレスモード未登録: デバイスID = \(deviceId)")
             }
         } catch {
             self.error = "プレスモード権限の確認に失敗しました: \(error.localizedDescription)"
             isPressModeEnabled = false
+            clearAuthentication()
             print("❌ エラー: \(error)")
         }
 
@@ -108,5 +113,39 @@ class PressModeManager: ObservableObject {
     /// デバイスIDを取得（表示用）
     func getDeviceIdForDisplay() -> String {
         return getDeviceId()
+    }
+
+    /// アクセスコード認証成功を記録
+    func recordAuthentication() {
+        UserDefaults.standard.set(Date(), forKey: authenticationDateKey)
+        print("✅ アクセスコード認証成功を記録")
+    }
+
+    /// 認証済みかつ有効期間内かチェック
+    func isAuthenticated() -> Bool {
+        guard let authDate = UserDefaults.standard.object(forKey: authenticationDateKey) as? Date else {
+            print("ℹ️ 認証記録なし")
+            return false
+        }
+
+        guard let device = pressDevice else {
+            print("ℹ️ デバイス情報なし")
+            return false
+        }
+
+        // 認証日時がデバイスの有効期限内かチェック
+        if authDate < device.expiresAt && device.isValid {
+            print("✅ 認証済み（有効期限: \(device.expirationDisplayString)）")
+            return true
+        } else {
+            print("⚠️ 認証期限切れ")
+            return false
+        }
+    }
+
+    /// 認証情報をクリア
+    func clearAuthentication() {
+        UserDefaults.standard.removeObject(forKey: authenticationDateKey)
+        print("🗑️ 認証情報をクリア")
     }
 }
