@@ -11,6 +11,7 @@ import Supabase
 /// プレスモードのアクセスコード入力画面
 struct PressModeAccessView: View {
     @Environment(\.dismiss) var dismiss
+    @EnvironmentObject var pressModeManager: PressModeManager
     @Binding var isPressMode: Bool
     let targetState: Bool // オンにしようとしているかオフにしようとしているか
 
@@ -155,23 +156,26 @@ struct PressModeAccessView: View {
 
         Task {
             do {
-                // Supabaseからアクセスコードを検証
-                let response: [PressAccessCode] = try await supabase
-                    .from("press_access_codes")
+                let deviceId = pressModeManager.getDeviceId()
+
+                // Supabaseから自分のデバイスのアクセスコードを検証
+                let response: [PressDevice] = try await supabase
+                    .from("press_devices")
                     .select()
-                    .eq("code", value: accessCode.uppercased())
+                    .eq("device_id", value: deviceId)
+                    .eq("access_code", value: accessCode.uppercased())
                     .eq("is_active", value: true)
                     .limit(1)
                     .execute()
                     .value
 
                 await MainActor.run {
-                    if response.first != nil {
-                        // アクセスコードが正しい
+                    if let device = response.first, device.isValid {
+                        // アクセスコードが正しく、期限も有効
                         isPressMode = targetState
                         dismiss()
                     } else {
-                        // アクセスコードが間違っている
+                        // アクセスコードが間違っているか期限切れ
                         errorMessage = "アクセスコードが正しくありません"
                         showError = true
                         // エラー時にバイブレーション
@@ -194,19 +198,7 @@ struct PressModeAccessView: View {
     }
 }
 
-// アクセスコードモデル
-struct PressAccessCode: Codable {
-    let id: UUID
-    let code: String
-    let isActive: Bool
-
-    enum CodingKeys: String, CodingKey {
-        case id
-        case code
-        case isActive = "is_active"
-    }
-}
-
 #Preview {
     PressModeAccessView(isPressMode: .constant(false), targetState: true)
+        .environmentObject(PressModeManager.shared)
 }

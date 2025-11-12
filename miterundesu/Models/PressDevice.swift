@@ -11,6 +11,7 @@ import Foundation
 struct PressDevice: Codable, Identifiable {
     let id: UUID
     let deviceId: String
+    let accessCode: String
     let organization: String
     let contactEmail: String?
     let contactName: String?
@@ -23,6 +24,7 @@ struct PressDevice: Codable, Identifiable {
     enum CodingKeys: String, CodingKey {
         case id
         case deviceId = "device_id"
+        case accessCode = "access_code"
         case organization
         case contactEmail = "contact_email"
         case contactName = "contact_name"

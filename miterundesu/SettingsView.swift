@@ -330,6 +330,7 @@ struct SettingsView: View {
                 isPressMode: $settingsManager.isPressMode,
                 targetState: pressModeTargetState
             )
+            .environmentObject(pressModeManager)
         }
         .sheet(isPresented: $showingPressModeInfo) {
             PressModeInfoView()
