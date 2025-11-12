@@ -9,6 +9,7 @@ CREATE TABLE IF NOT EXISTS press_devices (
     organization text NOT NULL,
     contact_email text,
     contact_name text,
+    starts_at timestamptz NOT NULL DEFAULT now(),
     expires_at timestamptz NOT NULL,
     is_active boolean NOT NULL DEFAULT true,
     created_at timestamptz NOT NULL DEFAULT now(),
@@ -19,6 +20,7 @@ CREATE TABLE IF NOT EXISTS press_devices (
 -- インデックス作成（検索高速化）
 CREATE INDEX IF NOT EXISTS idx_press_devices_device_id ON press_devices(device_id);
 CREATE INDEX IF NOT EXISTS idx_press_devices_access_code ON press_devices(access_code);
+CREATE INDEX IF NOT EXISTS idx_press_devices_starts_at ON press_devices(starts_at);
 CREATE INDEX IF NOT EXISTS idx_press_devices_expires_at ON press_devices(expires_at);
 CREATE INDEX IF NOT EXISTS idx_press_devices_is_active ON press_devices(is_active);
 
@@ -68,13 +70,14 @@ CREATE TRIGGER update_press_devices_updated_at
 -- サンプルデータ（テスト用）
 -- 本番環境では削除してください
 /*
-INSERT INTO press_devices (device_id, access_code, organization, contact_email, contact_name, expires_at, notes)
+INSERT INTO press_devices (device_id, access_code, organization, contact_email, contact_name, starts_at, expires_at, notes)
 VALUES (
     'SAMPLE-DEVICE-ID',
     'PRESS2025',
     'サンプル新聞社',
     'sample@example.com',
     'サンプル太郎',
+    '2025-01-01 00:00:00+09',
     '2025-12-31 23:59:59+09',
     'テスト用デバイス'
 );

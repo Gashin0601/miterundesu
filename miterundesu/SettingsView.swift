@@ -16,6 +16,7 @@ struct SettingsView: View {
     @State private var showingDeviceIdCopied = false
     @State private var showingPressModeAccess = false
     @State private var showingPressModeInfo = false
+    @State private var showingPressModeStatus = false
     @State private var pressModeTargetState = false
 
     var body: some View {
@@ -133,28 +134,37 @@ struct SettingsView: View {
                     Section(header: Text(settingsManager.localizationManager.localizedString("press_mode_settings")).foregroundColor(.white)) {
                         VStack(alignment: .leading, spacing: 12) {
                             // プレスモード権限状態
-                            if pressModeManager.isPressModeEnabled, let device = pressModeManager.pressDevice {
+                            if let device = pressModeManager.pressDevice {
                                 VStack(alignment: .leading, spacing: 8) {
+                                    // 状態アイコンとタイトル
                                     HStack {
-                                        Image(systemName: "checkmark.circle.fill")
-                                            .foregroundColor(.green)
-                                        Text("プレスモード有効")
+                                        statusIcon(for: device.status)
+                                        statusText(for: device.status)
                                             .font(.headline)
                                             .foregroundColor(.white)
                                     }
 
+                                    // 所属を常に表示
                                     Text("所属: \(device.organization)")
                                         .font(.subheadline)
                                         .foregroundColor(.white.opacity(0.9))
 
-                                    Text("有効期限: \(device.expirationDisplayString)")
-                                        .font(.subheadline)
-                                        .foregroundColor(.white.opacity(0.9))
+                                    // 有効期間内の場合は期限を表示
+                                    if device.status == .active {
+                                        Text("有効期限: \(device.expirationDisplayString)")
+                                            .font(.subheadline)
+                                            .foregroundColor(.white.opacity(0.9))
 
-                                    if device.daysUntilExpiration < 30 {
-                                        Text("あと\(device.daysUntilExpiration)日で期限切れです")
-                                            .font(.caption)
-                                            .foregroundColor(.yellow)
+                                        if device.daysUntilExpiration < 30 {
+                                            Text("あと\(device.daysUntilExpiration)日で期限切れです")
+                                                .font(.caption)
+                                                .foregroundColor(.yellow)
+                                        }
+                                    } else {
+                                        // 期限切れ、未開始、無効化の場合は期間を表示
+                                        Text("利用期間: \(device.periodDisplayString)")
+                                            .font(.subheadline)
+                                            .foregroundColor(.white.opacity(0.9))
                                     }
                                 }
                                 .padding(.vertical, 4)
@@ -218,24 +228,31 @@ struct SettingsView: View {
 
                             // プレスモードトグル
                             Button(action: {
-                                if pressModeManager.isPressModeEnabled {
-                                    // 権限がある場合
-                                    if settingsManager.isPressMode {
-                                        // オフにする場合：認証不要で直接オフ
-                                        settingsManager.isPressMode = false
-                                    } else {
-                                        // オンにする場合：認証チェック
-                                        if pressModeManager.isAuthenticated() {
-                                            // 認証済み：直接オン
-                                            settingsManager.isPressMode = true
+                                if let device = pressModeManager.pressDevice {
+                                    // デバイスが登録されている場合
+                                    switch device.status {
+                                    case .active:
+                                        // 有効期間内
+                                        if settingsManager.isPressMode {
+                                            // オフにする場合：認証不要で直接オフ
+                                            settingsManager.isPressMode = false
                                         } else {
-                                            // 未認証：アクセスコード画面を表示
-                                            pressModeTargetState = true
-                                            showingPressModeAccess = true
+                                            // オンにする場合：認証チェック
+                                            if pressModeManager.isAuthenticated() {
+                                                // 認証済み：直接オン
+                                                settingsManager.isPressMode = true
+                                            } else {
+                                                // 未認証：アクセスコード画面を表示
+                                                pressModeTargetState = true
+                                                showingPressModeAccess = true
+                                            }
                                         }
+                                    case .expired, .notStarted, .deactivated:
+                                        // 期限切れ、未開始、無効化：状態画面を表示
+                                        showingPressModeStatus = true
                                     }
                                 } else {
-                                    // 権限がない場合：案内画面を表示
+                                    // デバイスが未登録：案内画面を表示
                                     showingPressModeInfo = true
                                 }
                             }) {
@@ -347,6 +364,45 @@ struct SettingsView: View {
         .sheet(isPresented: $showingPressModeInfo) {
             PressModeInfoView()
                 .environmentObject(pressModeManager)
+        }
+        .sheet(isPresented: $showingPressModeStatus) {
+            if let device = pressModeManager.pressDevice {
+                PressModeStatusView(device: device)
+            }
+        }
+    }
+
+    // MARK: - Helper Functions
+
+    private func statusIcon(for status: PressDeviceStatus) -> some View {
+        Group {
+            switch status {
+            case .active:
+                Image(systemName: "checkmark.circle.fill")
+                    .foregroundColor(.green)
+            case .expired:
+                Image(systemName: "clock.badge.xmark")
+                    .foregroundColor(.orange)
+            case .notStarted:
+                Image(systemName: "clock.badge.exclamationmark")
+                    .foregroundColor(.yellow)
+            case .deactivated:
+                Image(systemName: "xmark.shield")
+                    .foregroundColor(.red)
+            }
+        }
+    }
+
+    private func statusText(for status: PressDeviceStatus) -> Text {
+        switch status {
+        case .active:
+            return Text("プレスモード有効")
+        case .expired:
+            return Text("有効期限切れ")
+        case .notStarted:
+            return Text("開始前")
+        case .deactivated:
+            return Text("無効化")
         }
     }
 }

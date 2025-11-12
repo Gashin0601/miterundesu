@@ -2,22 +2,33 @@
 -- press_access_codesテーブルを廃止し、press_devicesにaccess_codeを追加
 -- このSQLをSupabase Dashboard > SQL Editorで実行してください
 
--- STEP 1: press_devicesテーブルにaccess_codeカラムを追加
--- 既存のレコードにはデフォルト値'TEMP-CODE'を設定（後で手動更新が必要）
+-- STEP 1: press_devicesテーブルにaccess_codeとstarts_atカラムを追加
+-- 既存のレコードにはデフォルト値を設定
 ALTER TABLE press_devices
 ADD COLUMN IF NOT EXISTS access_code text;
 
--- 既存のレコードにデフォルトのアクセスコードを設定
+ALTER TABLE press_devices
+ADD COLUMN IF NOT EXISTS starts_at timestamptz;
+
+-- 既存のレコードにデフォルト値を設定
 UPDATE press_devices
 SET access_code = 'TEMP-CODE'
 WHERE access_code IS NULL;
 
--- access_codeをNOT NULLに変更
+UPDATE press_devices
+SET starts_at = created_at
+WHERE starts_at IS NULL;
+
+-- NOT NULL制約を追加
 ALTER TABLE press_devices
 ALTER COLUMN access_code SET NOT NULL;
 
--- STEP 2: access_code用のインデックスを作成
+ALTER TABLE press_devices
+ALTER COLUMN starts_at SET NOT NULL;
+
+-- STEP 2: インデックスを作成
 CREATE INDEX IF NOT EXISTS idx_press_devices_access_code ON press_devices(access_code);
+CREATE INDEX IF NOT EXISTS idx_press_devices_starts_at ON press_devices(starts_at);
 
 -- STEP 3: press_access_codesテーブルが存在する場合のみ削除
 DO $$

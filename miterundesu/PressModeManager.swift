@@ -65,20 +65,26 @@ class PressModeManager: ObservableObject {
             if let device = response.first {
                 pressDevice = device
 
-                // 有効性をチェック
-                if device.isValid {
+                // 状態に応じて処理
+                switch device.status {
+                case .active:
                     isPressModeEnabled = true
-                    print("✅ プレスモード有効: \(device.organization) - 期限: \(device.expirationDisplayString)")
-                } else {
+                    print("✅ プレスモード有効: \(device.organization) - 期間: \(device.periodDisplayString)")
+                case .expired:
                     isPressModeEnabled = false
-                    // 期限切れまたは無効化の場合は認証情報をクリア
                     clearAuthentication()
-                    if !device.isActive {
-                        error = "このデバイスのプレスモードは無効化されています。"
-                    } else {
-                        error = "プレスモードの有効期限が切れています。"
-                    }
-                    print("❌ プレスモード無効: \(error ?? "")")
+                    error = "プレスモードの有効期限が切れています。"
+                    print("⏰ 期限切れ: \(device.organization) - 期間: \(device.periodDisplayString)")
+                case .notStarted:
+                    isPressModeEnabled = false
+                    clearAuthentication()
+                    error = "プレスモードはまだ開始されていません。"
+                    print("⏳ 開始前: \(device.organization) - 期間: \(device.periodDisplayString)")
+                case .deactivated:
+                    isPressModeEnabled = false
+                    clearAuthentication()
+                    error = "このデバイスのプレスモードは無効化されています。"
+                    print("❌ 無効化: \(device.organization)")
                 }
             } else {
                 // デバイスが登録されていない
