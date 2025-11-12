@@ -15,6 +15,7 @@ struct SettingsView: View {
     @EnvironmentObject var pressModeManager: PressModeManager
     @State private var showingDeviceIdCopied = false
     @State private var showingPressModeAccess = false
+    @State private var showingPressModeInfo = false
     @State private var pressModeTargetState = false
 
     var body: some View {
@@ -217,10 +218,13 @@ struct SettingsView: View {
 
                             // プレスモードトグル（アクセスコード入力必須）
                             Button(action: {
-                                // 権限がある場合のみアクセスコード画面を表示
                                 if pressModeManager.isPressModeEnabled {
+                                    // 権限がある場合：アクセスコード画面を表示
                                     pressModeTargetState = !settingsManager.isPressMode
                                     showingPressModeAccess = true
+                                } else {
+                                    // 権限がない場合：案内画面を表示
+                                    showingPressModeInfo = true
                                 }
                             }) {
                                 HStack {
@@ -243,8 +247,6 @@ struct SettingsView: View {
                                     }
                                 }
                             }
-                            .disabled(!pressModeManager.isPressModeEnabled)
-                            .opacity(pressModeManager.isPressModeEnabled ? 1.0 : 0.5)
 
                             Text(settingsManager.localizationManager.localizedString("press_mode_description"))
                                 .font(.caption)
@@ -328,6 +330,10 @@ struct SettingsView: View {
                 isPressMode: $settingsManager.isPressMode,
                 targetState: pressModeTargetState
             )
+        }
+        .sheet(isPresented: $showingPressModeInfo) {
+            PressModeInfoView()
+                .environmentObject(pressModeManager)
         }
     }
 }
