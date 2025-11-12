@@ -118,32 +118,22 @@ struct ExplanationView: View {
                         HStack(spacing: contentPadding * 0.4) {
                             // X (Twitter)
                             Link(destination: URL(string: "https://x.com/miterundesu_jp?s=11")!) {
-                                VStack(spacing: 8) {
-                                    XLogoIcon()
-                                        .frame(width: 60, height: 60)
-                                        .background(
-                                            Circle()
-                                                .fill(Color.white.opacity(0.2))
-                                        )
-                                    Text("X")
-                                        .font(.caption)
-                                        .foregroundColor(.white.opacity(0.8))
-                                }
+                                XLogoIcon()
+                                    .frame(width: 60, height: 60)
+                                    .background(
+                                        Circle()
+                                            .fill(Color.white.opacity(0.2))
+                                    )
                             }
 
                             // Instagram
                             Link(destination: URL(string: "https://www.instagram.com/miterundesu_jp/?utm_source=ig_web_button_share_sheet")!) {
-                                VStack(spacing: 8) {
-                                    InstagramLogoIcon()
-                                        .frame(width: 60, height: 60)
-                                        .background(
-                                            Circle()
-                                                .fill(Color.white.opacity(0.2))
-                                        )
-                                    Text("Instagram")
-                                        .font(.caption)
-                                        .foregroundColor(.white.opacity(0.8))
-                                }
+                                InstagramLogoIcon()
+                                    .frame(width: 60, height: 60)
+                                    .background(
+                                        Circle()
+                                            .fill(Color.white.opacity(0.2))
+                                    )
                             }
                         }
 
@@ -302,21 +292,36 @@ struct ExplanationItem: View {
 // MARK: - X Logo Icon
 struct XLogoIcon: View {
     var body: some View {
-        ZStack {
-            // X logo using Path
-            Path { path in
-                // X の左上から右下への線
-                path.move(to: CGPoint(x: 0.25, y: 0.25))
-                path.addLine(to: CGPoint(x: 0.75, y: 0.75))
+        GeometryReader { geometry in
+            let size = geometry.size
 
-                // X の右上から左下への線
-                path.move(to: CGPoint(x: 0.75, y: 0.25))
-                path.addLine(to: CGPoint(x: 0.25, y: 0.75))
+            Path { path in
+                // X logo の形状（公式ロゴに近い形）
+                // 左上から右下への太い斜線
+                path.move(to: CGPoint(x: size.width * 0.2, y: size.height * 0.2))
+                path.addLine(to: CGPoint(x: size.width * 0.5, y: size.height * 0.5))
+                path.addLine(to: CGPoint(x: size.width * 0.8, y: size.height * 0.8))
+
+                path.move(to: CGPoint(x: size.width * 0.2, y: size.height * 0.2))
+                path.addLine(to: CGPoint(x: size.width * 0.3, y: size.height * 0.2))
+                path.addLine(to: CGPoint(x: size.width * 0.8, y: size.height * 0.8))
+                path.addLine(to: CGPoint(x: size.width * 0.7, y: size.height * 0.8))
+                path.closeSubpath()
+
+                // 右上から左下への太い斜線
+                path.move(to: CGPoint(x: size.width * 0.8, y: size.height * 0.2))
+                path.addLine(to: CGPoint(x: size.width * 0.5, y: size.height * 0.5))
+                path.addLine(to: CGPoint(x: size.width * 0.2, y: size.height * 0.8))
+
+                path.move(to: CGPoint(x: size.width * 0.8, y: size.height * 0.2))
+                path.addLine(to: CGPoint(x: size.width * 0.7, y: size.height * 0.2))
+                path.addLine(to: CGPoint(x: size.width * 0.2, y: size.height * 0.8))
+                path.addLine(to: CGPoint(x: size.width * 0.3, y: size.height * 0.8))
+                path.closeSubpath()
             }
-            .stroke(Color.white, style: StrokeStyle(lineWidth: 4, lineCap: .round))
-            .aspectRatio(1, contentMode: .fit)
-            .padding(12)
+            .fill(Color.white)
         }
+        .padding(14)
     }
 }
 
