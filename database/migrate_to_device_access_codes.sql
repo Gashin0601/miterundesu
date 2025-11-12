@@ -19,18 +19,29 @@ ALTER COLUMN access_code SET NOT NULL;
 -- STEP 2: access_code用のインデックスを作成
 CREATE INDEX IF NOT EXISTS idx_press_devices_access_code ON press_devices(access_code);
 
--- STEP 3: press_access_codesテーブルに関連するポリシーを削除
-DROP POLICY IF EXISTS "Allow read access to all" ON press_access_codes;
-DROP POLICY IF EXISTS "Only service role can insert" ON press_access_codes;
-DROP POLICY IF EXISTS "Only service role can update" ON press_access_codes;
-DROP POLICY IF EXISTS "Only service role can delete" ON press_access_codes;
+-- STEP 3: press_access_codesテーブルが存在する場合のみ削除
+DO $$
+BEGIN
+    -- テーブルが存在するかチェック
+    IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'press_access_codes') THEN
+        -- ポリシーを削除
+        DROP POLICY IF EXISTS "Allow read access to all" ON press_access_codes;
+        DROP POLICY IF EXISTS "Only service role can insert" ON press_access_codes;
+        DROP POLICY IF EXISTS "Only service role can update" ON press_access_codes;
+        DROP POLICY IF EXISTS "Only service role can delete" ON press_access_codes;
 
--- STEP 4: press_access_codesテーブルのインデックスを削除
-DROP INDEX IF EXISTS idx_press_access_codes_code;
-DROP INDEX IF EXISTS idx_press_access_codes_is_active;
+        -- インデックスを削除
+        DROP INDEX IF EXISTS idx_press_access_codes_code;
+        DROP INDEX IF EXISTS idx_press_access_codes_is_active;
 
--- STEP 5: press_access_codesテーブルを削除
-DROP TABLE IF EXISTS press_access_codes;
+        -- テーブルを削除
+        DROP TABLE press_access_codes;
+
+        RAISE NOTICE 'press_access_codesテーブルを削除しました。';
+    ELSE
+        RAISE NOTICE 'press_access_codesテーブルは存在しません（スキップ）。';
+    END IF;
+END $$;
 
 -- 完了メッセージ
 DO $$
