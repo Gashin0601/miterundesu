@@ -272,11 +272,6 @@ struct IconColumn: View {
             Image(systemName: icon)
                 .font(.system(size: 40))
                 .foregroundColor(.white)
-                .frame(width: 60, height: 60)
-                .background(
-                    Circle()
-                        .fill(Color.white.opacity(0.2))
-                )
 
             Text(title)
                 .font(.system(size: 14, weight: .bold))
@@ -305,11 +300,6 @@ struct ExplanationItem: View {
                 .lineSpacing(6)
         }
         .frame(maxWidth: .infinity, alignment: .leading)
-        .padding(16)
-        .background(
-            RoundedRectangle(cornerRadius: 12)
-                .fill(Color.white.opacity(0.15))
-        )
     }
 }
 
