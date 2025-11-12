@@ -12,6 +12,8 @@ struct SettingsView: View {
     let isTheaterMode: Bool
     @Environment(\.dismiss) var dismiss
     @FocusState private var isMessageFieldFocused: Bool
+    @EnvironmentObject var pressModeManager: PressModeManager
+    @State private var showingDeviceIdCopied = false
 
     var body: some View {
         NavigationView {
@@ -127,12 +129,96 @@ struct SettingsView: View {
                     // プレスモード設定
                     Section(header: Text(settingsManager.localizationManager.localizedString("press_mode_settings")).foregroundColor(.white)) {
                         VStack(alignment: .leading, spacing: 12) {
+                            // プレスモード権限状態
+                            if pressModeManager.isPressModeEnabled, let device = pressModeManager.pressDevice {
+                                VStack(alignment: .leading, spacing: 8) {
+                                    HStack {
+                                        Image(systemName: "checkmark.circle.fill")
+                                            .foregroundColor(.green)
+                                        Text("プレスモード有効")
+                                            .font(.headline)
+                                            .foregroundColor(.white)
+                                    }
+
+                                    Text("所属: \(device.organization)")
+                                        .font(.subheadline)
+                                        .foregroundColor(.white.opacity(0.9))
+
+                                    Text("有効期限: \(device.expirationDisplayString)")
+                                        .font(.subheadline)
+                                        .foregroundColor(.white.opacity(0.9))
+
+                                    if device.daysUntilExpiration < 30 {
+                                        Text("あと\(device.daysUntilExpiration)日で期限切れです")
+                                            .font(.caption)
+                                            .foregroundColor(.yellow)
+                                    }
+                                }
+                                .padding(.vertical, 4)
+                            } else {
+                                HStack {
+                                    Image(systemName: "xmark.circle")
+                                        .foregroundColor(.white.opacity(0.7))
+                                    Text("プレスモード未登録")
+                                        .font(.headline)
+                                        .foregroundColor(.white)
+                                }
+                                .padding(.vertical, 4)
+                            }
+
+                            Divider()
+                                .background(.white.opacity(0.3))
+
+                            // デバイスID表示とコピー
+                            VStack(alignment: .leading, spacing: 8) {
+                                Text("デバイスID")
+                                    .font(.caption)
+                                    .foregroundColor(.white.opacity(0.7))
+
+                                HStack {
+                                    Text(pressModeManager.getDeviceIdForDisplay())
+                                        .font(.system(.caption, design: .monospaced))
+                                        .foregroundColor(.white)
+                                        .lineLimit(1)
+                                        .truncationMode(.middle)
+
+                                    Spacer()
+
+                                    Button(action: {
+                                        pressModeManager.copyDeviceIdToClipboard()
+                                        showingDeviceIdCopied = true
+                                        DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+                                            showingDeviceIdCopied = false
+                                        }
+                                    }) {
+                                        HStack(spacing: 4) {
+                                            Image(systemName: showingDeviceIdCopied ? "checkmark" : "doc.on.doc")
+                                            Text(showingDeviceIdCopied ? "コピー済み" : "コピー")
+                                        }
+                                        .font(.caption)
+                                        .foregroundColor(.white)
+                                        .padding(.horizontal, 8)
+                                        .padding(.vertical, 4)
+                                        .background(Color.white.opacity(0.2))
+                                        .cornerRadius(4)
+                                    }
+                                }
+                            }
+
+                            Text("プレスモードの申請には、このデバイスIDが必要です。")
+                                .font(.caption)
+                                .foregroundColor(.white.opacity(0.7))
+                                .fixedSize(horizontal: false, vertical: true)
+
+                            // 手動トグル（権限がある場合のみ有効）
                             Toggle(isOn: $settingsManager.isPressMode) {
                                 Text(settingsManager.localizationManager.localizedString("press_mode"))
                                     .font(.body)
                                     .foregroundColor(.white)
                             }
                             .tint(.white)
+                            .disabled(!pressModeManager.isPressModeEnabled)
+                            .opacity(pressModeManager.isPressModeEnabled ? 1.0 : 0.5)
 
                             Text(settingsManager.localizationManager.localizedString("press_mode_description"))
                                 .font(.caption)
@@ -216,8 +302,10 @@ struct SettingsView: View {
 
 #Preview {
     SettingsView(settingsManager: SettingsManager(), isTheaterMode: false)
+        .environmentObject(PressModeManager.shared)
 }
 
 #Preview("Theater Mode") {
     SettingsView(settingsManager: SettingsManager(), isTheaterMode: true)
+        .environmentObject(PressModeManager.shared)
 }

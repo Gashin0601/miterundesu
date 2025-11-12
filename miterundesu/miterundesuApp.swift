@@ -22,10 +22,12 @@ class AppDelegate: NSObject, UIApplicationDelegate {
 struct miterundesuApp: App {
     @UIApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
     @Environment(\.scenePhase) private var scenePhase
+    @StateObject private var pressModeManager = PressModeManager.shared
 
     var body: some Scene {
         WindowGroup {
             ContentView()
+                .environmentObject(pressModeManager)
         }
         .onChange(of: scenePhase) { oldPhase, newPhase in
             switch newPhase {
@@ -37,7 +39,7 @@ struct miterundesuApp: App {
                 handleAppInactive()
             case .active:
                 // アプリがアクティブになった際の処理
-                break
+                handleAppActive()
             @unknown default:
                 break
             }
@@ -54,5 +56,13 @@ struct miterundesuApp: App {
     private func handleAppInactive() {
         // 非アクティブ時の処理（必要に応じて）
         print("⏸️ アプリが非アクティブになりました")
+    }
+
+    private func handleAppActive() {
+        // アプリがアクティブになった際にプレスモード権限をチェック
+        print("▶️ アプリがアクティブになりました - プレスモード権限をチェック")
+        Task {
+            await pressModeManager.checkPressModePermission()
+        }
     }
 }
