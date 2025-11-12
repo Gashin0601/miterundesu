@@ -106,12 +106,6 @@ struct ExplanationView: View {
                                     .font(.system(size: 16, weight: .medium))
                             }
                             .foregroundColor(.white)
-                            .padding(.vertical, 12)
-                            .padding(.horizontal, contentPadding)
-                            .background(
-                                RoundedRectangle(cornerRadius: 12)
-                                    .fill(Color.white.opacity(0.2))
-                            )
                         }
 
                         // SNSリンク
