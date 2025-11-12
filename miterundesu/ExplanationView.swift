@@ -117,7 +117,7 @@ struct ExplanationView: View {
                         // SNSリンク
                         HStack(spacing: contentPadding * 0.4) {
                             // X (Twitter)
-                            Link(destination: URL(string: "https://twitter.com/miterundesu")!) {
+                            Link(destination: URL(string: "https://x.com/miterundesu_jp?s=11")!) {
                                 VStack(spacing: 8) {
                                     Image(systemName: "xmark")
                                         .font(.system(size: 32, weight: .bold))
@@ -134,7 +134,7 @@ struct ExplanationView: View {
                             }
 
                             // Instagram
-                            Link(destination: URL(string: "https://instagram.com/miterundesu")!) {
+                            Link(destination: URL(string: "https://www.instagram.com/miterundesu_jp/?utm_source=ig_web_button_share_sheet")!) {
                                 VStack(spacing: 8) {
                                     Image(systemName: "camera.circle.fill")
                                         .font(.system(size: 32))
