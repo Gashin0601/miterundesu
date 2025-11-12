@@ -14,6 +14,8 @@ struct SettingsView: View {
     @FocusState private var isMessageFieldFocused: Bool
     @EnvironmentObject var pressModeManager: PressModeManager
     @State private var showingDeviceIdCopied = false
+    @State private var showingPressModeAccess = false
+    @State private var pressModeTargetState = false
 
     var body: some View {
         NavigationView {
@@ -210,13 +212,37 @@ struct SettingsView: View {
                                 .foregroundColor(.white.opacity(0.7))
                                 .fixedSize(horizontal: false, vertical: true)
 
-                            // 手動トグル（権限がある場合のみ有効）
-                            Toggle(isOn: $settingsManager.isPressMode) {
-                                Text(settingsManager.localizationManager.localizedString("press_mode"))
-                                    .font(.body)
-                                    .foregroundColor(.white)
+                            Divider()
+                                .background(.white.opacity(0.3))
+
+                            // プレスモードトグル（アクセスコード入力必須）
+                            Button(action: {
+                                // 権限がある場合のみアクセスコード画面を表示
+                                if pressModeManager.isPressModeEnabled {
+                                    pressModeTargetState = !settingsManager.isPressMode
+                                    showingPressModeAccess = true
+                                }
+                            }) {
+                                HStack {
+                                    Text(settingsManager.localizationManager.localizedString("press_mode"))
+                                        .font(.body)
+                                        .foregroundColor(.white)
+
+                                    Spacer()
+
+                                    // トグル風の表示
+                                    ZStack {
+                                        RoundedRectangle(cornerRadius: 16)
+                                            .fill(settingsManager.isPressMode ? Color.white : Color.white.opacity(0.3))
+                                            .frame(width: 51, height: 31)
+
+                                        Circle()
+                                            .fill(settingsManager.isPressMode ? Color("MainGreen") : Color.white)
+                                            .frame(width: 27, height: 27)
+                                            .offset(x: settingsManager.isPressMode ? 10 : -10)
+                                    }
+                                }
                             }
-                            .tint(.white)
                             .disabled(!pressModeManager.isPressModeEnabled)
                             .opacity(pressModeManager.isPressModeEnabled ? 1.0 : 0.5)
 
@@ -297,6 +323,12 @@ struct SettingsView: View {
         }
         .navigationViewStyle(.stack)
         .preferredColorScheme(.dark)
+        .sheet(isPresented: $showingPressModeAccess) {
+            PressModeAccessView(
+                isPressMode: $settingsManager.isPressMode,
+                targetState: pressModeTargetState
+            )
+        }
     }
 }
 

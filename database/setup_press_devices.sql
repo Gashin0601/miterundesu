@@ -63,6 +63,52 @@ CREATE TRIGGER update_press_devices_updated_at
     FOR EACH ROW
     EXECUTE FUNCTION update_updated_at_column();
 
+-- プレスモードアクセスコードテーブル
+CREATE TABLE IF NOT EXISTS press_access_codes (
+    id uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
+    code text NOT NULL UNIQUE,
+    description text,
+    is_active boolean NOT NULL DEFAULT true,
+    created_at timestamptz NOT NULL DEFAULT now(),
+    updated_at timestamptz NOT NULL DEFAULT now()
+);
+
+-- インデックス作成
+CREATE INDEX IF NOT EXISTS idx_press_access_codes_code ON press_access_codes(code);
+CREATE INDEX IF NOT EXISTS idx_press_access_codes_is_active ON press_access_codes(is_active);
+
+-- RLSを有効化
+ALTER TABLE press_access_codes ENABLE ROW LEVEL SECURITY;
+
+-- 既存のポリシーを削除
+DROP POLICY IF EXISTS "Allow read access to all" ON press_access_codes;
+DROP POLICY IF EXISTS "Only service role can insert" ON press_access_codes;
+DROP POLICY IF EXISTS "Only service role can update" ON press_access_codes;
+DROP POLICY IF EXISTS "Only service role can delete" ON press_access_codes;
+
+-- 読み取りポリシー（全デバイスからの読み取りを許可）
+CREATE POLICY "Allow read access to all"
+ON press_access_codes FOR SELECT
+USING (is_active = true);
+
+-- 挿入・更新・削除はサービスロールのみ
+CREATE POLICY "Only service role can insert"
+ON press_access_codes FOR INSERT
+WITH CHECK (false);
+
+CREATE POLICY "Only service role can update"
+ON press_access_codes FOR UPDATE
+USING (false);
+
+CREATE POLICY "Only service role can delete"
+ON press_access_codes FOR DELETE
+USING (false);
+
+-- デフォルトのアクセスコードを挿入
+INSERT INTO press_access_codes (code, description)
+VALUES ('PRESS2025', 'デフォルトアクセスコード')
+ON CONFLICT (code) DO NOTHING;
+
 -- サンプルデータ（テスト用）
 -- 本番環境では削除してください
 /*
