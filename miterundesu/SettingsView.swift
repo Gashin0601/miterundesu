@@ -310,7 +310,12 @@ struct SettingsView: View {
                         .listRowBackground(Color.white.opacity(0.2))
 
                         Button(action: {
-                            onboardingManager.showTutorial()
+                            // 設定画面を閉じてからチュートリアルを表示
+                            dismiss()
+                            // 少し遅延させてから表示（dismissのアニメーション完了後）
+                            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                                onboardingManager.showTutorial()
+                            }
                         }) {
                             HStack {
                                 Text(settingsManager.localizationManager.localizedString("show_tutorial"))

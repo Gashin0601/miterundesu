@@ -227,6 +227,13 @@ struct ContentView: View {
                         .transition(.scale.combined(with: .opacity))
                         .animation(.spring(), value: securityManager.showScreenshotWarning)
                 }
+
+                // スポットライトチュートリアル（オーバーレイ）
+                if onboardingManager.showFeatureHighlights && !isLoading {
+                    SpotlightTutorialView(settingsManager: settingsManager)
+                        .transition(.opacity)
+                        .animation(.easeInOut(duration: 0.3), value: onboardingManager.showFeatureHighlights)
+                }
                 }
             }
         }
@@ -254,10 +261,6 @@ struct ContentView: View {
         }
         .fullScreenCover(isPresented: $onboardingManager.showWelcomeScreen) {
             TutorialWelcomeView(settingsManager: settingsManager)
-        }
-        .fullScreenCover(isPresented: $onboardingManager.showFeatureHighlights) {
-            SpotlightTutorialView(settingsManager: settingsManager)
-                .onPreferenceChange(SpotlightPreferenceKey.self) { _ in }
         }
         .preferredColorScheme(.dark)
         .environment(\.isPressMode, settingsManager.isPressMode)
