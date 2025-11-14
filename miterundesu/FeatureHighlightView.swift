@@ -11,15 +11,17 @@
 import SwiftUI
 // import SSCoachMarks  // パッケージインストール後にアンコメント
 
+// NOTE: このビューはSSCoachMarksパッケージインストール後に使用可能
+// 現在は TemporaryFeatureHighlightView を使用してください
+/*
 struct FeatureHighlightView: View {
     @ObservedObject var settingsManager: SettingsManager
     @ObservedObject var onboardingManager = OnboardingManager.shared
     @State private var currentStep: Int = 0
 
     var body: some View {
-        ContentView(settingsManager: settingsManager)
+        ContentView()
             // SSCoachMarksパッケージインストール後に以下を有効化
-            /*
             .modifier(CoachMarkView(onCoachMarkFinished: {
                 onboardingManager.completeOnboarding()
             }))
@@ -51,9 +53,9 @@ struct FeatureHighlightView: View {
                 description: settingsManager.localizationManager.localizedString("tutorial_message_desc"),
                 highlightViewCornerRadius: 8
             )
-            */
     }
 }
+*/
 
 // MARK: - 一時的な代替実装（SSCoachMarksインストールまでの暫定）
 struct TemporaryFeatureHighlightView: View {
