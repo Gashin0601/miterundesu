@@ -26,9 +26,10 @@ struct ExplanationView: View {
                     // 上部固定ヘッダー
                     ZStack {
                         // 中央：ロゴ（完全に中央配置）
-                        Text(settingsManager.localizationManager.localizedString("app_name"))
-                            .font(.system(size: 20, weight: .bold, design: .default))
-                            .foregroundColor(.white)
+                        Image("Logo")
+                            .resizable()
+                            .scaledToFit()
+                            .frame(height: 20)
 
                         // 左右のボタンを絶対配置
                         HStack {

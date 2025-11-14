@@ -153,9 +153,11 @@ struct WatermarkView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 1) {
             // 上段: アプリ名ロゴ
-            Text("ミテルンデス")
-                .font(.system(size: 10, weight: .bold, design: .rounded))
-                .foregroundColor(.white.opacity(0.4))
+            Image("Logo")
+                .resizable()
+                .scaledToFit()
+                .frame(height: 10)
+                .opacity(0.4)
 
             // 下段: 日付時間とデバイスID
             Text(viewModel.watermarkInfo)

@@ -451,9 +451,10 @@ struct HeaderView: View {
                 .clipped()
 
             // ロゴ
-            Text(settingsManager.localizationManager.localizedString("app_name"))
-                .font(.system(size: 28, weight: .bold, design: .default))
-                .foregroundColor(.white)
+            Image("Logo")
+                .resizable()
+                .scaledToFit()
+                .frame(height: 28)
         }
     }
 }
@@ -826,9 +827,10 @@ struct LoadingView: View {
 
             VStack(spacing: 24) {
                 // ロゴ
-                Text(settingsManager.localizationManager.localizedString("app_name"))
-                    .font(.system(size: 32, weight: .bold, design: .default))
-                    .foregroundColor(.white)
+                Image("Logo")
+                    .resizable()
+                    .scaledToFit()
+                    .frame(height: 32)
 
                 // ローディングインジケーター
                 ZStack {
