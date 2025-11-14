@@ -61,6 +61,7 @@ struct ContentView: View {
                         },
                         settingsManager: settingsManager
                     )
+                    .spotlight(id: "theater_toggle")
                     .padding(.leading, horizontalPadding)
                     .opacity(shouldShowUI ? 1 : 0)
 
@@ -110,6 +111,7 @@ struct ContentView: View {
                                 .fill(Color.white.opacity(0.25))
                         )
                     }
+                    .spotlight(id: "settings_button")
                     .padding(.trailing, horizontalPadding)
                     .opacity(shouldShowUI ? 1 : 0)
                     .accessibilityLabel(settingsManager.localizationManager.localizedString("settings"))
@@ -119,6 +121,7 @@ struct ContentView: View {
 
                 // ヘッダー部分（無限スクロールとロゴ）
                 HeaderView(settingsManager: settingsManager)
+                    .spotlight(id: "scrolling_message")
                     .opacity(shouldShowUI ? 1 : 0)
                     .padding(.top, topPadding * 0.5)
 
@@ -253,7 +256,8 @@ struct ContentView: View {
             TutorialWelcomeView(settingsManager: settingsManager)
         }
         .fullScreenCover(isPresented: $onboardingManager.showFeatureHighlights) {
-            TemporaryFeatureHighlightView(settingsManager: settingsManager)
+            SpotlightTutorialView(settingsManager: settingsManager)
+                .onPreferenceChange(SpotlightPreferenceKey.self) { _ in }
         }
         .preferredColorScheme(.dark)
         .environment(\.isPressMode, settingsManager.isPressMode)
@@ -669,6 +673,7 @@ struct FooterView: View {
 
                 // 倍率表示（右下）
                 ZoomLevelView(zoomLevel: currentZoom)
+                    .spotlight(id: "zoom_controls")
                     .padding(.trailing, horizontalPadding)
             }
         }
