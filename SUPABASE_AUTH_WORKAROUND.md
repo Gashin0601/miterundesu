@@ -7,59 +7,77 @@
 Initial session emitted after attempting to refresh the local stored session.
 ```
 
+**症状**:
+- アプリがデバッグ実行時に停止する
+- スタックトレースに`_RuntimeWarningReporter.reportIssue`が表示される
+- 毎回この警告で起動できない
+
 ## 原因
 
-Xcodeのデバッグ設定で「Runtime API Checking」が有効になっているため、警告が実行停止ポイントとして扱われています。
+1. **Supabase側**: v2.37.0の既知の警告（機能には影響なし）
+2. **Xcode側**: Main Thread CheckerとRuntime Issue Breakpointが警告を実行停止として扱っている
 
-## 解決方法
+**重要**: PR #822の`emitLocalSessionAsInitialSession`は本番環境で推奨されておらず、PR #844で別アプローチに置き換えられました。現在のバージョンではまだ利用不可。
 
-### 方法1: Xcodeのデバッグ設定を変更（推奨）
+## 解決方法（この順番で実施）
 
-1. Xcode上部メニュー: `Product` → `Scheme` → `Edit Scheme...`
-2. 左側で「Run」を選択
-3. 「Diagnostics」タブを開く
-4. 「Runtime API Checking」セクションで以下を**オフ**にする：
-   - Main Thread Checker
-   - Thread Performance Checker
-   - Runtime Issues（すべて）
+### ステップ1: Xcodeの診断設定を無効化（必須）
 
-5. 「Close」をクリック
+1. Xcode上部メニュー: **`Product`** → **`Scheme`** → **`Edit Scheme...`**
+2. 左側で **`Run`** を選択
+3. **`Diagnostics`** タブを開く
+4. 以下を**オフ**にする：
+   - ☐ **Main Thread Checker** ← 最重要
+   - ☐ **Thread Performance Checker**
+   - （Address Sanitizer、Thread Sanitizerはデフォルトでオフ）
 
-### 方法2: Supabase初期化の遅延
+5. **`Close`** をクリック
 
-`SupabaseClient.swift`を以下のように変更：
+### ステップ2: Runtime Issue Breakpointを削除（推奨）
 
-```swift
-import Foundation
-import Supabase
+1. Xcodeの左側ナビゲーター: **Breakpoint Navigator** (⌘+8)
+2. **`Runtime Issue Breakpoint`** を探す
+3. 見つかったら：
+   - **削除**: 右クリック → **`Delete Breakpoint`**
+   - または**無効化**: 左側の青いアイコンをクリック
 
-// 遅延初期化によるクラッシュ回避
-let supabase: SupabaseClient = {
-    let client = SupabaseClient(
-        supabaseURL: URL(string: "https://gtxoniuzwhmdwnhegwnz.supabase.co")!,
-        supabaseKey: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imd0eG9uaXV6d2htZHduaGVnd256Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjI5NTY3OTcsImV4cCI6MjA3ODUzMjc5N30.MZPcs9O0xaWcQPRDhn7pIrv9JbFZRU6AI_sQH0dERC8"
-    )
-    return client
-}()
+### ステップ3: クリーン＆ビルド
+
+```
+Product → Clean Build Folder (⌘⇧K)
+Product → Run (⌘R)
 ```
 
-### 方法3: Exception Breakpointの無効化
+これで確実に起動するはずです。
 
-1. Xcodeの左側ナビゲーターで「Breakpoint Navigator」（⌘8）を開く
-2. 「Runtime Issues Breakpoint」があれば右クリック → 「Delete Breakpoint」
+### 代替方法: 一時的にすべてのブレークポイントを無効化
 
-### 方法4: ログレベルの調整（一時的）
+キーボードショートカット: **`⌘Y`**
+- すべてのブレークポイントを一時的に無効/有効化できます
+- デバッグ時に素早く切り替え可能
 
+### その他の設定（オプション）
+
+#### ログレベルの調整
 デバッグコンソールの出力を減らす：
-1. Xcode上部メニュー: `Product` → `Scheme` → `Edit Scheme...`
+1. `Product` → `Scheme` → `Edit Scheme...`
 2. 「Run」→「Arguments」タブ
 3. 「Environment Variables」に追加：
    - Name: `OS_ACTIVITY_MODE`
    - Value: `disable`
 
-## 推奨設定
+#### 遅延初期化（実装済み）
+`SupabaseClient.swift`は既に遅延初期化パターンを使用しています：
+```swift
+let supabase: SupabaseClient = { /* ... */ }()
+```
+これにより、警告のタイミングが遅延されます。
 
-**方法1**が最も効果的です。Runtime API Checkingは開発時に便利ですが、サードパーティライブラリの警告で頻繁に停止する場合は無効化することをお勧めします。
+## なぜこの設定が必要か
+
+**Main Thread Checker**は、UIの更新がメインスレッド以外で行われていないかをチェックします。Supabaseの警告は実際にはスレッド問題ではなく、セッション管理の動作に関する情報提供ですが、Xcodeが誤って実行を停止してしまいます。
+
+**Runtime Issue Breakpoint**は、すべてのランタイム警告で実行を停止するブレークポイントです。これがあると、Supabaseの警告でも停止してしまいます。
 
 ## 注意事項
 
