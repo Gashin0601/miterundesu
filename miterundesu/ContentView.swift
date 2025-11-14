@@ -13,6 +13,7 @@ struct ContentView: View {
     @StateObject private var imageManager = ImageManager()
     @ObservedObject private var securityManager = SecurityManager.shared
     @StateObject private var settingsManager = SettingsManager()
+    @ObservedObject private var onboardingManager = OnboardingManager.shared
 
     @State private var showSettings = false
     @State private var showExplanation = false
@@ -248,11 +249,20 @@ struct ContentView: View {
             )
             .environment(\.isPressMode, settingsManager.isPressMode)
         }
+        .fullScreenCover(isPresented: $onboardingManager.showWelcomeScreen) {
+            TutorialWelcomeView(settingsManager: settingsManager)
+        }
+        .fullScreenCover(isPresented: $onboardingManager.showFeatureHighlights) {
+            TemporaryFeatureHighlightView(settingsManager: settingsManager)
+        }
         .preferredColorScheme(.dark)
         .environment(\.isPressMode, settingsManager.isPressMode)
         .onAppear {
             // 画面向きを縦向きに固定
             AppDelegate.orientationLock = .portrait
+
+            // オンボーディング状態をチェック
+            onboardingManager.checkOnboardingStatus()
 
             cameraManager.setupCamera()
             cameraManager.startSession()

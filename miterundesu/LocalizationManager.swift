@@ -67,7 +67,27 @@ class LocalizationManager: ObservableObject {
         "normal_mode": "通常モード",
         "press_mode_settings": "プレスモード",
         "press_mode": "プレスモードを有効化",
-        "press_mode_description": "報道・開発用モード。有効にすると、スクリーンショットや画面録画が可能になります。取材やアプリ開発時にのみ使用してください。"
+        "press_mode_description": "報道・開発用モード。有効にすると、スクリーンショットや画面録画が可能になります。取材やアプリ開発時にのみ使用してください。",
+        "welcome_title": "ようこそ",
+        "welcome_message": "ミテルンデスは、撮影ではなく「見る」ためのアプリです",
+        "feature_magnify": "拡大鏡として使う",
+        "feature_magnify_desc": "スマートフォンのカメラを使って、見えにくいものを拡大して確認できます",
+        "feature_privacy": "プライバシー重視",
+        "feature_privacy_desc": "撮影した画像は10分後に自動削除。スクリーンショットも無効化されています",
+        "feature_theater": "シアターモード",
+        "feature_theater_desc": "映画館や美術館など、静かな場所でも安心して使えるモードです",
+        "get_started": "始める",
+        "tutorial": "チュートリアル",
+        "show_tutorial": "チュートリアルを見る",
+        "tutorial_zoom_title": "ズーム操作",
+        "tutorial_zoom_desc": "画面をピンチ操作、または下部のボタンで拡大・縮小ができます",
+        "tutorial_theater_title": "シアターモード",
+        "tutorial_theater_desc": "映画館や美術館で使う場合は、このボタンでシアターモードに切り替えられます",
+        "tutorial_settings_title": "設定",
+        "tutorial_settings_desc": "言語や最大ズーム率、スクロールメッセージなどをカスタマイズできます",
+        "tutorial_message_title": "メッセージ表示",
+        "tutorial_message_desc": "周囲の方に撮影していないことを伝えるメッセージが表示されます",
+        "tutorial_complete": "完了"
     ]
 
     // 英語の文字列
@@ -102,6 +122,26 @@ class LocalizationManager: ObservableObject {
         "normal_mode": "Normal Mode",
         "press_mode_settings": "Press Mode",
         "press_mode": "Enable Press Mode",
-        "press_mode_description": "Mode for press and development. When enabled, screenshots and screen recording are allowed. Use only for press coverage or app development."
+        "press_mode_description": "Mode for press and development. When enabled, screenshots and screen recording are allowed. Use only for press coverage or app development.",
+        "welcome_title": "Welcome",
+        "welcome_message": "Miterundesu is for viewing, not recording",
+        "feature_magnify": "Use as Magnifier",
+        "feature_magnify_desc": "Use your smartphone camera to magnify and view things that are hard to see",
+        "feature_privacy": "Privacy Focused",
+        "feature_privacy_desc": "Images are automatically deleted after 10 minutes. Screenshots are disabled",
+        "feature_theater": "Theater Mode",
+        "feature_theater_desc": "A mode designed for quiet places like movie theaters and museums",
+        "get_started": "Get Started",
+        "tutorial": "Tutorial",
+        "show_tutorial": "Show Tutorial",
+        "tutorial_zoom_title": "Zoom Controls",
+        "tutorial_zoom_desc": "Pinch to zoom or use the buttons at the bottom to zoom in and out",
+        "tutorial_theater_title": "Theater Mode",
+        "tutorial_theater_desc": "When using in movie theaters or museums, switch to Theater Mode with this button",
+        "tutorial_settings_title": "Settings",
+        "tutorial_settings_desc": "Customize language, maximum zoom, scrolling message, and more",
+        "tutorial_message_title": "Message Display",
+        "tutorial_message_desc": "A message is displayed to let people around you know that you're not recording",
+        "tutorial_complete": "Complete"
     ]
 }

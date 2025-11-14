@@ -13,6 +13,7 @@ struct SettingsView: View {
     @Environment(\.dismiss) var dismiss
     @FocusState private var isMessageFieldFocused: Bool
     @EnvironmentObject var pressModeManager: PressModeManager
+    @ObservedObject private var onboardingManager = OnboardingManager.shared
     @State private var showingDeviceIdCopied = false
     @State private var showingPressModeAccess = false
     @State private var showingPressModeInfo = false
@@ -303,6 +304,19 @@ struct SettingsView: View {
                                     .foregroundColor(.white)
                                 Spacer()
                                 Image(systemName: "arrow.up.right.square")
+                                    .foregroundColor(.white)
+                            }
+                        }
+                        .listRowBackground(Color.white.opacity(0.2))
+
+                        Button(action: {
+                            onboardingManager.showTutorial()
+                        }) {
+                            HStack {
+                                Text(settingsManager.localizationManager.localizedString("show_tutorial"))
+                                    .foregroundColor(.white)
+                                Spacer()
+                                Image(systemName: "questionmark.circle")
                                     .foregroundColor(.white)
                             }
                         }
