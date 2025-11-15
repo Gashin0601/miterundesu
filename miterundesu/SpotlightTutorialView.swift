@@ -167,6 +167,13 @@ struct SpotlightTutorialView: View {
         // プライマリターゲット（説明カードの位置計算用）は最初のフレーム
         let primaryTargetFrame = targetFrames.first ?? defaultFrame
 
+        // カードの位置を動的に計算
+        let cardCenter = calculateCardCenter(
+            geometry: geometry,
+            targetFrame: primaryTargetFrame,
+            position: currentStep.position
+        )
+
         ZStack {
             // ダークオーバーレイ（複数のハイライト部分を切り抜き）
             SpotlightOverlay(
@@ -174,7 +181,15 @@ struct SpotlightTutorialView: View {
                 cornerRadius: 12
             )
 
-            // 説明カード（画面下部に固定）
+            // 矢印（カードからプライマリターゲットへ1本のみ）
+            TutorialArrowView(
+                cardCenter: cardCenter,
+                targetFrame: primaryTargetFrame,
+                position: currentStep.position
+            )
+            .transition(.opacity)
+
+            // 説明カード（動的位置）
             TutorialDescriptionCard(
                 step: currentStep,
                 targetFrame: primaryTargetFrame,
@@ -187,6 +202,19 @@ struct SpotlightTutorialView: View {
                 settingsManager: settingsManager
             )
         }
+    }
+
+    private func calculateCardCenter(geometry: GeometryProxy, targetFrame: CGRect, position: SpotlightStep.SpotlightPosition) -> CGPoint {
+        let cardCenterY: CGFloat
+        switch position {
+        case .above:
+            cardCenterY = max(130, targetFrame.minY - 150)
+        case .below:
+            cardCenterY = min(geometry.size.height - 130, targetFrame.maxY + 150)
+        case .leading, .trailing:
+            cardCenterY = targetFrame.midY
+        }
+        return CGPoint(x: geometry.size.width / 2, y: cardCenterY)
     }
 
     private func nextStep() {
@@ -351,16 +379,56 @@ struct TutorialDescriptionCard: View {
     private let edgePadding: CGFloat = 20
     private let arrowSpace: CGFloat = 40
 
-    /// カード配置ロジック - 画面下部に固定して違和感を軽減
+    /// カード配置ロジック - ターゲット要素の位置に応じて動的に配置
     private var cardOffset: CGPoint {
         let screenHeight = geometry.size.height
         let screenWidth = geometry.size.width
 
-        // 常に画面下部中央に固定
-        let x = screenWidth / 2
-        let y = screenHeight - cardHeight / 2 - 40  // 下から40ptの位置
+        // 理想的な配置位置を計算
+        var idealPosition: CGPoint
 
-        return CGPoint(x: x, y: y)
+        switch step.position {
+        case .above:
+            // ターゲットの上に配置（矢印スペース込み）
+            idealPosition = CGPoint(
+                x: (screenWidth - cardWidth) / 2,
+                y: targetFrame.minY - cardHeight - arrowSpace
+            )
+        case .below:
+            // ターゲットの下に配置（矢印スペース込み）
+            idealPosition = CGPoint(
+                x: (screenWidth - cardWidth) / 2,
+                y: targetFrame.maxY + arrowSpace
+            )
+        case .leading:
+            // ターゲットの左に配置
+            idealPosition = CGPoint(
+                x: targetFrame.minX - cardWidth - arrowSpace,
+                y: targetFrame.midY - cardHeight / 2
+            )
+        case .trailing:
+            // ターゲットの右に配置
+            idealPosition = CGPoint(
+                x: targetFrame.maxX + arrowSpace,
+                y: targetFrame.midY - cardHeight / 2
+            )
+        }
+
+        // 画面境界内に収まるように調整（.position() は中心座標なので cardWidth/2 を考慮）
+        let minX = edgePadding + cardWidth / 2
+        let maxX = screenWidth - edgePadding - cardWidth / 2
+        let minY = edgePadding + cardHeight / 2
+        let maxY = screenHeight - edgePadding - cardHeight / 2
+
+        let adjustedX = clamp(idealPosition.x + cardWidth / 2, min: minX, max: maxX)
+        let adjustedY = clamp(idealPosition.y + cardHeight / 2, min: minY, max: maxY)
+
+        return CGPoint(x: adjustedX, y: adjustedY)
+    }
+
+    /// 値を指定範囲内にクランプする
+    private func clamp(_ value: CGFloat, min minValue: CGFloat, max maxValue: CGFloat) -> CGFloat {
+        return Swift.min(Swift.max(value, minValue), maxValue)
     }
 
     var body: some View {
