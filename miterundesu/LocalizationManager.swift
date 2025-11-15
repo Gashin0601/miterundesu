@@ -77,6 +77,7 @@ class LocalizationManager: ObservableObject {
         "feature_theater": "シアターモード",
         "feature_theater_desc": "映画館や美術館など、静かな場所でも安心して使えるモードです",
         "get_started": "始める",
+        "skip": "スキップ",
         "tutorial": "チュートリアル",
         "show_tutorial": "チュートリアルを見る",
         "tutorial_zoom_title": "ズーム操作",
@@ -87,6 +88,8 @@ class LocalizationManager: ObservableObject {
         "tutorial_settings_desc": "言語や最大ズーム率、スクロールメッセージなどをカスタマイズできます",
         "tutorial_message_title": "メッセージ表示",
         "tutorial_message_desc": "周囲の方に撮影していないことを伝えるメッセージが表示されます",
+        "tutorial_back": "戻る",
+        "tutorial_next": "次へ",
         "tutorial_complete": "完了"
     ]
 
@@ -132,6 +135,7 @@ class LocalizationManager: ObservableObject {
         "feature_theater": "Theater Mode",
         "feature_theater_desc": "A mode designed for quiet places like movie theaters and museums",
         "get_started": "Get Started",
+        "skip": "Skip",
         "tutorial": "Tutorial",
         "show_tutorial": "Show Tutorial",
         "tutorial_zoom_title": "Zoom Controls",
@@ -142,6 +146,8 @@ class LocalizationManager: ObservableObject {
         "tutorial_settings_desc": "Customize language, maximum zoom, scrolling message, and more",
         "tutorial_message_title": "Message Display",
         "tutorial_message_desc": "A message is displayed to let people around you know that you're not recording",
+        "tutorial_back": "Back",
+        "tutorial_next": "Next",
         "tutorial_complete": "Complete"
     ]
 }

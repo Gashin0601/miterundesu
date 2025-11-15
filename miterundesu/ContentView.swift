@@ -27,21 +27,62 @@ struct ContentView: View {
     // ロード画面管理
     @State private var isLoading = true
 
+    // スポットライトチュートリアル用のフレーム座標
+    @State private var spotlightFrames: [String: CGRect] = [:]
+
     var body: some View {
         GeometryReader { geometry in
-            let screenWidth = geometry.size.width
-            let screenHeight = geometry.size.height
+            mainContent(geometry: geometry)
+        }
+        .fullScreenCover(isPresented: $showSettings) {
+            SettingsView(settingsManager: settingsManager, isTheaterMode: settingsManager.isTheaterMode)
+        }
+        .fullScreenCover(isPresented: $showExplanation) {
+            ExplanationView(settingsManager: settingsManager)
+        }
+        .fullScreenCover(item: $selectedImage) { capturedImage in
+            ImageGalleryView(
+                imageManager: imageManager,
+                settingsManager: settingsManager,
+                initialImage: capturedImage
+            )
+            .environment(\.isPressMode, settingsManager.isPressMode)
+        }
+        .fullScreenCover(item: $justCapturedImage) { capturedImage in
+            CapturedImagePreview(
+                imageManager: imageManager,
+                settingsManager: settingsManager,
+                capturedImage: capturedImage
+            )
+            .environment(\.isPressMode, settingsManager.isPressMode)
+        }
+        .fullScreenCover(isPresented: $onboardingManager.showWelcomeScreen) {
+            TutorialWelcomeView(settingsManager: settingsManager)
+        }
+        .onAppear {
+            AppDelegate.orientationLock = .portrait
+            onboardingManager.checkOnboardingStatus()
+            cameraManager.setupCamera()
+            cameraManager.startSession()
+            cameraManager.setMaxZoomFactor(settingsManager.maxZoomFactor)
+            securityManager.isPressMode = settingsManager.isPressMode
+            securityManager.recheckScreenRecordingStatus()
+        }
+    }
 
-            // レスポンシブなパディング値を計算（8ptグリッドシステムに準拠）
-            // iPhone 15基準: 393pt幅、852pt高さ
-            let horizontalPadding = screenWidth * 0.041  // 16pt (画面全体の統一マージン)
-            let topPadding = screenHeight * 0.009       // 約8pt
-            let bottomPadding = screenHeight * 0.009    // 約8pt
-            let cameraHorizontalPadding = screenWidth * 0.031  // 12pt (カメラ周り)
-            let cameraTopPadding = screenHeight * 0.009        // 約8pt
-            let cameraBottomPadding = screenHeight * 0.014    // 約12pt（呼吸感を確保）
+    @ViewBuilder
+    private func mainContent(geometry: GeometryProxy) -> some View {
+        let screenWidth = geometry.size.width
+        let screenHeight = geometry.size.height
 
-            ZStack {
+        let horizontalPadding = screenWidth * 0.041
+        let topPadding = screenHeight * 0.009
+        let bottomPadding = screenHeight * 0.009
+        let cameraHorizontalPadding = screenWidth * 0.031
+        let cameraTopPadding = screenHeight * 0.009
+        let cameraBottomPadding = screenHeight * 0.014
+
+        ZStack {
                 if isLoading {
                     // ロード画面
                     LoadingView(settingsManager: settingsManager)
@@ -230,60 +271,22 @@ struct ContentView: View {
 
                 // スポットライトチュートリアル（オーバーレイ）
                 if onboardingManager.showFeatureHighlights && !isLoading {
-                    SpotlightTutorialView(settingsManager: settingsManager)
-                        .transition(.opacity)
-                        .animation(.easeInOut(duration: 0.3), value: onboardingManager.showFeatureHighlights)
+                    SpotlightTutorialView(
+                        settingsManager: settingsManager,
+                        spotlightFrames: spotlightFrames
+                    )
+                    .transition(.opacity)
+                    .animation(.easeInOut(duration: 0.3), value: onboardingManager.showFeatureHighlights)
                 }
-                }
-            }
-        }
-        .fullScreenCover(isPresented: $showSettings) {
-            SettingsView(settingsManager: settingsManager, isTheaterMode: settingsManager.isTheaterMode)
-        }
-        .fullScreenCover(isPresented: $showExplanation) {
-            ExplanationView(settingsManager: settingsManager)
-        }
-        .fullScreenCover(item: $selectedImage) { capturedImage in
-            ImageGalleryView(
-                imageManager: imageManager,
-                settingsManager: settingsManager,
-                initialImage: capturedImage
-            )
-            .environment(\.isPressMode, settingsManager.isPressMode)
-        }
-        .fullScreenCover(item: $justCapturedImage) { capturedImage in
-            CapturedImagePreview(
-                imageManager: imageManager,
-                settingsManager: settingsManager,
-                capturedImage: capturedImage
-            )
-            .environment(\.isPressMode, settingsManager.isPressMode)
-        }
-        .fullScreenCover(isPresented: $onboardingManager.showWelcomeScreen) {
-            TutorialWelcomeView(settingsManager: settingsManager)
+            }  // else の閉じ
+        }  // ZStack の閉じ
+        .onPreferenceChange(SpotlightPreferenceKey.self) { preferences in
+            spotlightFrames = preferences
         }
         .preferredColorScheme(.dark)
         .environment(\.isPressMode, settingsManager.isPressMode)
-        .onAppear {
-            // 画面向きを縦向きに固定
-            AppDelegate.orientationLock = .portrait
-
-            // オンボーディング状態をチェック
-            onboardingManager.checkOnboardingStatus()
-
-            cameraManager.setupCamera()
-            cameraManager.startSession()
-            setupBackgroundNotification()
-            // 設定から最大拡大率を適用
-            cameraManager.setMaxZoomFactor(settingsManager.maxZoomFactor)
-            // プレスモードをSecurityManagerに同期
-            securityManager.isPressMode = settingsManager.isPressMode
-            // 画面録画状態を再チェック（プレスモード同期後）
-            securityManager.recheckScreenRecordingStatus()
-        }
         .onChange(of: cameraManager.isCameraReady) { oldValue, newValue in
             if newValue {
-                // カメラの準備ができたらローディングを終了
                 withAnimation(.easeOut(duration: 0.3)) {
                     isLoading = false
                 }
@@ -292,28 +295,21 @@ struct ContentView: View {
         .onDisappear {
             cameraManager.stopSession()
             stopUIHideTimer()
-            // セキュリティデータのみクリア（画像はCoreDataで永続化）
             securityManager.clearSensitiveData()
         }
         .onChange(of: settingsManager.isTheaterMode) { oldValue, newValue in
             if !newValue {
-                // 通常モードに戻ったらUIを表示し、タイマー停止
                 showUI = true
                 stopUIHideTimer()
             }
         }
         .onChange(of: settingsManager.maxZoomFactor) { oldValue, newValue in
-            // 最大拡大率が変更されたらカメラに適用
             cameraManager.setMaxZoomFactor(newValue)
         }
         .onChange(of: settingsManager.isPressMode) { oldValue, newValue in
-            // プレスモードが変更されたらSecurityManagerに同期
             securityManager.isPressMode = newValue
             print("📰 プレスモード: \(newValue ? "有効" : "無効")")
-            // 画面録画状態を再チェック
             securityManager.recheckScreenRecordingStatus()
-
-            // UI再構築中はローディング画面を表示
             isLoading = true
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
                 withAnimation(.easeOut(duration: 0.3)) {
@@ -323,32 +319,20 @@ struct ContentView: View {
         }
         .onChange(of: securityManager.hideContent) { oldValue, newValue in
             print("🔒 hideContent changed: \(oldValue) -> \(newValue)")
-
             if newValue {
-                // コンテンツを隠す
                 print("🔒 hideContent=true: 画像プレビューを閉じます")
-                print("🔒 justCapturedImage: \(justCapturedImage != nil ? "あり" : "なし")")
-                print("🔒 selectedImage: \(selectedImage != nil ? "あり" : "なし")")
-
-                // 画像プレビューを閉じてカメラビューに戻る
                 justCapturedImage = nil
                 selectedImage = nil
-
                 print("🔒 画像プレビューをnilに設定しました")
             } else {
-                // コンテンツを再表示
                 print("🔒 hideContent=false: コンテンツを再表示します")
             }
         }
         .onChange(of: securityManager.showScreenshotWarning) { oldValue, newValue in
-            // 警告が閉じた時（false）に、確実にカメラプレビューに戻す
             if oldValue == true && newValue == false {
                 print("🔒 スクリーンショット警告が閉じました - カメラプレビューに戻ります")
-                // 明示的に画像プレビューを閉じる
                 justCapturedImage = nil
                 selectedImage = nil
-
-                // カメラセッションの再起動は不要（preventScreenCapture()で保護されているため）
                 print("🔒 カメラプレビューに復帰しました")
             }
         }

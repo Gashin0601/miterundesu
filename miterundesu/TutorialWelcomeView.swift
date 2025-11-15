@@ -19,6 +19,22 @@ struct TutorialWelcomeView: View {
                 .ignoresSafeArea()
 
             VStack(spacing: 40) {
+                // スキップボタン（上部右側）
+                HStack {
+                    Spacer()
+                    Button(action: {
+                        onboardingManager.completeOnboarding()
+                    }) {
+                        Text(settingsManager.localizationManager.localizedString("skip"))
+                            .font(.system(size: 16, weight: .medium))
+                            .foregroundColor(.white.opacity(0.7))
+                            .padding(.horizontal, 20)
+                            .padding(.vertical, 10)
+                    }
+                }
+                .padding(.top, 20)
+                .padding(.trailing, 8)
+
                 Spacer()
 
                 // アプリアイコン

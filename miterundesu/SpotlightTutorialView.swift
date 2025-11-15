@@ -62,14 +62,15 @@ struct SpotlightTutorialView: View {
     @ObservedObject var settingsManager: SettingsManager
     @ObservedObject var onboardingManager = OnboardingManager.shared
     @State private var currentStepIndex: Int = 0
-    @State private var spotlightFrames: [String: CGRect] = [:]
+    let spotlightFrames: [String: CGRect]
 
     let steps: [SpotlightStep]
 
-    init(settingsManager: SettingsManager) {
+    init(settingsManager: SettingsManager, spotlightFrames: [String: CGRect]) {
         self.settingsManager = settingsManager
+        self.spotlightFrames = spotlightFrames
 
-        // チュートリアルステップの定義
+        // チュートリアルステップの定義（3ステップ: ズーム、シアターモード、設定）
         self.steps = [
             SpotlightStep(
                 id: "zoom",
@@ -91,13 +92,6 @@ struct SpotlightTutorialView: View {
                 description: settingsManager.localizationManager.localizedString("tutorial_settings_desc"),
                 targetViewId: "settings_button",
                 position: .below
-            ),
-            SpotlightStep(
-                id: "message",
-                title: settingsManager.localizationManager.localizedString("tutorial_message_title"),
-                description: settingsManager.localizationManager.localizedString("tutorial_message_desc"),
-                targetViewId: "scrolling_message",
-                position: .below
             )
         ]
     }
@@ -108,33 +102,68 @@ struct SpotlightTutorialView: View {
 
     var body: some View {
         GeometryReader { geometry in
-            ZStack {
-                // ダークオーバーレイ（ハイライト部分を切り抜き）
-                SpotlightOverlay(
-                    highlightFrame: spotlightFrames[currentStep.targetViewId] ?? .zero,
-                    cornerRadius: 12
-                )
-                .animation(.easeInOut(duration: 0.3), value: currentStep.targetViewId)
-
-                // 説明カード
-                if let targetFrame = spotlightFrames[currentStep.targetViewId] {
-                    TutorialDescriptionCard(
-                        step: currentStep,
-                        targetFrame: targetFrame,
-                        geometry: geometry,
-                        currentIndex: currentStepIndex,
-                        totalSteps: steps.count,
-                        onNext: nextStep,
-                        onPrevious: previousStep,
-                        onComplete: completeTutorial
-                    )
-                }
-            }
-            .onPreferenceChange(SpotlightPreferenceKey.self) { preferences in
-                spotlightFrames = preferences
-            }
+            tutorialContent(geometry: geometry)
         }
         .ignoresSafeArea()
+    }
+
+    @ViewBuilder
+    private func tutorialContent(geometry: GeometryProxy) -> some View {
+        let targetFrame = spotlightFrames[currentStep.targetViewId] ?? CGRect(
+            x: geometry.size.width / 2,
+            y: geometry.size.height / 2,
+            width: 100,
+            height: 100
+        )
+        let cardCenter = calculateCardCenter(
+            geometry: geometry,
+            targetFrame: targetFrame,
+            position: currentStep.position
+        )
+
+        ZStack {
+            // ダークオーバーレイ（ハイライト部分を切り抜き）
+            SpotlightOverlay(
+                highlightFrame: targetFrame,
+                cornerRadius: 12
+            )
+            .animation(.easeInOut(duration: 0.3), value: currentStep.targetViewId)
+
+            // 矢印（カードとターゲット要素を結ぶ）- UIと被らないようにエッジまで伸ばす
+            TutorialArrowView(
+                cardCenter: cardCenter,
+                targetFrame: targetFrame,
+                position: currentStep.position
+            )
+            .transition(.opacity)
+            .animation(.easeInOut(duration: 0.3), value: currentStep.targetViewId)
+
+            // 説明カード（常に表示）
+            TutorialDescriptionCard(
+                step: currentStep,
+                targetFrame: targetFrame,
+                geometry: geometry,
+                currentIndex: currentStepIndex,
+                totalSteps: steps.count,
+                onNext: nextStep,
+                onPrevious: previousStep,
+                onComplete: completeTutorial,
+                settingsManager: settingsManager
+            )
+        }
+    }
+
+    private func calculateCardCenter(geometry: GeometryProxy, targetFrame: CGRect, position: SpotlightStep.SpotlightPosition) -> CGPoint {
+        let cardCenterY: CGFloat
+        switch position {
+        case .above:
+            cardCenterY = max(130, targetFrame.minY - 150)
+        case .below:
+            cardCenterY = min(geometry.size.height - 130, targetFrame.maxY + 150)
+        case .leading, .trailing:
+            cardCenterY = targetFrame.midY
+        }
+        return CGPoint(x: geometry.size.width / 2, y: cardCenterY)
     }
 
     private func nextStep() {
@@ -183,6 +212,103 @@ struct SpotlightOverlay: View {
     }
 }
 
+// MARK: - Tutorial Arrow
+/// カードとターゲット要素を結ぶ矢印コンポーネント
+struct TutorialArrowView: View {
+    let cardCenter: CGPoint
+    let targetFrame: CGRect
+    let position: SpotlightStep.SpotlightPosition
+
+    /// カードのエッジから矢印を開始する位置を計算
+    private var arrowStartPoint: CGPoint {
+        let cardWidth: CGFloat = 150  // カード半幅の概算
+        let cardHeight: CGFloat = 110  // カード半高の概算
+
+        switch position {
+        case .above:
+            // カードの下端中央から開始
+            return CGPoint(x: cardCenter.x, y: cardCenter.y + cardHeight)
+        case .below:
+            // カードの上端中央から開始
+            return CGPoint(x: cardCenter.x, y: cardCenter.y - cardHeight)
+        case .leading:
+            // カードの右端中央から開始
+            return CGPoint(x: cardCenter.x + cardWidth, y: cardCenter.y)
+        case .trailing:
+            // カードの左端中央から開始
+            return CGPoint(x: cardCenter.x - cardWidth, y: cardCenter.y)
+        }
+    }
+
+    /// 矢印の終点（ターゲット要素のエッジ）を計算 - UIと被らないように
+    private var arrowEndPoint: CGPoint {
+        switch position {
+        case .above:
+            // カードが上にある → 矢印は下に向かう → ターゲットの上端（minY）まで
+            return CGPoint(x: targetFrame.midX, y: targetFrame.minY - 8)
+        case .below:
+            // カードが下にある → 矢印は上に向かう → ターゲットの下端（maxY）まで
+            return CGPoint(x: targetFrame.midX, y: targetFrame.maxY + 8)
+        case .leading:
+            // カードが左にある → 矢印は右に向かう → ターゲットの左端（minX）まで
+            return CGPoint(x: targetFrame.minX - 8, y: targetFrame.midY)
+        case .trailing:
+            // カードが右にある → 矢印は左に向かう → ターゲットの右端（maxX）まで
+            return CGPoint(x: targetFrame.maxX + 8, y: targetFrame.midY)
+        }
+    }
+
+    /// 矢印ヘッドの角度を計算
+    private var arrowAngle: Angle {
+        let dx = arrowEndPoint.x - arrowStartPoint.x
+        let dy = arrowEndPoint.y - arrowStartPoint.y
+        return Angle(radians: atan2(dy, dx))
+    }
+
+    var body: some View {
+        ZStack {
+            // 矢印パス（破線の直線）
+            Path { path in
+                path.move(to: arrowStartPoint)
+                path.addLine(to: arrowEndPoint)
+            }
+            .stroke(Color.white, style: StrokeStyle(
+                lineWidth: 3,
+                lineCap: .round,
+                dash: [8, 4]
+            ))
+            .shadow(color: .black.opacity(0.3), radius: 2, x: 0, y: 1)
+
+            // 矢印ヘッド（三角形）
+            ArrowHead(at: arrowEndPoint, angle: arrowAngle)
+        }
+    }
+}
+
+/// 矢印の先端（三角形）
+struct ArrowHead: View {
+    let at: CGPoint
+    let angle: Angle
+
+    var body: some View {
+        Path { path in
+            // 三角形のサイズ
+            let size: CGFloat = 12
+
+            // 三角形の頂点（先端）
+            path.move(to: CGPoint(x: size, y: 0))
+            // 底辺の2点
+            path.addLine(to: CGPoint(x: -size / 2, y: -size / 2))
+            path.addLine(to: CGPoint(x: -size / 2, y: size / 2))
+            path.closeSubpath()
+        }
+        .fill(Color.white)
+        .shadow(color: .black.opacity(0.3), radius: 2, x: 0, y: 1)
+        .rotationEffect(angle)
+        .position(at)
+    }
+}
+
 // MARK: - Tutorial Description Card
 struct TutorialDescriptionCard: View {
     let step: SpotlightStep
@@ -193,29 +319,64 @@ struct TutorialDescriptionCard: View {
     let onNext: () -> Void
     let onPrevious: () -> Void
     let onComplete: () -> Void
+    let settingsManager: SettingsManager
 
+    // カードのサイズ定数
+    private let cardWidth: CGFloat = 300
+    private let cardHeight: CGFloat = 220  // 概算（実際の高さは内容によって変動）
+    private let edgePadding: CGFloat = 20
+    private let arrowSpace: CGFloat = 40
+
+    /// 改良されたカード配置ロジック - 画面境界を考慮し、はみ出しや重なりを防ぐ
     private var cardOffset: CGPoint {
         let screenHeight = geometry.size.height
         let screenWidth = geometry.size.width
 
+        // 理想的な配置位置を計算
+        var idealPosition: CGPoint
+
         switch step.position {
         case .above:
-            // ターゲットの上に配置
-            return CGPoint(
-                x: (screenWidth - 300) / 2,
-                y: max(20, targetFrame.minY - 180)
+            // ターゲットの上に配置（矢印スペース込み）
+            idealPosition = CGPoint(
+                x: (screenWidth - cardWidth) / 2,
+                y: targetFrame.minY - cardHeight - arrowSpace
             )
         case .below:
-            // ターゲットの下に配置
-            return CGPoint(
-                x: (screenWidth - 300) / 2,
-                y: min(screenHeight - 200, targetFrame.maxY + 20)
+            // ターゲットの下に配置（矢印スペース込み）
+            idealPosition = CGPoint(
+                x: (screenWidth - cardWidth) / 2,
+                y: targetFrame.maxY + arrowSpace
             )
         case .leading:
-            return CGPoint(x: 20, y: targetFrame.midY - 75)
+            // ターゲットの左に配置
+            idealPosition = CGPoint(
+                x: targetFrame.minX - cardWidth - arrowSpace,
+                y: targetFrame.midY - cardHeight / 2
+            )
         case .trailing:
-            return CGPoint(x: screenWidth - 320, y: targetFrame.midY - 75)
+            // ターゲットの右に配置
+            idealPosition = CGPoint(
+                x: targetFrame.maxX + arrowSpace,
+                y: targetFrame.midY - cardHeight / 2
+            )
         }
+
+        // 画面境界内に収まるように調整（.position() は中心座標なので cardWidth/2 を考慮）
+        let minX = edgePadding + cardWidth / 2
+        let maxX = screenWidth - edgePadding - cardWidth / 2
+        let minY = edgePadding + cardHeight / 2
+        let maxY = screenHeight - edgePadding - cardHeight / 2
+
+        let adjustedX = clamp(idealPosition.x + cardWidth / 2, min: minX, max: maxX)
+        let adjustedY = clamp(idealPosition.y + cardHeight / 2, min: minY, max: maxY)
+
+        return CGPoint(x: adjustedX, y: adjustedY)
+    }
+
+    /// 値を指定範囲内にクランプする
+    private func clamp(_ value: CGFloat, min minValue: CGFloat, max maxValue: CGFloat) -> CGFloat {
+        return Swift.min(Swift.max(value, minValue), maxValue)
     }
 
     var body: some View {
@@ -249,7 +410,7 @@ struct TutorialDescriptionCard: View {
                     Button(action: onPrevious) {
                         HStack(spacing: 6) {
                             Image(systemName: "chevron.left")
-                            Text("戻る")
+                            Text(settingsManager.localizationManager.localizedString("tutorial_back"))
                         }
                         .font(.system(size: 15, weight: .medium))
                         .foregroundColor(Color("MainGreen"))
@@ -272,7 +433,9 @@ struct TutorialDescriptionCard: View {
                     }
                 }) {
                     HStack(spacing: 6) {
-                        Text(currentIndex < totalSteps - 1 ? "次へ" : "完了")
+                        Text(currentIndex < totalSteps - 1 ?
+                            settingsManager.localizationManager.localizedString("tutorial_next") :
+                            settingsManager.localizationManager.localizedString("tutorial_complete"))
                         if currentIndex < totalSteps - 1 {
                             Image(systemName: "chevron.right")
                         } else {
@@ -304,6 +467,9 @@ struct TutorialDescriptionCard: View {
 // MARK: - Preview
 struct SpotlightTutorialView_Previews: PreviewProvider {
     static var previews: some View {
-        SpotlightTutorialView(settingsManager: SettingsManager())
+        SpotlightTutorialView(
+            settingsManager: SettingsManager(),
+            spotlightFrames: [:]
+        )
     }
 }

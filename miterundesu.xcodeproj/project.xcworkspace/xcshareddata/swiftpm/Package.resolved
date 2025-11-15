@@ -1,6 +1,15 @@
 {
-  "originHash" : "ccc727310637079b7355ccf59e7d153c26677020c1a43e177b78cc9df7963c0f",
+  "originHash" : "ac76bb88049c78a6a06c75e10fbd83671af22b9110f1cc806fccac7ff3bb2eb4",
   "pins" : [
+    {
+      "identity" : "onboardkit",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/NikolaKirev/OnboardKit",
+      "state" : {
+        "branch" : "master",
+        "revision" : "bcf46e78fa0e41d754381cc928dcdf190f8f919c"
+      }
+    },
     {
       "identity" : "supabase-swift",
       "kind" : "remoteSourceControl",

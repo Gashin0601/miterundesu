@@ -240,6 +240,7 @@
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
 				9B2347182EC4E3A2006E7632 /* XCRemoteSwiftPackageReference "supabase-swift" */,
+				9B4C0D462EC72D2400FC3F25 /* XCRemoteSwiftPackageReference "OnboardKit" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 9B2346572EC06063006E7632 /* Products */;
@@ -624,6 +625,14 @@
 			requirement = {
 				kind = upToNextMajorVersion;
 				minimumVersion = 2.5.1;
+			};
+		};
+		9B4C0D462EC72D2400FC3F25 /* XCRemoteSwiftPackageReference "OnboardKit" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/NikolaKirev/OnboardKit";
+			requirement = {
+				branch = master;
+				kind = branch;
 			};
 		};
 /* End XCRemoteSwiftPackageReference section */

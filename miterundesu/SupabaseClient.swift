@@ -9,10 +9,10 @@ import Foundation
 import Supabase
 
 // Supabaseクライアントのシングルトン（遅延初期化）
-// Note: Auth警告について
-// Supabase Auth v2では、次のメジャーバージョンでセッション発行の動作が変更されます
-// 遅延初期化により、警告がXcodeのデバッグ停止ポイントとして扱われるのを回避します
-// Supabase Swift v3.xにアップデート時に根本的に解決されます
+// Note: Supabase Auth警告について
+// この警告はSupabase Swift SDK v2の既知の動作で、機能には影響しません
+// Main Thread CheckerとRuntime Issue Breakpointを無効にすることで警告を非表示にできます
+// 詳細は SUPABASE_AUTH_WORKAROUND.md を参照
 // 参考: https://github.com/supabase/supabase-swift/pull/822
 let supabase: SupabaseClient = {
     let client = SupabaseClient(

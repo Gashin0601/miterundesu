@@ -50,8 +50,9 @@ class OnboardingManager: ObservableObject {
         showWelcomeScreen = true
     }
 
-    /// 機能ハイライトのみを再表示（設定画面から呼び出し用）
+    /// チュートリアルを最初から表示（設定画面から呼び出し用）
+    /// 必ずウェルカム画面から開始し、「始める」ボタンでハイライトに進む
     func showTutorial() {
-        showFeatureHighlights = true
+        showWelcomeScreen = true
     }
 }
