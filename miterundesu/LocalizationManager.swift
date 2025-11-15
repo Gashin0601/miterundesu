@@ -81,16 +81,21 @@ class LocalizationManager: ObservableObject {
         "tutorial": "チュートリアル",
         "show_tutorial": "チュートリアルを見る",
         "tutorial_zoom_title": "ズーム操作",
-        "tutorial_zoom_desc": "画面をピンチ操作、または下部のボタンで拡大・縮小ができます",
+        "tutorial_zoom_desc": "これらのボタンを押して拡大縮小や一気に1倍にできます。iPhone全体を扱う場合は右側のカメラコントロールをスクロールしても拡大縮小できます",
+        "tutorial_capture_title": "撮影機能",
+        "tutorial_capture_desc": "一時的に画像を撮影できます。拡大するのが目的なので10分後に自動的に削除されます",
         "tutorial_theater_title": "シアターモード",
-        "tutorial_theater_desc": "映画館や美術館で使う場合は、このボタンでシアターモードに切り替えられます",
+        "tutorial_theater_desc": "映画館や美術館ではシアターモードをご利用ください。こちらから切り替えることができます。この時は画像の撮影は一切できなくなります",
+        "tutorial_message_title": "メッセージ機能",
+        "tutorial_message_desc": "注意されないよう常にメッセージが流れ、注意を受けたときは説明ボタンから詳細な説明を見てもらうことができます",
         "tutorial_settings_title": "設定",
-        "tutorial_settings_desc": "言語や最大ズーム率、スクロールメッセージなどをカスタマイズできます",
-        "tutorial_message_title": "メッセージ表示",
-        "tutorial_message_desc": "周囲の方に撮影していないことを伝えるメッセージが表示されます",
+        "tutorial_settings_desc": "こちらからスクロールメッセージや最大の拡大倍率などを変更できます",
         "tutorial_back": "戻る",
         "tutorial_next": "次へ",
-        "tutorial_complete": "完了"
+        "tutorial_complete": "完了",
+        "tutorial_completion_title": "お疲れ様でした！",
+        "tutorial_completion_message": "ミテルンデスの使い方を学びました。\n早速使ってみましょう！",
+        "start_using": "使い始める"
     ]
 
     // 英語の文字列
@@ -139,15 +144,20 @@ class LocalizationManager: ObservableObject {
         "tutorial": "Tutorial",
         "show_tutorial": "Show Tutorial",
         "tutorial_zoom_title": "Zoom Controls",
-        "tutorial_zoom_desc": "Pinch to zoom or use the buttons at the bottom to zoom in and out",
+        "tutorial_zoom_desc": "Press these buttons to zoom in/out or return to 1x. You can also scroll the camera control on the right side to zoom",
+        "tutorial_capture_title": "Capture Feature",
+        "tutorial_capture_desc": "You can temporarily capture images. They are automatically deleted after 10 minutes as this app is for viewing, not recording",
         "tutorial_theater_title": "Theater Mode",
-        "tutorial_theater_desc": "When using in movie theaters or museums, switch to Theater Mode with this button",
+        "tutorial_theater_desc": "Please use Theater Mode in movie theaters and museums. You can switch from here. When enabled, image capture is completely disabled",
+        "tutorial_message_title": "Message Feature",
+        "tutorial_message_desc": "A message is constantly displayed to avoid being warned. When questioned, you can show detailed explanations from the explanation button",
         "tutorial_settings_title": "Settings",
-        "tutorial_settings_desc": "Customize language, maximum zoom, scrolling message, and more",
-        "tutorial_message_title": "Message Display",
-        "tutorial_message_desc": "A message is displayed to let people around you know that you're not recording",
+        "tutorial_settings_desc": "You can change the scrolling message, maximum zoom level, and more from here",
         "tutorial_back": "Back",
         "tutorial_next": "Next",
-        "tutorial_complete": "Complete"
+        "tutorial_complete": "Complete",
+        "tutorial_completion_title": "Well Done!",
+        "tutorial_completion_message": "You've learned how to use Miterundesu.\nLet's start using it!",
+        "start_using": "Start Using"
     ]
 }

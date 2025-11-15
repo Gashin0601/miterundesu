@@ -158,6 +158,7 @@ struct CameraPreviewWithZoom: View {
                     .accessibilityLabel("ズームリセット")
                     .accessibilityHint("カメラのズームを1倍に戻します")
                 }
+                .spotlight(id: "zoom_buttons")
                 .padding(.trailing, buttonPadding)
                 .padding(.bottom, buttonPadding)
             }

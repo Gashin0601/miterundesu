@@ -59,6 +59,15 @@ struct ContentView: View {
         .fullScreenCover(isPresented: $onboardingManager.showWelcomeScreen) {
             TutorialWelcomeView(settingsManager: settingsManager)
         }
+        .fullScreenCover(isPresented: $onboardingManager.showCompletionScreen) {
+            TutorialCompletionView(settingsManager: settingsManager)
+        }
+        .transaction { transaction in
+            // 完了画面の表示時はアニメーションなし
+            if onboardingManager.showCompletionScreen {
+                transaction.disablesAnimations = true
+            }
+        }
         .onAppear {
             AppDelegate.orientationLock = .portrait
             onboardingManager.checkOnboardingStatus()
@@ -126,6 +135,7 @@ struct ContentView: View {
                                 .fill(Color.white)
                         )
                     }
+                    .spotlight(id: "explanation_button")
                     .opacity(shouldShowUI ? 1 : 0)
                     .accessibilityLabel(settingsManager.localizationManager.localizedString("explanation"))
 
@@ -162,7 +172,6 @@ struct ContentView: View {
 
                 // ヘッダー部分（無限スクロールとロゴ）
                 HeaderView(settingsManager: settingsManager)
-                    .spotlight(id: "scrolling_message")
                     .opacity(shouldShowUI ? 1 : 0)
                     .padding(.top, topPadding * 0.5)
 
@@ -448,6 +457,7 @@ struct HeaderView: View {
         VStack(spacing: 14) {
             // 無限スクロールテキスト
             InfiniteScrollingText(text: settingsManager.scrollingMessage)
+                .spotlight(id: "scrolling_message")
                 .frame(height: 32)
                 .clipped()
 
@@ -643,6 +653,7 @@ struct FooterView: View {
                 cameraManager: cameraManager,
                 buttonSize: shutterSize
             )
+            .spotlight(id: "shutter_button")
 
             HStack {
                 // サムネイル（左下）
@@ -654,6 +665,7 @@ struct FooterView: View {
                     settingsManager: settingsManager,
                     thumbnailSize: thumbnailSize
                 )
+                .spotlight(id: "photo_button")
                 .padding(.leading, horizontalPadding)
 
                 Spacer()

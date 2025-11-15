@@ -20,6 +20,7 @@ class OnboardingManager: ObservableObject {
 
     @Published var showWelcomeScreen: Bool = false
     @Published var showFeatureHighlights: Bool = false
+    @Published var showCompletionScreen: Bool = false
 
     private init() {
         self.hasCompletedOnboarding = UserDefaults.standard.bool(forKey: "hasCompletedOnboarding")
@@ -38,9 +39,17 @@ class OnboardingManager: ObservableObject {
         showFeatureHighlights = true
     }
 
-    /// オンボーディング全体を完了
-    func completeOnboarding() {
+    /// 機能ハイライト完了後、完了画面を表示
+    func completeFeatureHighlights() {
         showFeatureHighlights = false
+        showCompletionScreen = true
+    }
+
+    /// オンボーディング全体を完了（完了画面の「使い始める」ボタンから）
+    func completeOnboarding() {
+        showWelcomeScreen = false
+        showFeatureHighlights = false
+        showCompletionScreen = false
         hasCompletedOnboarding = true
     }
 
