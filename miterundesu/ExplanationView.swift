@@ -171,7 +171,7 @@ struct NormalModeIllustrations: View {
             VStack(spacing: 24) {
                 ExplanationItem(
                     subtitle: "見えづらい方（弱視・老眼）",
-                    description: "コンビニやスーパーでは、店内撮影を禁止する貼り紙が増えてきています。\nしかし、商品をしっかり確認するためには、スマートフォンで"拡大して見る"ことが必要な場面があります。"
+                    description: "コンビニやスーパーでは、店内撮影を禁止する貼り紙が増えてきています。\nしかし、商品をしっかり確認するためには、スマートフォンで\"拡大して見る\"ことが必要な場面があります。"
                 )
 
                 ExplanationItem(
