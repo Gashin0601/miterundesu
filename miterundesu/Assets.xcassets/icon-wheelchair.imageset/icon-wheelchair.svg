@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none">
+  <!-- Head -->
+  <circle cx="32" cy="14" r="5" stroke="white" stroke-width="2" fill="none"/>
+
+  <!-- Body -->
+  <line x1="32" y1="19" x2="32" y2="32" stroke="white" stroke-width="2"/>
+
+  <!-- Arms -->
+  <line x1="32" y1="24" x2="26" y2="28" stroke="white" stroke-width="2"/>
+  <line x1="32" y1="24" x2="38" y2="28" stroke="white" stroke-width="2"/>
+
+  <!-- Wheelchair large wheel -->
+  <circle cx="32" cy="44" r="12" stroke="white" stroke-width="2.5" fill="none"/>
+
+  <!-- Wheelchair spokes -->
+  <line x1="32" y1="32" x2="32" y2="44" stroke="white" stroke-width="1.5"/>
+  <line x1="24" y1="44" x2="40" y2="44" stroke="white" stroke-width="1"/>
+  <line x1="32" y1="36" x2="32" y2="52" stroke="white" stroke-width="1"/>
+
+  <!-- Wheelchair small front wheel -->
+  <circle cx="42" cy="50" r="3" stroke="white" stroke-width="2" fill="none"/>
+
+  <!-- Wheelchair frame -->
+  <path d="M 32 32 L 42 32 L 42 48" stroke="white" stroke-width="2" fill="none"/>
+
+  <!-- Backrest -->
+  <line x1="28" y1="22" x2="28" y2="32" stroke="white" stroke-width="2"/>
+
+  <!-- Armrest -->
+  <line x1="28" y1="28" x2="36" y2="28" stroke="white" stroke-width="1.5"/>
+</svg>

@@ -182,12 +182,15 @@ struct SpotlightTutorialView: View {
             )
 
             // 矢印（カードからプライマリターゲットへ1本のみ）
-            TutorialArrowView(
-                cardCenter: cardCenter,
-                targetFrame: primaryTargetFrame,
-                position: currentStep.position
-            )
-            .transition(.opacity)
+            // ターゲットが見つかった場合のみ表示
+            if !targetFrames.isEmpty {
+                TutorialArrowView(
+                    cardCenter: cardCenter,
+                    targetFrame: primaryTargetFrame,
+                    position: currentStep.position
+                )
+                .transition(.opacity)
+            }
 
             // 説明カード（動的位置）
             TutorialDescriptionCard(

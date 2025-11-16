@@ -21,7 +21,7 @@ struct TutorialWelcomeView: View {
             VStack(spacing: 40) {
                 Spacer()
 
-                // ロゴとアイコン
+                // ロゴとアニメーション
                 VStack(spacing: 32) {
                     // 文字ロゴ
                     Image("LogoTextOnly")
@@ -29,13 +29,9 @@ struct TutorialWelcomeView: View {
                         .scaledToFit()
                         .frame(height: 60)
 
-                    // アプリアイコン（正方形）
-                    Image("miterundesu_app_icon_1024")
-                        .resizable()
-                        .scaledToFit()
-                        .frame(width: 120, height: 120)
-                        .cornerRadius(26)
-                        .shadow(color: .black.opacity(0.3), radius: 15, x: 0, y: 8)
+                    // ヒーローアニメーション（ウェブのメインビジュアルを再現）
+                    HeroAnimationView()
+                        .frame(width: 300, height: 300)
 
                     // ようこそメッセージ
                     VStack(spacing: 16) {

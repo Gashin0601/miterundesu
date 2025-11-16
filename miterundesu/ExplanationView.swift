@@ -153,38 +153,30 @@ struct ExplanationView: View {
 struct NormalModeIllustrations: View {
     var body: some View {
         VStack(spacing: 32) {
-            // 3つのアイコンを横に並べる
-            HStack(spacing: 20) {
-                IconColumn(
-                    icon: "cart.fill",
-                    title: "商品を確認"
-                )
-                IconColumn(
-                    icon: "doc.text.magnifyingglass",
-                    title: "文字を拡大"
-                )
-                IconColumn(
-                    icon: "figure.roll",
-                    title: "高い場所も"
-                )
+            // 2つのアイコンを横に並べる
+            HStack(spacing: 40) {
+                Image("icon-white-cane")
+                    .resizable()
+                    .scaledToFit()
+                    .frame(width: 100, height: 100)
+
+                Image("icon-wheelchair")
+                    .resizable()
+                    .scaledToFit()
+                    .frame(width: 100, height: 100)
             }
             .padding(.horizontal, 24)
 
             // 各アイコンの説明
             VStack(spacing: 24) {
                 ExplanationItem(
-                    subtitle: "弱視・老眼の人",
-                    description: "見えにくい商品ラベルや価格タグをスマホで拡大して確認。周囲の明るさが強い店舗でも、カメラ拡大で文字を読み取りやすくできます。"
+                    subtitle: "見えづらい方（弱視・老眼）",
+                    description: "コンビニやスーパーでは、店内撮影を禁止する貼り紙が増えてきています。\nしかし、商品をしっかり確認するためには、スマートフォンで"拡大して見る"ことが必要な場面があります。"
                 )
 
                 ExplanationItem(
-                    subtitle: "見えづらい方",
-                    description: "細かい値札や産地表示をスマホで拡大し、眼鏡をかけ直さずに確認。手元が見えづらいときも、少し離して見ることで楽に読めます。"
-                )
-
-                ExplanationItem(
-                    subtitle: "車椅子の方",
-                    description: "物理的に見えにくい高い場所を、スマホを掲げて拡大して確認。商品棚の上部や掲示物なども、スマホを通して安全に見ることができます。"
+                    subtitle: "車椅子ユーザー",
+                    description: "棚が高く、商品が目の高さに入らないことがあります。\nそのため、手を伸ばして写真を撮り、拡大して確認する必要があるのです。"
                 )
             }
             .padding(.horizontal, 24)
@@ -196,63 +188,34 @@ struct NormalModeIllustrations: View {
 struct TheaterModeIllustrations: View {
     var body: some View {
         VStack(spacing: 32) {
-            // 3つのアイコンを横に並べる
-            HStack(spacing: 20) {
-                IconColumn(
-                    icon: "movieclapper.fill",
-                    title: "字幕を見る"
-                )
-                IconColumn(
-                    icon: "paintpalette.fill",
-                    title: "作品解説"
-                )
-                IconColumn(
-                    icon: "music.mic.circle.fill",
-                    title: "遠くを見る"
-                )
+            // 2つのアイコンを横に並べる
+            HStack(spacing: 40) {
+                Image("building-theater")
+                    .resizable()
+                    .scaledToFit()
+                    .frame(width: 100, height: 100)
+
+                Image("building-museum")
+                    .resizable()
+                    .scaledToFit()
+                    .frame(width: 100, height: 100)
             }
             .padding(.horizontal, 24)
 
             // 各アイコンの説明
             VStack(spacing: 24) {
                 ExplanationItem(
-                    subtitle: "弱視の方",
+                    subtitle: "映画館",
                     description: "見えづらい字幕や表情を、スマホのカメラで少し拡大して鑑賞。光を最小限に抑えた画面で、周囲の邪魔にならずに映画を楽しめます。"
                 )
 
                 ExplanationItem(
-                    subtitle: "老眼の方",
+                    subtitle: "美術館",
                     description: "展示物のそばにある小さな文字や説明プレートを拡大して読みます。暗い照明の中でも、拡大表示で文字がはっきり見えます。"
-                )
-
-                ExplanationItem(
-                    subtitle: "後方席の方",
-                    description: "遠くのステージをスマホで一時的に拡大して、表情や演出を見やすくします。撮影や録画はできず、あくまで「見るためだけ」の拡大ツールです。"
                 )
             }
             .padding(.horizontal, 24)
         }
-    }
-}
-
-// MARK: - Icon Column (アイコンとタイトル)
-struct IconColumn: View {
-    let icon: String
-    let title: String
-
-    var body: some View {
-        VStack(spacing: 12) {
-            Image(systemName: icon)
-                .font(.system(size: 40))
-                .foregroundColor(.white)
-
-            Text(title)
-                .font(.system(size: 14, weight: .bold))
-                .foregroundColor(.white)
-                .multilineTextAlignment(.center)
-                .fixedSize(horizontal: false, vertical: true)
-        }
-        .frame(maxWidth: .infinity)
     }
 }
 

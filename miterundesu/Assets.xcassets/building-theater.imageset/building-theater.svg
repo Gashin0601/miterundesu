@@ -1,0 +1,27 @@
+<svg width="80" height="80" viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Movie Theater -->
+  <!-- Building -->
+  <rect x="15" y="30" width="50" height="40" stroke="white" stroke-width="2" fill="rgba(255, 255, 255, 0.03)"/>
+
+  <!-- Marquee -->
+  <rect x="10" y="25" width="60" height="8" stroke="white" stroke-width="2" fill="rgba(255, 255, 255, 0.08)"/>
+
+  <!-- Lights on marquee -->
+  <circle cx="20" cy="29" r="2" fill="white" opacity="0.7"/>
+  <circle cx="30" cy="29" r="2" fill="white" opacity="0.7"/>
+  <circle cx="40" cy="29" r="2" fill="white" opacity="0.7"/>
+  <circle cx="50" cy="29" r="2" fill="white" opacity="0.7"/>
+  <circle cx="60" cy="29" r="2" fill="white" opacity="0.7"/>
+
+  <!-- Screen/Entrance -->
+  <rect x="25" y="40" width="30" height="20" stroke="white" stroke-width="1.5" fill="rgba(255, 255, 255, 0.1)"/>
+
+  <!-- Ticket booth -->
+  <rect x="30" y="60" width="20" height="10" stroke="white" stroke-width="1.5" fill="rgba(255, 255, 255, 0.05)"/>
+
+  <!-- Film reel icon -->
+  <circle cx="40" cy="15" r="6" stroke="white" stroke-width="1.5" fill="none"/>
+  <circle cx="40" cy="15" r="2" stroke="white" stroke-width="1" fill="none"/>
+  <line x1="34" y1="15" x2="37" y2="15" stroke="white" stroke-width="1"/>
+  <line x1="43" y1="15" x2="46" y2="15" stroke="white" stroke-width="1"/>
+</svg>

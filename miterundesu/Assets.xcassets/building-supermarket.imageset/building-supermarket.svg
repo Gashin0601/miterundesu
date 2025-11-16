@@ -1,0 +1,20 @@
+<svg width="80" height="80" viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Supermarket -->
+  <!-- Building base -->
+  <rect x="10" y="40" width="60" height="30" stroke="white" stroke-width="2" fill="rgba(255, 255, 255, 0.03)"/>
+
+  <!-- Roof -->
+  <path d="M 5 40 L 40 20 L 75 40 Z" stroke="white" stroke-width="2" fill="rgba(255, 255, 255, 0.05)"/>
+
+  <!-- Entrance -->
+  <rect x="30" y="50" width="20" height="20" stroke="white" stroke-width="1.5" fill="rgba(255, 255, 255, 0.08)"/>
+
+  <!-- Windows -->
+  <rect x="15" y="48" width="8" height="10" stroke="white" stroke-width="1.5" fill="none"/>
+  <rect x="57" y="48" width="8" height="10" stroke="white" stroke-width="1.5" fill="none"/>
+
+  <!-- Cart icon -->
+  <path d="M 36 57 L 38 57 L 39 63 L 41 63 L 40 57 L 44 57" stroke="white" stroke-width="1" fill="none"/>
+  <circle cx="39" cy="64" r="1" fill="white"/>
+  <circle cx="41" cy="64" r="1" fill="white"/>
+</svg>

@@ -14,7 +14,6 @@ struct SettingsView: View {
     @FocusState private var isMessageFieldFocused: Bool
     @EnvironmentObject var pressModeManager: PressModeManager
     @ObservedObject private var onboardingManager = OnboardingManager.shared
-    @State private var showingDeviceIdCopied = false
     @State private var showingPressModeAccess = false
     @State private var showingPressModeInfo = false
     @State private var showingPressModeStatus = false
@@ -145,11 +144,6 @@ struct SettingsView: View {
                                             .foregroundColor(.white)
                                     }
 
-                                    // 所属を常に表示
-                                    Text("所属: \(device.organization)")
-                                        .font(.subheadline)
-                                        .foregroundColor(.white.opacity(0.9))
-
                                     // 有効期間内の場合は期限を表示
                                     if device.status == .active {
                                         Text("有効期限: \(device.expirationDisplayString)")
@@ -179,50 +173,6 @@ struct SettingsView: View {
                                 }
                                 .padding(.vertical, 4)
                             }
-
-                            Divider()
-                                .background(.white.opacity(0.3))
-
-                            // デバイスID表示とコピー
-                            VStack(alignment: .leading, spacing: 8) {
-                                Text("デバイスID")
-                                    .font(.caption)
-                                    .foregroundColor(.white.opacity(0.7))
-
-                                HStack {
-                                    Text(pressModeManager.getDeviceIdForDisplay())
-                                        .font(.system(.caption, design: .monospaced))
-                                        .foregroundColor(.white)
-                                        .lineLimit(1)
-                                        .truncationMode(.middle)
-
-                                    Spacer()
-
-                                    Button(action: {
-                                        pressModeManager.copyDeviceIdToClipboard()
-                                        showingDeviceIdCopied = true
-                                        DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
-                                            showingDeviceIdCopied = false
-                                        }
-                                    }) {
-                                        HStack(spacing: 4) {
-                                            Image(systemName: showingDeviceIdCopied ? "checkmark" : "doc.on.doc")
-                                            Text(showingDeviceIdCopied ? "コピー済み" : "コピー")
-                                        }
-                                        .font(.caption)
-                                        .foregroundColor(.white)
-                                        .padding(.horizontal, 8)
-                                        .padding(.vertical, 4)
-                                        .background(Color.white.opacity(0.2))
-                                        .cornerRadius(4)
-                                    }
-                                }
-                            }
-
-                            Text("プレスモードの申請には、このデバイスIDが必要です。")
-                                .font(.caption)
-                                .foregroundColor(.white.opacity(0.7))
-                                .fixedSize(horizontal: false, vertical: true)
 
                             Divider()
                                 .background(.white.opacity(0.3))
@@ -267,11 +217,11 @@ struct SettingsView: View {
                                     // トグル風の表示
                                     ZStack {
                                         RoundedRectangle(cornerRadius: 16)
-                                            .fill(settingsManager.isPressMode ? Color.white : Color.white.opacity(0.3))
+                                            .fill(settingsManager.isPressMode ? Color("MainGreen") : Color.white.opacity(0.3))
                                             .frame(width: 51, height: 31)
 
                                         Circle()
-                                            .fill(settingsManager.isPressMode ? Color("MainGreen") : Color.white)
+                                            .fill(Color.white)
                                             .frame(width: 27, height: 27)
                                             .offset(x: settingsManager.isPressMode ? 10 : -10)
                                     }
