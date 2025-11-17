@@ -95,7 +95,9 @@ class LocalizationManager: ObservableObject {
         "tutorial_complete": "完了",
         "tutorial_completion_title": "お疲れ様でした！",
         "tutorial_completion_message": "ミテルンデスの使い方を学びました。\n早速使ってみましょう！",
-        "start_using": "使い始める"
+        "start_using": "使い始める",
+        "privacy_policy": "プライバシーポリシー",
+        "terms_of_service": "利用規約"
     ]
 
     // 英語の文字列
@@ -158,6 +160,8 @@ class LocalizationManager: ObservableObject {
         "tutorial_complete": "Complete",
         "tutorial_completion_title": "Well Done!",
         "tutorial_completion_message": "You've learned how to use Miterundesu.\nLet's start using it!",
-        "start_using": "Start Using"
+        "start_using": "Start Using",
+        "privacy_policy": "Privacy Policy",
+        "terms_of_service": "Terms of Service"
     ]
 }

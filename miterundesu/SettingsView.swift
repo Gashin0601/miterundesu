@@ -276,6 +276,28 @@ struct SettingsView: View {
                             }
                         }
                         .listRowBackground(Color.white.opacity(0.2))
+
+                        Link(destination: URL(string: "https://miterundesu.jp/privacy")!) {
+                            HStack {
+                                Text(settingsManager.localizationManager.localizedString("privacy_policy"))
+                                    .foregroundColor(.white)
+                                Spacer()
+                                Image(systemName: "arrow.up.right.square")
+                                    .foregroundColor(.white)
+                            }
+                        }
+                        .listRowBackground(Color.white.opacity(0.2))
+
+                        Link(destination: URL(string: "https://miterundesu.jp/terms")!) {
+                            HStack {
+                                Text(settingsManager.localizationManager.localizedString("terms_of_service"))
+                                    .foregroundColor(.white)
+                                Spacer()
+                                Image(systemName: "arrow.up.right.square")
+                                    .foregroundColor(.white)
+                            }
+                        }
+                        .listRowBackground(Color.white.opacity(0.2))
                     }
 
                     // リセット
