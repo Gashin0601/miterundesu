@@ -173,7 +173,7 @@ class LocalizationManager: ObservableObject {
         "captured_at": "撮影時刻: {time}",
         "moved_to_photo": "写真 {number}/{total}に移動しました",
         "zoomed_to": "{zoom}倍に拡大しました",
-        "zoom_reset": "ズームをリセットしました",
+        "zoom_reset_announced": "ズームをリセットしました",
         "next_photo": "次の写真",
         "previous_photo": "前の写真",
         "captured_photo": "撮影した写真"
@@ -317,7 +317,7 @@ class LocalizationManager: ObservableObject {
         "captured_at": "Captured at: {time}",
         "moved_to_photo": "Moved to photo {number} of {total}",
         "zoomed_to": "Zoomed to {zoom}x",
-        "zoom_reset": "Zoom reset",
+        "zoom_reset_announced": "Zoom reset",
         "next_photo": "Next photo",
         "previous_photo": "Previous photo",
         "captured_photo": "Captured photo"

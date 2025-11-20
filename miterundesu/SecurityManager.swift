@@ -275,8 +275,8 @@ struct ScreenshotPreventView<Content: View>: View {
                     Color.clear
                         .preference(key: SizeKey.self, value: geometry.size)
                         .onPreferenceChange(SizeKey.self) { size in
-                            // サイズが有効な場合のみホスティングコントローラーを作成（幅が100以上）
-                            if hostingController == nil && size.width > 100 && size.height > 100 {
+                            // サイズが有効な場合のみホスティングコントローラーを作成（幅が10以上）
+                            if hostingController == nil && size.width > 10 && size.height > 10 {
                                 hostingController = UIHostingController(rootView: content)
                                 hostingController?.view.backgroundColor = .clear
                                 hostingController?.view.frame = CGRect(origin: .zero, size: size)
@@ -309,7 +309,6 @@ struct HideWithScreenshot: ViewModifier {
                     }
                 )
         }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
 }
 
@@ -324,21 +323,11 @@ extension View {
 // MARK: - Conditional Prevent Capture Modifier
 struct ConditionalPreventCapture: ViewModifier {
     let isEnabled: Bool
-    @State private var isProtectionReady = false
 
     func body(content: Content) -> some View {
         if isEnabled {
             content
-                .opacity(isProtectionReady ? 1 : 0)
                 .preventScreenCapture()
-                .onAppear {
-                    // ホスティングコントローラーの準備を待ってから表示
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.15) {
-                        withAnimation(.easeIn(duration: 0.1)) {
-                            isProtectionReady = true
-                        }
-                    }
-                }
         } else {
             content
         }

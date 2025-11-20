@@ -110,6 +110,7 @@ struct ImageGalleryView: View {
                                 scrollPositionID = imageManager.capturedImages[safe: currentIndex]?.id
                             }
                     }
+                    .modifier(ConditionalPreventCapture(isEnabled: !settingsManager.isPressMode))
 
                     // 画面録画中の警告オーバーレイ
                     if securityManager.isScreenRecording {
@@ -483,7 +484,7 @@ struct ImageGalleryView: View {
             imageOffsets[id] = .zero
         }
         isZooming = false
-        let message = settingsManager.localizationManager.localizedString("zoom_reset")
+        let message = settingsManager.localizationManager.localizedString("zoom_reset_announced")
         UIAccessibility.post(notification: .announcement, argument: message)
     }
 
@@ -594,7 +595,7 @@ struct ZoomableImageView: View {
                     .scaleEffect(scale)
                     .offset(offset)
                     .clipped()
-                .highPriorityGesture(
+                .gesture(
                     MagnificationGesture(minimumScaleDelta: 0)
                         .onChanged { value in
                             isZooming = true
@@ -615,29 +616,25 @@ struct ZoomableImageView: View {
                             }
                         }
                 )
-                .simultaneousGesture(
-                    DragGesture(minimumDistance: scale > 1.0 ? 0 : 10)
+                .gesture(
+                    scale > 1.0 ? DragGesture(minimumDistance: 0)
                         .onChanged { value in
-                            if scale > 1.0 {
-                                isZooming = true
-                                let newOffset = CGSize(
-                                    width: lastOffset.width + value.translation.width,
-                                    height: lastOffset.height + value.translation.height
-                                )
-                                // ドラッグ時にオフセットを境界内に制限
-                                offset = boundedOffset(newOffset, scale: scale, imageSize: capturedImage.image.size, viewSize: geometry.size)
-                            }
+                            isZooming = true
+                            let newOffset = CGSize(
+                                width: lastOffset.width + value.translation.width,
+                                height: lastOffset.height + value.translation.height
+                            )
+                            // ドラッグ時にオフセットを境界内に制限
+                            offset = boundedOffset(newOffset, scale: scale, imageSize: capturedImage.image.size, viewSize: geometry.size)
                         }
                         .onEnded { _ in
-                            if scale > 1.0 {
-                                lastOffset = offset
-                            }
+                            lastOffset = offset
                             DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
                                 if scale <= 1.0 {
                                     isZooming = false
                                 }
                             }
-                        }
+                        } : nil
                 )
                 .onTapGesture(count: 2) {
                     // ダブルタップでズームリセット
@@ -676,7 +673,6 @@ struct ZoomableImageView: View {
                     }
                 }
         }
-        .modifier(ConditionalPreventCapture(isEnabled: !isPressMode))
     }
 
     // 境界制約を適用したオフセットを計算（ベストプラクティスに基づく）

@@ -48,6 +48,9 @@ struct ContentView: View {
             )
             .environment(\.isPressMode, settingsManager.isPressMode)
         }
+        .transaction { transaction in
+            transaction.disablesAnimations = true
+        }
         .fullScreenCover(item: $justCapturedImage) { capturedImage in
             CapturedImagePreview(
                 imageManager: imageManager,
@@ -55,6 +58,9 @@ struct ContentView: View {
                 capturedImage: capturedImage
             )
             .environment(\.isPressMode, settingsManager.isPressMode)
+        }
+        .transaction { transaction in
+            transaction.disablesAnimations = true
         }
         .fullScreenCover(isPresented: $onboardingManager.showWelcomeScreen) {
             TutorialWelcomeView(settingsManager: settingsManager)
@@ -806,14 +812,20 @@ struct ThumbnailView: View {
                                 )
                                 .blur(radius: securityManager.isScreenRecording ? blurRadius : 0)
                         }
+                        .opacity(securityManager.hideContent ? 0 : 1)
                         .contextMenu { } // コンテキストメニューを無効化
 
                         // 残り時間バッジ
                         TimeRemainingBadge(remainingTime: latestImage.remainingTime)
+                            .opacity(securityManager.hideContent ? 0 : 1)
                     }
                 }
             }
+            .frame(width: thumbnailSize, height: thumbnailSize)
+            .clipped()
             .disabled(isTheaterMode)
+            .modifier(ConditionalPreventCapture(isEnabled: !settingsManager.isPressMode && !isTheaterMode))
+            .frame(width: thumbnailSize, height: thumbnailSize)
             .opacity(isTheaterMode ? 0.3 : 1.0)
             .accessibilityLabel(settingsManager.localizationManager.localizedString(isTheaterMode ? "viewing_disabled" : "latest_image"))
             .onReceive(timer) { _ in

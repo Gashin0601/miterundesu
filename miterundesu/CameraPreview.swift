@@ -102,12 +102,7 @@ struct CameraPreviewWithZoom: View {
                                 lastZoomFactor = 1.0
                             }
                     )
-                    .onCameraCaptureEvent { event in
-                        // Camera Controlボタンの押下を検知（撮影中でない場合のみ）
-                        if event.phase == .ended && !isTheaterMode && !cameraManager.isCapturing {
-                            onCapture()
-                        }
-                    }
+                    .modifier(CameraCaptureEventModifier(isTheaterMode: isTheaterMode, isCapturing: cameraManager.isCapturing, onCapture: onCapture))
 
                 // カメラズームコントロール（シアターモードでも表示）
                 VStack(spacing: buttonSpacing) {
@@ -248,5 +243,26 @@ struct CameraPreviewWithZoom: View {
         zoomTimer = nil
         zoomStartTime = nil
         continuousZoomCount = 0
+    }
+}
+
+// MARK: - Camera Capture Event Modifier (iOS 18+)
+struct CameraCaptureEventModifier: ViewModifier {
+    let isTheaterMode: Bool
+    let isCapturing: Bool
+    let onCapture: () -> Void
+
+    func body(content: Content) -> some View {
+        if #available(iOS 18.0, *) {
+            content
+                .onCameraCaptureEvent { event in
+                    // Camera Controlボタンの押下を検知（撮影中でない場合のみ）
+                    if event.phase == .ended && !isTheaterMode && !isCapturing {
+                        onCapture()
+                    }
+                }
+        } else {
+            content
+        }
     }
 }

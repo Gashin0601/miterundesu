@@ -23,7 +23,7 @@ class CameraManager: NSObject, ObservableObject, AVCaptureSessionControlsDelegat
     private let photoOutput = AVCapturePhotoOutput()
     private var videoDeviceInput: AVCaptureDeviceInput?
     private var device: AVCaptureDevice?
-    private var customZoomSlider: AVCaptureSlider?
+    private var customZoomSlider: Any? // iOS 18.0以降では AVCaptureSlider
 
     private let sessionQueue = DispatchQueue(label: "camera.session.queue")
 
