@@ -50,7 +50,14 @@ class CoreDataManager {
         let container = NSPersistentContainer(name: "miterundesu", managedObjectModel: model)
         container.loadPersistentStores { description, error in
             if let error = error {
-                fatalError("Unable to load persistent stores: \(error)")
+                // エラーハンドリング: ストアのロードに失敗した場合でもアプリを続行
+                // 画像の永続化はできないが、アプリの基本機能（カメラ、拡大）は動作する
+                #if DEBUG
+                print("⚠️ CoreData: ストアのロードに失敗しました: \(error)")
+                print("⚠️ CoreData: 画像の保存機能は無効化されますが、アプリは動作します")
+                #endif
+                // エラーを記録（将来的にクラッシュレポートサービスに送信可能）
+                NSLog("CoreData store failed to load: \(error.localizedDescription)")
             }
         }
         return container

@@ -8,4 +8,4 @@
 "CFBundleName" = "Miterundesu";
 
 /* Camera Usage Permission */
-"NSCameraUsageDescription" = "This app uses the camera to magnify and view text and objects more clearly. Captured images are not saved permanently and are automatically deleted after 10 minutes.";
+"NSCameraUsageDescription" = "This app uses the camera to magnify and view text and objects more clearly. Captured images are temporarily stored on your device and are automatically deleted after 10 minutes.";
