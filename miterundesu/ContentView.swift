@@ -184,40 +184,43 @@ struct ContentView: View {
                     } else {
                         // 保護されたカメラプレビュー
                         ZStack(alignment: .bottomLeading) {
-                            CameraPreviewWithZoom(
-                                cameraManager: cameraManager,
-                                isTheaterMode: $settingsManager.isTheaterMode,
-                                onCapture: {
-                                    capturePhoto()
-                                }
-                            )
-                            .blur(radius: securityManager.isScreenRecording ? 30 : 0)
-
-                            // 画面録画中の警告（中央）
-                            if securityManager.isScreenRecording {
-                                VStack(spacing: 12) {
-                                    Image(systemName: "eye.slash.fill")
-                                        .font(.system(size: 40))
-                                        .foregroundColor(.white)
-
-                                    Text(settingsManager.localizationManager.localizedString("screen_recording_warning"))
-                                        .font(.headline)
-                                        .foregroundColor(.white)
-                                }
-                                .padding(20)
-                                .background(
-                                    RoundedRectangle(cornerRadius: 12)
-                                        .fill(Color.black.opacity(0.7))
+                            // カメラプレビュー部分（保護対象）
+                            ZStack {
+                                CameraPreviewWithZoom(
+                                    cameraManager: cameraManager,
+                                    isTheaterMode: $settingsManager.isTheaterMode,
+                                    onCapture: {
+                                        capturePhoto()
+                                    }
                                 )
-                            }
+                                .blur(radius: securityManager.isScreenRecording ? 30 : 0)
 
-                            // ウォーターマーク（カメラプレビュー上の左下）
+                                // 画面録画中の警告（中央）
+                                if securityManager.isScreenRecording {
+                                    VStack(spacing: 12) {
+                                        Image(systemName: "eye.slash.fill")
+                                            .font(.system(size: 40))
+                                            .foregroundColor(.white)
+
+                                        Text(settingsManager.localizationManager.localizedString("screen_recording_warning"))
+                                            .font(.headline)
+                                            .foregroundColor(.white)
+                                    }
+                                    .padding(20)
+                                    .background(
+                                        RoundedRectangle(cornerRadius: 12)
+                                            .fill(Color.black.opacity(0.7))
+                                    )
+                                }
+                            }
+                            .preventScreenCapture()  // カメラプレビューだけを保護
+
+                            // ウォーターマーク（保護の外側、カメラプレビュー上の左下）
                             WatermarkView(isDarkBackground: true)
                                 .padding(.leading, screenWidth * 0.031)  // 12pt
                                 .padding(.bottom, screenWidth * 0.031)   // 12pt
                                 .allowsHitTesting(false) // タッチイベントを透過
                         }
-                        .preventScreenCapture()
                     }
                 }
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
