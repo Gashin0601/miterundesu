@@ -479,7 +479,7 @@ struct HeaderView: View {
                 .spotlight(id: "scrolling_message")
                 .frame(height: 32)
                 .clipped()
-                .accessibilityLabel("スクロールメッセージ、\(settingsManager.scrollingMessage)")
+                .accessibilityHidden(true) // VoiceOverから完全に隠す
 
             // ロゴ
             Image("Logo")
