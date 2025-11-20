@@ -567,12 +567,6 @@ struct TheaterModeToggle: View {
                     .foregroundColor(.white)
                     .lineLimit(1)
             }
-            .padding(.horizontal, 8)
-            .padding(.vertical, 4)
-            .background(
-                RoundedRectangle(cornerRadius: 8)
-                    .fill(Color.white.opacity(0.25))
-            )
         }
         .accessibilityLabel(isTheaterMode ? "通常モードに変更する" : "シアターモードに変更する")
         .accessibilityHint(isTheaterMode ? "タップすると通常モードに切り替わります" : "タップするとシアターモードに切り替わります")
