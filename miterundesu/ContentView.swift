@@ -215,7 +215,6 @@ struct ContentView: View {
                             WatermarkView(isDarkBackground: true)
                                 .padding(.leading, screenWidth * 0.031)  // 12pt
                                 .padding(.bottom, screenWidth * 0.031)   // 12pt
-                                .opacity(shouldShowUI ? 1 : 0)
                                 .allowsHitTesting(false) // タッチイベントを透過
                         }
                         .preventScreenCapture()
