@@ -8,6 +8,18 @@
 
 import SwiftUI
 
+// MARK: - Highlighted Spotlight IDs Environment Key
+private struct HighlightedSpotlightIDsKey: EnvironmentKey {
+    static let defaultValue: Set<String> = []
+}
+
+extension EnvironmentValues {
+    var highlightedSpotlightIDs: Set<String> {
+        get { self[HighlightedSpotlightIDsKey.self] }
+        set { self[HighlightedSpotlightIDsKey.self] = newValue }
+    }
+}
+
 // MARK: - Spotlight Tutorial Step
 struct SpotlightStep: Identifiable {
     let id: String
@@ -71,6 +83,22 @@ struct SpotlightModifier: ViewModifier {
 extension View {
     func spotlight(id: String) -> some View {
         modifier(SpotlightModifier(id: id))
+            .modifier(SpotlightAccessibilityModifier(id: id))
+    }
+}
+
+// MARK: - Spotlight Accessibility Modifier
+/// チュートリアル中、ハイライトされていない要素をVoiceOverから隠す
+struct SpotlightAccessibilityModifier: ViewModifier {
+    let id: String
+    @Environment(\.highlightedSpotlightIDs) var highlightedIDs
+    @ObservedObject private var onboardingManager = OnboardingManager.shared
+
+    func body(content: Content) -> some View {
+        content
+            .accessibilityHidden(
+                onboardingManager.showFeatureHighlights && !highlightedIDs.contains(id)
+            )
     }
 }
 
@@ -213,6 +241,7 @@ struct SpotlightTutorialView: View {
                 announceCurrentStep()
             }
         }
+        .environment(\.highlightedSpotlightIDs, Set(currentStep.targetViewIds))
     }
 
     private func calculateCardCenter(geometry: GeometryProxy, targetFrame: CGRect, position: SpotlightStep.SpotlightPosition) -> CGPoint {
