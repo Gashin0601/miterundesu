@@ -1,0 +1,8 @@
+/*
+  InfoPlist.strings
+  miterundesu (Japanese)
+*/
+
+/* アプリ名 */
+"CFBundleDisplayName" = "ミテルンデス";
+"CFBundleName" = "ミテルンデス";

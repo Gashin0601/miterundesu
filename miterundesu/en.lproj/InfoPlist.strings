@@ -1,0 +1,8 @@
+/*
+  InfoPlist.strings
+  miterundesu (English)
+*/
+
+/* App name */
+"CFBundleDisplayName" = "Miterundesu";
+"CFBundleName" = "Miterundesu";
