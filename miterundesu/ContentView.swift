@@ -111,8 +111,8 @@ struct ContentView: View {
                         },
                         settingsManager: settingsManager
                     )
-                    .spotlight(id: "theater_toggle")
                     .padding(.leading, horizontalPadding)
+                    .spotlight(id: "theater_toggle")
                     .opacity(shouldShowUI ? 1 : 0)
 
                     Spacer()
