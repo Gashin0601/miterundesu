@@ -91,6 +91,7 @@ struct ImagePreviewView: View {
                                 .shadow(radius: 5)
                         }
                         .padding(buttonPadding)
+                        .accessibilityLabel("閉じる")
 
                         Spacer()
 
@@ -105,6 +106,7 @@ struct ImagePreviewView: View {
                                     .fill(Color.red.opacity(0.7))
                             )
                             .padding(buttonPadding)
+                            .accessibilityLabel("残り時間: \(formattedRemainingTime)")
                     }
 
                     Spacer()
@@ -121,6 +123,7 @@ struct ImagePreviewView: View {
                                     .fill(Color.black.opacity(0.5))
                             )
                             .padding(.bottom, bottomPadding)
+                            .accessibilityLabel("現在の倍率: \(String(format: "%.1f", scale))倍")
                     }
                 }
             }

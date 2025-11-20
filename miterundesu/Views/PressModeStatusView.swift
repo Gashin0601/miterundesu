@@ -24,16 +24,18 @@ struct PressModeStatusView: View {
                         Spacer()
                             .frame(height: 20)
 
-                        // ステータスアイコン
-                        statusIcon
-                            .font(.system(size: 70))
-                            .foregroundColor(.white)
+                        // ステータスアイコンとタイトル
+                        VStack(spacing: 16) {
+                            statusIcon
+                                .font(.system(size: 70))
+                                .foregroundColor(.white)
 
-                        // タイトル
-                        Text(statusTitle)
-                            .font(.title)
-                            .fontWeight(.bold)
-                            .foregroundColor(.white)
+                            Text(statusTitle)
+                                .font(.title)
+                                .fontWeight(.bold)
+                                .foregroundColor(.white)
+                        }
+                        .accessibilityElement(children: .combine)
 
                         // メッセージカード
                         VStack(alignment: .leading, spacing: 16) {
@@ -50,6 +52,7 @@ struct PressModeStatusView: View {
                                 HStack {
                                     Image(systemName: "building.2")
                                         .foregroundColor(.white.opacity(0.7))
+                                        .accessibilityHidden(true)
                                     Text("所属")
                                         .font(.caption)
                                         .foregroundColor(.white.opacity(0.7))
@@ -58,6 +61,8 @@ struct PressModeStatusView: View {
                                     .font(.headline)
                                     .foregroundColor(.white)
                             }
+                            .accessibilityElement(children: .combine)
+                            .accessibilityLabel("所属: \(device.organization)")
                         }
                         .padding()
                         .background(Color.white.opacity(0.15))
@@ -96,6 +101,7 @@ struct PressModeStatusView: View {
                                     HStack(spacing: 12) {
                                         Image(systemName: "envelope.fill")
                                             .font(.title3)
+                                            .accessibilityHidden(true)
                                         VStack(alignment: .leading, spacing: 4) {
                                             Text("再申請する")
                                                 .font(.headline)
@@ -110,6 +116,7 @@ struct PressModeStatusView: View {
                                     .cornerRadius(12)
                                     .shadow(color: .black.opacity(0.1), radius: 4, x: 0, y: 2)
                                 }
+                                .accessibilityLabel("再申請する: \(contactEmail)")
                                 .padding(.horizontal, 24)
                             }
                         }
@@ -126,6 +133,7 @@ struct PressModeStatusView: View {
                                     .foregroundColor(.white.opacity(0.8))
                             }
                             .padding()
+                            .accessibilityElement(children: .combine)
                         }
 
                         Spacer()
@@ -143,6 +151,7 @@ struct PressModeStatusView: View {
                             .font(.system(size: 24))
                             .foregroundColor(.white)
                     }
+                    .accessibilityLabel("閉じる")
                 }
             }
             .toolbarBackground(Color("MainGreen"), for: .navigationBar)

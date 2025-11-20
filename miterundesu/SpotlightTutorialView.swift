@@ -462,6 +462,7 @@ struct TutorialDescriptionCard: View {
                 }
             }
             .padding(.top, 8)
+            .accessibilityHidden(true)
 
             // ナビゲーションボタン
             HStack(spacing: 16) {
@@ -469,6 +470,7 @@ struct TutorialDescriptionCard: View {
                     Button(action: onPrevious) {
                         HStack(spacing: 6) {
                             Image(systemName: "chevron.left")
+                                .accessibilityHidden(true)
                             Text(settingsManager.localizationManager.localizedString("tutorial_back"))
                         }
                         .font(.system(size: 15, weight: .medium))
@@ -480,6 +482,7 @@ struct TutorialDescriptionCard: View {
                                 .fill(.white)
                         )
                     }
+                    .accessibilityLabel(settingsManager.localizationManager.localizedString("tutorial_back"))
                 }
 
                 Spacer()
@@ -497,8 +500,10 @@ struct TutorialDescriptionCard: View {
                             settingsManager.localizationManager.localizedString("tutorial_complete"))
                         if currentIndex < totalSteps - 1 {
                             Image(systemName: "chevron.right")
+                                .accessibilityHidden(true)
                         } else {
                             Image(systemName: "checkmark.circle.fill")
+                                .accessibilityHidden(true)
                         }
                     }
                     .font(.system(size: 15, weight: .bold))
@@ -510,6 +515,9 @@ struct TutorialDescriptionCard: View {
                             .fill(.white)
                     )
                 }
+                .accessibilityLabel(currentIndex < totalSteps - 1 ?
+                    settingsManager.localizationManager.localizedString("tutorial_next") :
+                    settingsManager.localizationManager.localizedString("tutorial_complete"))
             }
         }
         .padding(20)

@@ -165,6 +165,7 @@ struct WatermarkView: View {
                 .foregroundColor(.white.opacity(0.35))
         }
         .shadow(color: .black.opacity(0.6), radius: 1, x: 0, y: 0.5)
+        .accessibilityHidden(true)
     }
 }
 

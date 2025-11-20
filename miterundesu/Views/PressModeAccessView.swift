@@ -35,6 +35,7 @@ struct PressModeAccessView: View {
                     Image(systemName: "lock.shield.fill")
                         .font(.system(size: 60))
                         .foregroundColor(.white)
+                        .accessibilityHidden(true)
 
                     // タイトル
                     Text("プレスモード\(targetState ? "有効化" : "無効化")")
@@ -79,6 +80,7 @@ struct PressModeAccessView: View {
                             }
                             .font(.caption)
                             .foregroundColor(.red)
+                            .accessibilityElement(children: .combine)
                         }
                     }
                     .padding(.horizontal, 32)
@@ -119,6 +121,7 @@ struct PressModeAccessView: View {
                         }) {
                             HStack(spacing: 6) {
                                 Image(systemName: "envelope.fill")
+                                    .accessibilityHidden(true)
                                 Text(contactEmail)
                             }
                             .font(.subheadline)
@@ -128,6 +131,7 @@ struct PressModeAccessView: View {
                             .background(Color.white.opacity(0.2))
                             .cornerRadius(8)
                         }
+                        .accessibilityLabel("お問い合わせメール: \(contactEmail)")
                     }
                     .padding(.bottom, 32)
                 }
@@ -142,6 +146,7 @@ struct PressModeAccessView: View {
                             .font(.system(size: 24))
                             .foregroundColor(.white)
                     }
+                    .accessibilityLabel("閉じる")
                 }
             }
             .toolbarBackground(Color("MainGreen"), for: .navigationBar)

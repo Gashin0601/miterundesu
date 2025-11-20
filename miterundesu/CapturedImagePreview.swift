@@ -147,6 +147,7 @@ struct CapturedImagePreview: View {
                         RoundedRectangle(cornerRadius: 20)
                             .fill(Color.black.opacity(0.8))
                     )
+                    .accessibilityElement(children: .combine)
                 }
             }
 
@@ -249,6 +250,7 @@ struct CapturedImagePreview: View {
                             RoundedRectangle(cornerRadius: 10)
                                 .fill(Color.white.opacity(0.2))
                         )
+                        .accessibilityLabel("現在の倍率: \(String(format: "%.1f", scale))倍")
                     }
                     .padding(.trailing, horizontalPadding * 0.6)
                     .padding(.bottom, verticalPadding * 1.2)
@@ -269,6 +271,7 @@ struct CapturedImagePreview: View {
                                     .fill(Color.red.opacity(0.7))
                             )
                             .padding(.leading, horizontalPadding)
+                            .accessibilityLabel("残り時間: \(formattedRemainingTime)")
 
                         Spacer()
 

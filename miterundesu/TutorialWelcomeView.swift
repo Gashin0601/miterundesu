@@ -60,6 +60,7 @@ struct TutorialWelcomeView: View {
                                 .font(.system(size: 20, weight: .bold))
                             Image(systemName: "arrow.right.circle.fill")
                                 .font(.system(size: 24))
+                                .accessibilityHidden(true)
                         }
                         .foregroundColor(Color("MainGreen"))
                         .frame(maxWidth: .infinity)
@@ -70,6 +71,7 @@ struct TutorialWelcomeView: View {
                                 .shadow(color: .black.opacity(0.15), radius: 8, x: 0, y: 4)
                         )
                     }
+                    .accessibilityLabel(settingsManager.localizationManager.localizedString("get_started"))
 
                     // スキップボタン（始めるボタンの下）
                     Button(action: {

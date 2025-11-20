@@ -35,6 +35,7 @@ struct TutorialCompletionView: View {
                         .font(.system(size: 60, weight: .bold))
                         .foregroundColor(Color("MainGreen"))
                 }
+                .accessibilityHidden(true)
 
                 // お疲れ様メッセージ
                 VStack(spacing: 20) {
@@ -62,6 +63,7 @@ struct TutorialCompletionView: View {
                             .font(.system(size: 20, weight: .bold))
                         Image(systemName: "arrow.right.circle.fill")
                             .font(.system(size: 24))
+                            .accessibilityHidden(true)
                     }
                     .foregroundColor(Color("MainGreen"))
                     .frame(maxWidth: .infinity)
@@ -72,6 +74,7 @@ struct TutorialCompletionView: View {
                             .shadow(color: .black.opacity(0.15), radius: 8, x: 0, y: 4)
                     )
                 }
+                .accessibilityLabel(settingsManager.localizationManager.localizedString("start_using"))
                 .padding(.horizontal, 32)
                 .padding(.bottom, 40)
             }

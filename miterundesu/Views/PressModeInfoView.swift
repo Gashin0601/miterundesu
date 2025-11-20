@@ -170,6 +170,7 @@ struct PressModeInfoView: View {
                                 HStack(spacing: 12) {
                                     Image(systemName: "arrow.up.forward.square.fill")
                                         .font(.title3)
+                                        .accessibilityHidden(true)
                                     VStack(alignment: .leading, spacing: 4) {
                                         Text("詳細・申請フォーム")
                                             .font(.headline)
@@ -184,6 +185,8 @@ struct PressModeInfoView: View {
                                 .cornerRadius(12)
                                 .shadow(color: .black.opacity(0.1), radius: 4, x: 0, y: 2)
                             }
+                            .accessibilityLabel("詳細・申請フォーム: miterundesu.jp/press")
+                            .accessibilityHint("リンクを開く")
                             .padding(.horizontal, 24)
                         }
 
@@ -202,6 +205,7 @@ struct PressModeInfoView: View {
                             .font(.system(size: 24))
                             .foregroundColor(.white)
                     }
+                    .accessibilityLabel("閉じる")
                 }
             }
             .toolbarBackground(Color("MainGreen"), for: .navigationBar)

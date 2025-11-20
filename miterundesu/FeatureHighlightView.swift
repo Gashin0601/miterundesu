@@ -84,6 +84,7 @@ struct TemporaryFeatureHighlightView: View {
                     Image(systemName: tutorials[currentStep].icon)
                         .font(.system(size: 60))
                         .foregroundColor(Color("MainGreen"))
+                        .accessibilityHidden(true)
 
                     VStack(spacing: 12) {
                         Text(settingsManager.localizationManager.localizedString(tutorials[currentStep].title))
@@ -113,6 +114,7 @@ struct TemporaryFeatureHighlightView: View {
                     }
                 }
                 .padding(.top, 16)
+                .accessibilityHidden(true)
 
                 // ナビゲーションボタン
                 HStack(spacing: 16) {
@@ -146,8 +148,10 @@ struct TemporaryFeatureHighlightView: View {
                                 .font(.system(size: 16, weight: .bold))
                             if currentStep < tutorials.count - 1 {
                                 Image(systemName: "arrow.right")
+                                    .accessibilityHidden(true)
                             } else {
                                 Image(systemName: "checkmark.circle.fill")
+                                    .accessibilityHidden(true)
                             }
                         }
                         .foregroundColor(Color("MainGreen"))
@@ -158,6 +162,7 @@ struct TemporaryFeatureHighlightView: View {
                                 .fill(.white)
                         )
                     }
+                    .accessibilityLabel(currentStep < tutorials.count - 1 ? "次へ" : settingsManager.localizationManager.localizedString("tutorial_complete"))
                 }
                 .padding(.horizontal, 32)
 

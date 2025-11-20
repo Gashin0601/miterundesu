@@ -127,6 +127,7 @@ struct ImageGalleryView: View {
                             RoundedRectangle(cornerRadius: 20)
                                 .fill(Color.black.opacity(0.8))
                         )
+                        .accessibilityElement(children: .combine)
                     }
 
                     // 上部コントロール（オーバーレイ）
@@ -144,6 +145,7 @@ struct ImageGalleryView: View {
                                             .fill(Color.red.opacity(0.7))
                                     )
                                     .padding(.leading, horizontalPadding)
+                                    .accessibilityLabel("残り時間: \(formattedRemainingTime)")
                             }
 
                             Spacer()
@@ -209,6 +211,7 @@ struct ImageGalleryView: View {
                                 }
                             }
                             .padding(.bottom, verticalPadding * 1.6)
+                            .accessibilityHidden(true)
                         }
                     }
 
@@ -296,6 +299,7 @@ struct ImageGalleryView: View {
                                         RoundedRectangle(cornerRadius: 10)
                                             .fill(Color.white.opacity(0.2))
                                     )
+                                    .accessibilityLabel("現在の倍率: \(String(format: "%.1f", currentScale))倍")
                             }
                             .padding(.trailing, horizontalPadding * 0.6)
                             .padding(.bottom, screenHeight * 0.06)

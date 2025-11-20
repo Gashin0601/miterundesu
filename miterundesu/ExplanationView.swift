@@ -50,6 +50,7 @@ struct ExplanationView: View {
                                 HStack(spacing: 6) {
                                     Image(systemName: "xmark.circle.fill")
                                         .font(.system(size: 16))
+                                        .accessibilityHidden(true)
                                     Text(settingsManager.localizationManager.localizedString("close"))
                                         .font(.system(size: 13, weight: .medium))
                                 }
@@ -61,6 +62,7 @@ struct ExplanationView: View {
                                         .fill(Color.white.opacity(0.25))
                                 )
                             }
+                            .accessibilityLabel(settingsManager.localizationManager.localizedString("close"))
                             .padding(.trailing, horizontalPadding)
                         }
                     }
@@ -103,11 +105,14 @@ struct ExplanationView: View {
                             HStack {
                                 Image(systemName: "link.circle.fill")
                                     .font(.system(size: 20))
+                                    .accessibilityHidden(true)
                                 Text("miterundesu.jp")
                                     .font(.system(size: 16, weight: .medium))
                             }
                             .foregroundColor(.white)
                         }
+                        .accessibilityLabel("公式サイト: miterundesu.jp")
+                        .accessibilityHint("リンクを開く")
 
                         // SNSリンク
                         HStack(spacing: contentPadding * 0.4) {
