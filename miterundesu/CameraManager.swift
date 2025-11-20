@@ -146,9 +146,13 @@ class CameraManager: NSObject, ObservableObject, AVCaptureSessionControlsDelegat
                 // セッションが開始されたらカメラ準備完了
                 if self.session.isRunning {
                     self.isCameraReady = true
+                    #if DEBUG
                     print("📷 Camera session started successfully")
+                    #endif
                 } else {
+                    #if DEBUG
                     print("⚠️ Camera session failed to start!")
+                    #endif
                 }
             }
         }
@@ -164,7 +168,9 @@ class CameraManager: NSObject, ObservableObject, AVCaptureSessionControlsDelegat
             DispatchQueue.main.async {
                 self.isSessionRunning = false
                 self.isCameraReady = false
+                #if DEBUG
                 print("📷 Camera session stopped")
+                #endif
             }
         }
     }
@@ -187,7 +193,9 @@ class CameraManager: NSObject, ObservableObject, AVCaptureSessionControlsDelegat
                     self.currentZoom = clampedZoom
                 }
             } catch {
+                #if DEBUG
                 print("Error zooming: \(error)")
+                #endif
             }
         }
     }
@@ -227,7 +235,9 @@ class CameraManager: NSObject, ObservableObject, AVCaptureSessionControlsDelegat
                     RunLoop.main.add(timer, forMode: .common)
                 }
             } catch {
+                #if DEBUG
                 print("Error zooming: \(error)")
+                #endif
             }
         }
     }
@@ -236,14 +246,18 @@ class CameraManager: NSObject, ObservableObject, AVCaptureSessionControlsDelegat
     func capturePhoto(completion: @escaping (UIImage?) -> Void) {
         // 既に撮影中の場合は処理しない
         guard !isCapturing else {
+            #if DEBUG
             print("⚠️ 撮影処理中のため、新しい撮影をスキップします")
+            #endif
             return
         }
 
         // 撮影開始
         DispatchQueue.main.async {
             self.isCapturing = true
+            #if DEBUG
             print("📷 撮影開始 - isCapturing = true")
+            #endif
         }
 
         let settings = AVCapturePhotoSettings()
@@ -253,7 +267,9 @@ class CameraManager: NSObject, ObservableObject, AVCaptureSessionControlsDelegat
             // 撮影完了後にフラグを解除
             DispatchQueue.main.async {
                 self?.isCapturing = false
+                #if DEBUG
                 print("📷 撮影完了 - isCapturing = false")
+                #endif
             }
             // 元のcompletionを呼び出す
             completion(image)
@@ -311,25 +327,33 @@ class CameraManager: NSObject, ObservableObject, AVCaptureSessionControlsDelegat
     @available(iOS 18.0, *)
     func sessionControlsDidBecomeActive(_ session: AVCaptureSession) {
         // Camera Controlがアクティブになったとき
+        #if DEBUG
         print("Camera Controls became active")
+        #endif
     }
 
     @available(iOS 18.0, *)
     func sessionControlsWillEnterFullscreenAppearance(_ session: AVCaptureSession) {
         // Camera Controlがフルスクリーン表示になるとき
+        #if DEBUG
         print("Camera Controls entering fullscreen")
+        #endif
     }
 
     @available(iOS 18.0, *)
     func sessionControlsWillExitFullscreenAppearance(_ session: AVCaptureSession) {
         // Camera Controlがフルスクリーン表示から戻るとき
+        #if DEBUG
         print("Camera Controls exiting fullscreen")
+        #endif
     }
 
     @available(iOS 18.0, *)
     func sessionControlsDidBecomeInactive(_ session: AVCaptureSession) {
         // Camera Controlが非アクティブになったとき
+        #if DEBUG
         print("Camera Controls became inactive")
+        #endif
     }
 }
 
@@ -343,7 +367,9 @@ private class PhotoCaptureDelegate: NSObject, AVCapturePhotoCaptureDelegate {
 
     func photoOutput(_ output: AVCapturePhotoOutput, didFinishProcessingPhoto photo: AVCapturePhoto, error: Error?) {
         if let error = error {
+            #if DEBUG
             print("Error capturing photo: \(error)")
+            #endif
             completion(nil)
             return
         }
@@ -422,7 +448,9 @@ extension UIImage {
             return nil
         }
 
+        #if DEBUG
         print("📸 画像をダウンサンプリング: \(Int(width))x\(Int(height)) -> \(Int(width * downsampleScale))x\(Int(height * downsampleScale))")
+        #endif
 
         return UIImage(cgImage: downsampledImage)
     }

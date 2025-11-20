@@ -65,7 +65,9 @@ class CoreDataManager {
             do {
                 try context.save()
             } catch {
+                #if DEBUG
                 print("Error saving context: \(error)")
+                #endif
             }
         }
     }

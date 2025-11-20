@@ -97,7 +97,74 @@ class LocalizationManager: ObservableObject {
         "tutorial_completion_message": "ミテルンデスの使い方を学びました。\n早速使ってみましょう！",
         "start_using": "使い始める",
         "privacy_policy": "プライバシーポリシー",
-        "terms_of_service": "利用規約"
+        "terms_of_service": "利用規約",
+
+        // Press Mode
+        "press_mode_about": "プレスモードについて",
+        "press_mode_what_is": "プレスモードとは",
+        "press_mode_what_is_desc": "報道機関の方が取材や撮影の際に、より便利にご利用いただけるモードです。",
+        "press_mode_target_users": "ご利用対象者",
+        "press_mode_target_newspapers": "新聞社・通信社",
+        "press_mode_target_tv": "テレビ局・ラジオ局",
+        "press_mode_target_magazines": "雑誌・Web媒体",
+        "press_mode_target_other": "その他報道機関",
+        "press_mode_application": "ご利用申請",
+        "press_mode_application_desc": "プレスモードのご利用には事前申請が必要です。\n下記のデバイスIDと所属情報を添えて、お問い合わせください。",
+        "press_mode_your_device_id": "あなたのデバイスID",
+        "press_mode_copy": "コピー",
+        "press_mode_copied": "コピー済み",
+        "press_mode_application_form": "詳細・申請フォーム",
+        "press_mode_activate": "プレスモード有効化",
+        "press_mode_deactivate": "プレスモード無効化",
+        "press_mode_access_code_required": "プレスモードを有効にするには、\nアクセスコードが必要です。",
+        "press_mode_access_code_required_deactivate": "プレスモードを無効にするには、\nアクセスコードが必要です。",
+        "press_mode_no_access_code": "アクセスコードをお持ちでない場合は、\n下記までお問い合わせください。",
+        "press_mode_enter_code": "アクセスコードを入力",
+        "press_mode_verify": "確認",
+        "press_mode_verifying": "確認中...",
+        "press_mode_incorrect_code": "アクセスコードが正しくありません",
+        "press_mode_network_error": "ネットワークエラーが発生しました",
+        "press_mode_contact": "お問い合わせ",
+
+        // Press Mode Status
+        "press_mode_not_started": "まだ開始されていません",
+        "press_mode_active": "プレスモード有効",
+        "press_mode_expired": "有効期限切れ",
+        "press_mode_deactivated": "無効化されています",
+        "press_mode_organization": "所属",
+        "press_mode_reapply": "再申請について",
+        "press_mode_reapply_button": "再申請する",
+        "press_mode_wait_start": "利用開始日までお待ちください",
+        "press_mode_status_expires_soon": "あと{days}日で期限切れです",
+        "press_mode_status_not_registered": "プレスモード未登録",
+        "press_mode_status_active": "有効",
+        "press_mode_status_expired": "期限切れ",
+        "press_mode_status_deactivated": "無効",
+
+        // Security Warnings
+        "screenshot_detected": "スクリーンショットが検出されました",
+        "screenshot_warning_message": "このアプリでは画像の保存や共有はできません。もし、どうしても必要な場合は設定からプレスモードの利用申請を行ってください。",
+        "screen_recording_detected": "画面録画が検出されました",
+        "screen_recording_warning_message": "このアプリでは録画・保存はできません。もし、どうしても必要な場合は設定からプレスモードの利用申請を行ってください。",
+
+        // Settings
+        "camera_zoom_description": "カメラのズーム機能の最大倍率を設定します。",
+        "camera_zoom_description_theater": "シアターモードでは、最大100倍まで拡大できます。",
+
+        // Common
+        "back": "戻る",
+        "next": "次へ",
+        "capture": "撮影",
+        "capturing": "撮影中",
+        "done": "完了",
+        "on": "オン",
+        "off": "オフ",
+        "expiration_date": "有効期限",
+        "usage_period": "利用期間",
+        "press_mode_turn_on": "プレスモードをオンにする",
+        "press_mode_turn_off": "プレスモードをオフにする",
+        "open_link": "リンクを開く",
+        "version_info": "バージョン"
     ]
 
     // 英語の文字列
@@ -162,6 +229,73 @@ class LocalizationManager: ObservableObject {
         "tutorial_completion_message": "You've learned how to use Miterundesu.\nLet's start using it!",
         "start_using": "Start Using",
         "privacy_policy": "Privacy Policy",
-        "terms_of_service": "Terms of Service"
+        "terms_of_service": "Terms of Service",
+
+        // Press Mode
+        "press_mode_about": "About Press Mode",
+        "press_mode_what_is": "What is Press Mode",
+        "press_mode_what_is_desc": "A mode for journalists to use more conveniently during coverage and photography.",
+        "press_mode_target_users": "Eligible Users",
+        "press_mode_target_newspapers": "Newspapers & News Agencies",
+        "press_mode_target_tv": "TV & Radio Stations",
+        "press_mode_target_magazines": "Magazines & Web Media",
+        "press_mode_target_other": "Other Press Organizations",
+        "press_mode_application": "Application",
+        "press_mode_application_desc": "Pre-application is required to use Press Mode.\nPlease contact us with your Device ID and organization information below.",
+        "press_mode_your_device_id": "Your Device ID",
+        "press_mode_copy": "Copy",
+        "press_mode_copied": "Copied",
+        "press_mode_application_form": "Details & Application Form",
+        "press_mode_activate": "Activate Press Mode",
+        "press_mode_deactivate": "Deactivate Press Mode",
+        "press_mode_access_code_required": "An access code is required to\nactivate Press Mode.",
+        "press_mode_access_code_required_deactivate": "An access code is required to\ndeactivate Press Mode.",
+        "press_mode_no_access_code": "If you don't have an access code,\nplease contact us below.",
+        "press_mode_enter_code": "Enter Access Code",
+        "press_mode_verify": "Verify",
+        "press_mode_verifying": "Verifying...",
+        "press_mode_incorrect_code": "Incorrect access code",
+        "press_mode_network_error": "Network error occurred",
+        "press_mode_contact": "Contact",
+
+        // Press Mode Status
+        "press_mode_not_started": "Not Yet Started",
+        "press_mode_active": "Press Mode Active",
+        "press_mode_expired": "Expired",
+        "press_mode_deactivated": "Deactivated",
+        "press_mode_organization": "Organization",
+        "press_mode_reapply": "About Reapplication",
+        "press_mode_reapply_button": "Reapply",
+        "press_mode_wait_start": "Please wait until the start date",
+        "press_mode_status_expires_soon": "Expires in {days} days",
+        "press_mode_status_not_registered": "Press Mode Not Registered",
+        "press_mode_status_active": "Active",
+        "press_mode_status_expired": "Expired",
+        "press_mode_status_deactivated": "Deactivated",
+
+        // Security Warnings
+        "screenshot_detected": "Screenshot Detected",
+        "screenshot_warning_message": "This app does not allow saving or sharing images. If absolutely necessary, please apply for Press Mode from settings.",
+        "screen_recording_detected": "Screen Recording Detected",
+        "screen_recording_warning_message": "This app does not allow recording or saving. If absolutely necessary, please apply for Press Mode from settings.",
+
+        // Settings
+        "camera_zoom_description": "Set the maximum zoom level for the camera.",
+        "camera_zoom_description_theater": "In Theater Mode, you can zoom up to 100x.",
+
+        // Common
+        "back": "Back",
+        "next": "Next",
+        "capture": "Capture",
+        "capturing": "Capturing",
+        "done": "Done",
+        "on": "On",
+        "off": "Off",
+        "expiration_date": "Expiration Date",
+        "usage_period": "Usage Period",
+        "press_mode_turn_on": "Turn on Press Mode",
+        "press_mode_turn_off": "Turn off Press Mode",
+        "open_link": "Open link",
+        "version_info": "Version"
     ]
 }

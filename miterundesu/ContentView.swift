@@ -260,7 +260,7 @@ struct ContentView: View {
                 // 画面録画警告（上部に常時表示）
                 if securityManager.showRecordingWarning {
                     VStack {
-                        RecordingWarningView()
+                        RecordingWarningView(settingsManager: settingsManager)
                         Spacer()
                     }
                     .transition(.move(edge: .top).combined(with: .opacity))
@@ -275,7 +275,7 @@ struct ContentView: View {
                             securityManager.showScreenshotWarning = false
                         }
 
-                    ScreenshotWarningView()
+                    ScreenshotWarningView(settingsManager: settingsManager)
                         .transition(.scale.combined(with: .opacity))
                         .animation(.spring(), value: securityManager.showScreenshotWarning)
                 }
@@ -319,7 +319,9 @@ struct ContentView: View {
         }
         .onChange(of: settingsManager.isPressMode) { oldValue, newValue in
             securityManager.isPressMode = newValue
+            #if DEBUG
             print("📰 プレスモード: \(newValue ? "有効" : "無効")")
+            #endif
             securityManager.recheckScreenRecordingStatus()
             isLoading = true
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
@@ -329,22 +331,34 @@ struct ContentView: View {
             }
         }
         .onChange(of: securityManager.hideContent) { oldValue, newValue in
+            #if DEBUG
             print("🔒 hideContent changed: \(oldValue) -> \(newValue)")
+            #endif
             if newValue {
+                #if DEBUG
                 print("🔒 hideContent=true: 画像プレビューを閉じます")
+                #endif
                 justCapturedImage = nil
                 selectedImage = nil
+                #if DEBUG
                 print("🔒 画像プレビューをnilに設定しました")
+                #endif
             } else {
+                #if DEBUG
                 print("🔒 hideContent=false: コンテンツを再表示します")
+                #endif
             }
         }
         .onChange(of: securityManager.showScreenshotWarning) { oldValue, newValue in
             if oldValue == true && newValue == false {
+                #if DEBUG
                 print("🔒 スクリーンショット警告が閉じました - カメラプレビューに戻ります")
+                #endif
                 justCapturedImage = nil
                 selectedImage = nil
+                #if DEBUG
                 print("🔒 カメラプレビューに復帰しました")
+                #endif
             }
         }
     }
@@ -394,7 +408,9 @@ struct ContentView: View {
     private func capturePhoto() {
         // 二重チェック：既に撮影中またはシアターモードの場合は処理しない
         guard !cameraManager.isCapturing && !settingsManager.isTheaterMode else {
+            #if DEBUG
             print("⚠️ 撮影をスキップ: isCapturing=\(cameraManager.isCapturing), isTheaterMode=\(settingsManager.isTheaterMode)")
+            #endif
             return
         }
 
@@ -417,16 +433,22 @@ struct ContentView: View {
             object: nil,
             queue: .main
         ) { [imageManager, cameraManager] _ in
+            #if DEBUG
             print("⏯️ アプリがフォアグラウンドに復帰しました")
+            #endif
             // フォアグラウンド復帰時に期限切れ画像を削除
             imageManager.removeExpiredImages()
 
             // カメラセッションが停止している場合のみ再起動
             if !cameraManager.isSessionRunning {
+                #if DEBUG
                 print("📷 カメラセッションが停止しているため再起動します")
+                #endif
                 cameraManager.startSession()
             } else {
+                #if DEBUG
                 print("📷 カメラセッションは既に実行中です")
+                #endif
             }
         }
 
@@ -436,7 +458,9 @@ struct ContentView: View {
             object: nil,
             queue: .main
         ) { [securityManager] _ in
+            #if DEBUG
             print("⏸️ アプリが非アクティブになりました")
+            #endif
             securityManager.clearSensitiveData()
         }
 
@@ -446,7 +470,9 @@ struct ContentView: View {
             object: nil,
             queue: .main
         ) { _ in
+            #if DEBUG
             print("🔒 アプリがバックグラウンドに移行しました")
+            #endif
         }
     }
 }
@@ -700,7 +726,9 @@ struct ShutterButton: View {
             Button(action: {
                 // 二重チェック：無効状態でも実行しない
                 guard !isDisabled else {
+                    #if DEBUG
                     print("⚠️ シャッターボタン押下をスキップ: disabled状態")
+                    #endif
                     return
                 }
                 onCapture()

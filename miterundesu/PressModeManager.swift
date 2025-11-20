@@ -69,35 +69,47 @@ class PressModeManager: ObservableObject {
                 switch device.status {
                 case .active:
                     isPressModeEnabled = true
+                    #if DEBUG
                     print("✅ プレスモード有効: \(device.organization) - 期間: \(device.periodDisplayString)")
+                    #endif
                 case .expired:
                     isPressModeEnabled = false
                     clearAuthentication()
                     error = "プレスモードの有効期限が切れています。"
+                    #if DEBUG
                     print("⏰ 期限切れ: \(device.organization) - 期間: \(device.periodDisplayString)")
+                    #endif
                 case .notStarted:
                     isPressModeEnabled = false
                     clearAuthentication()
                     error = "プレスモードはまだ開始されていません。"
+                    #if DEBUG
                     print("⏳ 開始前: \(device.organization) - 期間: \(device.periodDisplayString)")
+                    #endif
                 case .deactivated:
                     isPressModeEnabled = false
                     clearAuthentication()
                     error = "このデバイスのプレスモードは無効化されています。"
+                    #if DEBUG
                     print("❌ 無効化: \(device.organization)")
+                    #endif
                 }
             } else {
                 // デバイスが登録されていない
                 isPressModeEnabled = false
                 pressDevice = nil
                 clearAuthentication()
+                #if DEBUG
                 print("ℹ️ プレスモード未登録: デバイスID = \(deviceId)")
+                #endif
             }
         } catch {
             self.error = "プレスモード権限の確認に失敗しました: \(error.localizedDescription)"
             isPressModeEnabled = false
             clearAuthentication()
+            #if DEBUG
             print("❌ エラー: \(error)")
+            #endif
         }
 
         isLoading = false
@@ -113,7 +125,9 @@ class PressModeManager: ObservableObject {
     func copyDeviceIdToClipboard() {
         let deviceId = getDeviceId()
         UIPasteboard.general.string = deviceId
+        #if DEBUG
         print("📋 デバイスIDをコピー: \(deviceId)")
+        #endif
     }
 
     /// デバイスIDを取得（表示用）
@@ -124,27 +138,37 @@ class PressModeManager: ObservableObject {
     /// アクセスコード認証成功を記録
     func recordAuthentication() {
         UserDefaults.standard.set(Date(), forKey: authenticationDateKey)
+        #if DEBUG
         print("✅ アクセスコード認証成功を記録")
+        #endif
     }
 
     /// 認証済みかつ有効期間内かチェック
     func isAuthenticated() -> Bool {
         guard let authDate = UserDefaults.standard.object(forKey: authenticationDateKey) as? Date else {
+            #if DEBUG
             print("ℹ️ 認証記録なし")
+            #endif
             return false
         }
 
         guard let device = pressDevice else {
+            #if DEBUG
             print("ℹ️ デバイス情報なし")
+            #endif
             return false
         }
 
         // 認証日時がデバイスの有効期限内かチェック
         if authDate < device.expiresAt && device.isValid {
+            #if DEBUG
             print("✅ 認証済み（有効期限: \(device.expirationDisplayString)）")
+            #endif
             return true
         } else {
+            #if DEBUG
             print("⚠️ 認証期限切れ")
+            #endif
             return false
         }
     }
@@ -152,6 +176,8 @@ class PressModeManager: ObservableObject {
     /// 認証情報をクリア
     func clearAuthentication() {
         UserDefaults.standard.removeObject(forKey: authenticationDateKey)
+        #if DEBUG
         print("🗑️ 認証情報をクリア")
+        #endif
     }
 }

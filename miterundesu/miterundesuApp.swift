@@ -48,19 +48,25 @@ struct miterundesuApp: App {
 
     private func handleAppBackground() {
         // バックグラウンド移行時にセキュリティ処理を実行
+        #if DEBUG
         print("🔒 アプリがバックグラウンドに移行しました - セキュリティ処理を実行")
+        #endif
         // 注: ここでは通知を送信して、ContentViewでメモリクリアを実行させる
         NotificationCenter.default.post(name: NSNotification.Name("AppWillResignActive"), object: nil)
     }
 
     private func handleAppInactive() {
         // 非アクティブ時の処理（必要に応じて）
+        #if DEBUG
         print("⏸️ アプリが非アクティブになりました")
+        #endif
     }
 
     private func handleAppActive() {
         // アプリがアクティブになった際にプレスモード権限をチェック
+        #if DEBUG
         print("▶️ アプリがアクティブになりました - プレスモード権限をチェック")
+        #endif
         Task {
             await pressModeManager.checkPressModePermission()
         }

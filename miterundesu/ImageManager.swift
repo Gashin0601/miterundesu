@@ -106,7 +106,9 @@ class ImageManager: ObservableObject {
             // 変更を保存
             CoreDataManager.shared.saveContext()
         } catch {
+            #if DEBUG
             print("Error loading images from CoreData: \(error)")
+            #endif
         }
     }
 
@@ -146,7 +148,9 @@ class ImageManager: ObservableObject {
             entities.forEach { context.delete($0) }
             CoreDataManager.shared.saveContext()
         } catch {
+            #if DEBUG
             print("Error deleting image from CoreData: \(error)")
+            #endif
         }
 
         // タイマーを停止
@@ -175,7 +179,9 @@ class ImageManager: ObservableObject {
             try context.execute(deleteRequest)
             CoreDataManager.shared.saveContext()
         } catch {
+            #if DEBUG
             print("Error clearing all images from CoreData: \(error)")
+            #endif
         }
     }
 

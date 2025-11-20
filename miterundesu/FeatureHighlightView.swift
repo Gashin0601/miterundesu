@@ -122,7 +122,7 @@ struct TemporaryFeatureHighlightView: View {
                         Button(action: {
                             currentStep -= 1
                         }) {
-                            Text("戻る")
+                            Text(settingsManager.localizationManager.localizedString("back"))
                                 .font(.system(size: 16, weight: .medium))
                                 .foregroundColor(Color("MainGreen"))
                                 .padding(.horizontal, 24)
@@ -132,6 +132,7 @@ struct TemporaryFeatureHighlightView: View {
                                         .fill(.white)
                                 )
                         }
+                        .accessibilityLabel(settingsManager.localizationManager.localizedString("back"))
                     }
 
                     Spacer()
@@ -144,7 +145,7 @@ struct TemporaryFeatureHighlightView: View {
                         }
                     }) {
                         HStack(spacing: 8) {
-                            Text(currentStep < tutorials.count - 1 ? "次へ" : settingsManager.localizationManager.localizedString("tutorial_complete"))
+                            Text(currentStep < tutorials.count - 1 ? settingsManager.localizationManager.localizedString("next") : settingsManager.localizationManager.localizedString("tutorial_complete"))
                                 .font(.system(size: 16, weight: .bold))
                             if currentStep < tutorials.count - 1 {
                                 Image(systemName: "arrow.right")
@@ -162,7 +163,7 @@ struct TemporaryFeatureHighlightView: View {
                                 .fill(.white)
                         )
                     }
-                    .accessibilityLabel(currentStep < tutorials.count - 1 ? "次へ" : settingsManager.localizationManager.localizedString("tutorial_complete"))
+                    .accessibilityLabel(currentStep < tutorials.count - 1 ? settingsManager.localizationManager.localizedString("next") : settingsManager.localizationManager.localizedString("tutorial_complete"))
                 }
                 .padding(.horizontal, 32)
 

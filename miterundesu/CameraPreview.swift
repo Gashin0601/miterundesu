@@ -16,14 +16,18 @@ struct CameraPreview: UIViewRepresentable {
         let view = PreviewView()
         view.videoPreviewLayer.session = cameraManager.session // 直接 session を参照
         view.videoPreviewLayer.videoGravity = .resizeAspectFill
+        #if DEBUG
         print("📹 CameraPreview created")
+        #endif
         return view
     }
 
     func updateUIView(_ uiView: PreviewView, context: Context) {
         // セッションを確実に接続（preventScreenCapture の再構築後も維持）
         if uiView.videoPreviewLayer.session !== cameraManager.session {
+            #if DEBUG
             print("📹 Re-assigning camera session to preview layer")
+            #endif
             uiView.videoPreviewLayer.session = cameraManager.session
         }
     }

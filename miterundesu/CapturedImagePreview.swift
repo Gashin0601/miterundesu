@@ -352,7 +352,7 @@ struct CapturedImagePreview: View {
             // 画面録画警告（上部に常時表示）
             if securityManager.showRecordingWarning {
                 VStack {
-                    RecordingWarningView()
+                    RecordingWarningView(settingsManager: settingsManager)
                     Spacer()
                 }
                 .transition(.move(edge: .top).combined(with: .opacity))
@@ -367,7 +367,7 @@ struct CapturedImagePreview: View {
                         securityManager.showScreenshotWarning = false
                     }
 
-                ScreenshotWarningView()
+                ScreenshotWarningView(settingsManager: settingsManager)
                     .transition(.scale.combined(with: .opacity))
                     .animation(.spring(), value: securityManager.showScreenshotWarning)
             }

@@ -24,7 +24,9 @@ class SecurityManager: ObservableObject {
     static let shared = SecurityManager() // シングルトンインスタンス
 
     init() {
+        #if DEBUG
         print("🔒 SecurityManager: 初期化")
+        #endif
         setupScreenshotDetection()
         setupScreenRecordingDetection()
     }
@@ -65,24 +67,34 @@ class SecurityManager: ObservableObject {
     private func handleScreenshotDetected() {
         // プレスモード時はスクリーンショット検出を無効化
         guard !isPressMode else {
+            #if DEBUG
             print("📰 プレスモード: スクリーンショット許可")
+            #endif
             return
         }
 
+        #if DEBUG
         print("⚠️ スクリーンショットが検出されました")
+        #endif
 
         DispatchQueue.main.async {
             // 即座にコンテンツを隠す（最優先）
+            #if DEBUG
             print("🔒 Setting hideContent=true, showScreenshotWarning=true")
+            #endif
             self.hideContent = true
             self.showScreenshotWarning = true
 
             // 3秒後に警告を閉じてコンテンツを再表示
             DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
+                #if DEBUG
                 print("🔒 3秒経過 - Setting showScreenshotWarning=false, hideContent=false")
+                #endif
                 self.showScreenshotWarning = false
                 self.hideContent = false
+                #if DEBUG
                 print("🔒 hideContent=\(self.hideContent), showScreenshotWarning=\(self.showScreenshotWarning)")
+                #endif
             }
         }
     }
@@ -96,7 +108,9 @@ class SecurityManager: ObservableObject {
                 DispatchQueue.main.async { [weak self] in
                     self?.isScreenRecording = false
                     self?.showRecordingWarning = false
+                    #if DEBUG
                     print("📰 プレスモード: 画面録画警告をクリア")
+                    #endif
                 }
             }
             return
@@ -136,10 +150,14 @@ class SecurityManager: ObservableObject {
 
             if isCaptured {
                 self.showRecordingWarning = true
+                #if DEBUG
                 print("⚠️ 画面録画が検出されました")
+                #endif
             } else {
                 self.showRecordingWarning = false
+                #if DEBUG
                 print("✅ 画面録画が停止されました")
+                #endif
             }
         }
     }
@@ -148,7 +166,9 @@ class SecurityManager: ObservableObject {
     // メモリクリア（画像データの安全な削除）
     func clearSensitiveData() {
         // 機密データをゼロクリア
+        #if DEBUG
         print("🧹 機密データをクリア")
+        #endif
     }
 
     // 画面録画状態を強制的に再チェック（プレスモード同期後に使用）
@@ -201,10 +221,14 @@ fileprivate struct ScreenshotPreventHelper<Content: View>: UIViewRepresentable {
     func makeUIView(context: Context) -> UIView {
         // プレスモード時は通常のUIViewを返す（スクリーンショット保護なし）
         if isPressMode {
+            #if DEBUG
             print("📰 プレスモード: スクリーンショット保護を無効化")
+            #endif
             return UIView()
         }
+        #if DEBUG
         print("🔐 secureCaptureView を作成")
+        #endif
         return UIView.secureCaptureView
     }
 
@@ -225,7 +249,9 @@ fileprivate struct ScreenshotPreventHelper<Content: View>: UIViewRepresentable {
                 view.leadingAnchor.constraint(equalTo: uiView.leadingAnchor),
                 view.trailingAnchor.constraint(equalTo: uiView.trailingAnchor)
             ])
+            #if DEBUG
             print("🔐 ホスティングコントローラーのビューを追加完了")
+            #endif
         }
     }
 }
@@ -254,7 +280,9 @@ struct ScreenshotPreventView<Content: View>: View {
                                 hostingController = UIHostingController(rootView: content)
                                 hostingController?.view.backgroundColor = .clear
                                 hostingController?.view.frame = CGRect(origin: .zero, size: size)
+                                #if DEBUG
                                 print("🔐 ホスティングコントローラー初期化完了 - サイズ: \(size)")
+                                #endif
                             }
                         }
                 }
@@ -319,17 +347,20 @@ struct ConditionalPreventCapture: ViewModifier {
 
 // MARK: - Screenshot Warning View
 struct ScreenshotWarningView: View {
+    @ObservedObject var settingsManager: SettingsManager
+
     var body: some View {
         VStack(spacing: 16) {
             Image(systemName: "exclamationmark.triangle.fill")
                 .font(.system(size: 50))
                 .foregroundColor(.yellow)
+                .accessibilityHidden(true)
 
-            Text("スクリーンショットが検出されました")
+            Text(settingsManager.localizationManager.localizedString("screenshot_detected"))
                 .font(.title3)
                 .fontWeight(.bold)
 
-            Text("このアプリでは画像の保存や共有はできません。\nスクリーンショットも推奨されていません。")
+            Text(settingsManager.localizationManager.localizedString("screenshot_warning_message"))
                 .font(.body)
                 .multilineTextAlignment(.center)
                 .foregroundColor(.secondary)
@@ -341,23 +372,27 @@ struct ScreenshotWarningView: View {
                 .shadow(radius: 20)
         )
         .padding(40)
+        .accessibilityElement(children: .combine)
     }
 }
 
 // MARK: - Recording Warning View
 struct RecordingWarningView: View {
+    @ObservedObject var settingsManager: SettingsManager
+
     var body: some View {
         HStack(spacing: 12) {
             Image(systemName: "record.circle.fill")
                 .font(.system(size: 24))
                 .foregroundColor(.red)
+                .accessibilityHidden(true)
 
             VStack(alignment: .leading, spacing: 4) {
-                Text("画面録画が検出されました")
+                Text(settingsManager.localizationManager.localizedString("screen_recording_detected"))
                     .font(.headline)
                     .foregroundColor(.primary)
 
-                Text("このアプリでは録画・保存はできません")
+                Text(settingsManager.localizationManager.localizedString("screen_recording_warning_message"))
                     .font(.caption)
                     .foregroundColor(.secondary)
             }
@@ -372,5 +407,6 @@ struct RecordingWarningView: View {
         )
         .padding(.horizontal, 20)
         .padding(.top, 50)
+        .accessibilityElement(children: .combine)
     }
 }

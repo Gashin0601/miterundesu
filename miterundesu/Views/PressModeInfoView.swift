@@ -11,6 +11,7 @@ import SwiftUI
 struct PressModeInfoView: View {
     @Environment(\.dismiss) var dismiss
     @EnvironmentObject var pressModeManager: PressModeManager
+    @ObservedObject var settingsManager: SettingsManager
     @State private var showingDeviceIdCopied = false
 
     private let contactEmail = "press@miterundesu.jp"
@@ -32,7 +33,7 @@ struct PressModeInfoView: View {
                             .foregroundColor(.white)
 
                         // タイトル
-                        Text("プレスモードについて")
+                        Text(settingsManager.localizationManager.localizedString("press_mode_about"))
                             .font(.title)
                             .fontWeight(.bold)
                             .foregroundColor(.white)
@@ -44,12 +45,12 @@ struct PressModeInfoView: View {
                                 HStack {
                                     Image(systemName: "info.circle.fill")
                                         .foregroundColor(.white)
-                                    Text("プレスモードとは")
+                                    Text(settingsManager.localizationManager.localizedString("press_mode_what_is"))
                                         .font(.headline)
                                         .foregroundColor(.white)
                                 }
 
-                                Text("報道機関の方が取材や撮影の際に、より便利にご利用いただけるモードです。")
+                                Text(settingsManager.localizationManager.localizedString("press_mode_what_is_desc"))
                                     .font(.body)
                                     .foregroundColor(.white.opacity(0.9))
                                     .fixedSize(horizontal: false, vertical: true)
@@ -63,7 +64,7 @@ struct PressModeInfoView: View {
                                 HStack {
                                     Image(systemName: "person.badge.shield.checkmark.fill")
                                         .foregroundColor(.white)
-                                    Text("ご利用対象者")
+                                    Text(settingsManager.localizationManager.localizedString("press_mode_target_users"))
                                         .font(.headline)
                                         .foregroundColor(.white)
                                 }
@@ -72,25 +73,25 @@ struct PressModeInfoView: View {
                                     HStack(alignment: .top) {
                                         Text("•")
                                             .foregroundColor(.white.opacity(0.9))
-                                        Text("新聞社・通信社")
+                                        Text(settingsManager.localizationManager.localizedString("press_mode_target_newspapers"))
                                             .foregroundColor(.white.opacity(0.9))
                                     }
                                     HStack(alignment: .top) {
                                         Text("•")
                                             .foregroundColor(.white.opacity(0.9))
-                                        Text("テレビ局・ラジオ局")
+                                        Text(settingsManager.localizationManager.localizedString("press_mode_target_tv"))
                                             .foregroundColor(.white.opacity(0.9))
                                     }
                                     HStack(alignment: .top) {
                                         Text("•")
                                             .foregroundColor(.white.opacity(0.9))
-                                        Text("雑誌・Web媒体")
+                                        Text(settingsManager.localizationManager.localizedString("press_mode_target_magazines"))
                                             .foregroundColor(.white.opacity(0.9))
                                     }
                                     HStack(alignment: .top) {
                                         Text("•")
                                             .foregroundColor(.white.opacity(0.9))
-                                        Text("その他報道機関")
+                                        Text(settingsManager.localizationManager.localizedString("press_mode_target_other"))
                                             .foregroundColor(.white.opacity(0.9))
                                     }
                                 }
@@ -105,19 +106,19 @@ struct PressModeInfoView: View {
                                 HStack {
                                     Image(systemName: "envelope.badge.fill")
                                         .foregroundColor(.white)
-                                    Text("ご利用申請")
+                                    Text(settingsManager.localizationManager.localizedString("press_mode_application"))
                                         .font(.headline)
                                         .foregroundColor(.white)
                                 }
 
-                                Text("プレスモードのご利用には事前申請が必要です。\n下記のデバイスIDと所属情報を添えて、お問い合わせください。")
+                                Text(settingsManager.localizationManager.localizedString("press_mode_application_desc"))
                                     .font(.body)
                                     .foregroundColor(.white.opacity(0.9))
                                     .fixedSize(horizontal: false, vertical: true)
 
                                 // デバイスID表示
                                 VStack(alignment: .leading, spacing: 8) {
-                                    Text("あなたのデバイスID")
+                                    Text(settingsManager.localizationManager.localizedString("press_mode_your_device_id"))
                                         .font(.caption)
                                         .foregroundColor(.white.opacity(0.7))
 
@@ -139,7 +140,7 @@ struct PressModeInfoView: View {
                                         }) {
                                             HStack(spacing: 4) {
                                                 Image(systemName: showingDeviceIdCopied ? "checkmark" : "doc.on.doc")
-                                                Text(showingDeviceIdCopied ? "コピー済み" : "コピー")
+                                                Text(settingsManager.localizationManager.localizedString(showingDeviceIdCopied ? "press_mode_copied" : "press_mode_copy"))
                                             }
                                             .font(.caption)
                                             .foregroundColor(.white)
@@ -162,7 +163,7 @@ struct PressModeInfoView: View {
 
                         // 詳細と申請フォームへのリンク
                         VStack(spacing: 16) {
-                            Text("プレスモード申請")
+                            Text(settingsManager.localizationManager.localizedString("press_mode_application"))
                                 .font(.subheadline)
                                 .foregroundColor(.white.opacity(0.8))
 
@@ -172,7 +173,7 @@ struct PressModeInfoView: View {
                                         .font(.title3)
                                         .accessibilityHidden(true)
                                     VStack(alignment: .leading, spacing: 4) {
-                                        Text("詳細・申請フォーム")
+                                        Text(settingsManager.localizationManager.localizedString("press_mode_application_form"))
                                             .font(.headline)
                                         Text("miterundesu.jp/press")
                                             .font(.caption)
@@ -185,7 +186,7 @@ struct PressModeInfoView: View {
                                 .cornerRadius(12)
                                 .shadow(color: .black.opacity(0.1), radius: 4, x: 0, y: 2)
                             }
-                            .accessibilityLabel("詳細・申請フォーム: miterundesu.jp/press")
+                            .accessibilityLabel(settingsManager.localizationManager.localizedString("press_mode_application_form") + ": miterundesu.jp/press")
                             .accessibilityHint("リンクを開く")
                             .padding(.horizontal, 24)
                         }
@@ -216,6 +217,6 @@ struct PressModeInfoView: View {
 }
 
 #Preview {
-    PressModeInfoView()
+    PressModeInfoView(settingsManager: SettingsManager())
         .environmentObject(PressModeManager.shared)
 }

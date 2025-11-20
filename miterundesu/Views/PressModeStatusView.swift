@@ -10,6 +10,7 @@ import SwiftUI
 /// プレスモードの状態表示画面（期限切れ、未開始など）
 struct PressModeStatusView: View {
     @Environment(\.dismiss) var dismiss
+    @ObservedObject var settingsManager: SettingsManager
     let device: PressDevice
     let contactEmail = "press@miterundesu.jp"
 
@@ -53,7 +54,7 @@ struct PressModeStatusView: View {
                                     Image(systemName: "building.2")
                                         .foregroundColor(.white.opacity(0.7))
                                         .accessibilityHidden(true)
-                                    Text("所属")
+                                    Text(settingsManager.localizationManager.localizedString("press_mode_organization"))
                                         .font(.caption)
                                         .foregroundColor(.white.opacity(0.7))
                                 }
@@ -62,7 +63,7 @@ struct PressModeStatusView: View {
                                     .foregroundColor(.white)
                             }
                             .accessibilityElement(children: .combine)
-                            .accessibilityLabel("所属: \(device.organization)")
+                            .accessibilityLabel("\(settingsManager.localizationManager.localizedString("press_mode_organization")): \(device.organization)")
                         }
                         .padding()
                         .background(Color.white.opacity(0.15))
@@ -72,7 +73,7 @@ struct PressModeStatusView: View {
                         // 期限切れの場合：再申請案内
                         if device.status == .expired {
                             VStack(spacing: 16) {
-                                Text("再申請について")
+                                Text(settingsManager.localizationManager.localizedString("press_mode_reapply"))
                                     .font(.subheadline)
                                     .foregroundColor(.white.opacity(0.8))
 
@@ -103,7 +104,7 @@ struct PressModeStatusView: View {
                                             .font(.title3)
                                             .accessibilityHidden(true)
                                         VStack(alignment: .leading, spacing: 4) {
-                                            Text("再申請する")
+                                            Text(settingsManager.localizationManager.localizedString("press_mode_reapply_button"))
                                                 .font(.headline)
                                             Text(contactEmail)
                                                 .font(.caption)
@@ -116,7 +117,7 @@ struct PressModeStatusView: View {
                                     .cornerRadius(12)
                                     .shadow(color: .black.opacity(0.1), radius: 4, x: 0, y: 2)
                                 }
-                                .accessibilityLabel("再申請する: \(contactEmail)")
+                                .accessibilityLabel("\(settingsManager.localizationManager.localizedString("press_mode_reapply_button")): \(contactEmail)")
                                 .padding(.horizontal, 24)
                             }
                         }
@@ -127,8 +128,9 @@ struct PressModeStatusView: View {
                                 Image(systemName: "calendar.badge.clock")
                                     .font(.system(size: 40))
                                     .foregroundColor(.white.opacity(0.7))
+                                    .accessibilityHidden(true)
 
-                                Text("利用開始日までお待ちください")
+                                Text(settingsManager.localizationManager.localizedString("press_mode_wait_start"))
                                     .font(.subheadline)
                                     .foregroundColor(.white.opacity(0.8))
                             }
@@ -151,7 +153,7 @@ struct PressModeStatusView: View {
                             .font(.system(size: 24))
                             .foregroundColor(.white)
                     }
-                    .accessibilityLabel("閉じる")
+                    .accessibilityLabel(settingsManager.localizationManager.localizedString("close"))
                 }
             }
             .toolbarBackground(Color("MainGreen"), for: .navigationBar)
@@ -176,13 +178,13 @@ struct PressModeStatusView: View {
     private var statusTitle: String {
         switch device.status {
         case .notStarted:
-            return "まだ開始されていません"
+            return settingsManager.localizationManager.localizedString("press_mode_not_started")
         case .active:
-            return "プレスモード有効"
+            return settingsManager.localizationManager.localizedString("press_mode_active")
         case .expired:
-            return "有効期限切れ"
+            return settingsManager.localizationManager.localizedString("press_mode_expired")
         case .deactivated:
-            return "無効化されています"
+            return settingsManager.localizationManager.localizedString("press_mode_deactivated")
         }
     }
 }
@@ -203,5 +205,5 @@ struct PressModeStatusView: View {
         notes: "テスト用"
     )
 
-    return PressModeStatusView(device: expiredDevice)
+    return PressModeStatusView(settingsManager: SettingsManager(), device: expiredDevice)
 }

@@ -12,13 +12,14 @@ import Supabase
 struct PressModeAccessView: View {
     @Environment(\.dismiss) var dismiss
     @EnvironmentObject var pressModeManager: PressModeManager
+    @ObservedObject var settingsManager: SettingsManager
     @Binding var isPressMode: Bool
     let targetState: Bool // オンにしようとしているかオフにしようとしているか
 
     @State private var accessCode: String = ""
     @State private var showError: Bool = false
     @State private var isVerifying: Bool = false
-    @State private var errorMessage: String = "アクセスコードが正しくありません"
+    @State private var errorMessage: String = ""
 
     private let contactEmail = "press@miterundesu.jp"
 
@@ -38,19 +39,19 @@ struct PressModeAccessView: View {
                         .accessibilityHidden(true)
 
                     // タイトル
-                    Text("プレスモード\(targetState ? "有効化" : "無効化")")
+                    Text(settingsManager.localizationManager.localizedString(targetState ? "press_mode_activate" : "press_mode_deactivate"))
                         .font(.title2)
                         .fontWeight(.bold)
                         .foregroundColor(.white)
 
                     // 説明文
                     VStack(spacing: 12) {
-                        Text("プレスモードを\(targetState ? "有効にする" : "無効にする")には、\nアクセスコードが必要です。")
+                        Text(settingsManager.localizationManager.localizedString(targetState ? "press_mode_access_code_required" : "press_mode_access_code_required_deactivate"))
                             .font(.body)
                             .foregroundColor(.white.opacity(0.9))
                             .multilineTextAlignment(.center)
 
-                        Text("アクセスコードをお持ちでない場合は、\n下記までお問い合わせください。")
+                        Text(settingsManager.localizationManager.localizedString("press_mode_no_access_code"))
                             .font(.caption)
                             .foregroundColor(.white.opacity(0.7))
                             .multilineTextAlignment(.center)
@@ -60,7 +61,7 @@ struct PressModeAccessView: View {
 
                     // アクセスコード入力
                     VStack(spacing: 16) {
-                        SecureField("アクセスコードを入力", text: $accessCode)
+                        SecureField(settingsManager.localizationManager.localizedString("press_mode_enter_code"), text: $accessCode)
                             .textFieldStyle(.plain)
                             .padding()
                             .background(Color.white.opacity(0.2))
@@ -94,7 +95,7 @@ struct PressModeAccessView: View {
                                 ProgressView()
                                     .progressViewStyle(CircularProgressViewStyle(tint: .white))
                             }
-                            Text(isVerifying ? "確認中..." : "確認")
+                            Text(settingsManager.localizationManager.localizedString(isVerifying ? "press_mode_verifying" : "press_mode_verify"))
                                 .fontWeight(.semibold)
                         }
                         .frame(maxWidth: .infinity)
@@ -110,7 +111,7 @@ struct PressModeAccessView: View {
 
                     // 連絡先
                     VStack(spacing: 8) {
-                        Text("お問い合わせ")
+                        Text(settingsManager.localizationManager.localizedString("press_mode_contact"))
                             .font(.caption)
                             .foregroundColor(.white.opacity(0.6))
 
@@ -182,7 +183,7 @@ struct PressModeAccessView: View {
                         dismiss()
                     } else {
                         // アクセスコードが間違っているか期限切れ
-                        errorMessage = "アクセスコードが正しくありません"
+                        errorMessage = settingsManager.localizationManager.localizedString("press_mode_incorrect_code")
                         showError = true
                         // エラー時にバイブレーション
                         let generator = UINotificationFeedbackGenerator()
@@ -192,7 +193,7 @@ struct PressModeAccessView: View {
                 }
             } catch {
                 await MainActor.run {
-                    errorMessage = "ネットワークエラーが発生しました"
+                    errorMessage = settingsManager.localizationManager.localizedString("press_mode_network_error")
                     showError = true
                     isVerifying = false
                     // エラー時にバイブレーション
@@ -205,6 +206,6 @@ struct PressModeAccessView: View {
 }
 
 #Preview {
-    PressModeAccessView(isPressMode: .constant(false), targetState: true)
+    PressModeAccessView(settingsManager: SettingsManager(), isPressMode: .constant(false), targetState: true)
         .environmentObject(PressModeManager.shared)
 }

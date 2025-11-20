@@ -57,7 +57,7 @@ struct SettingsView: View {
                                     .foregroundColor(.white.opacity(0.7))
                             }
 
-                            Text("カメラのズーム機能の最大倍率を設定します。")
+                            Text(settingsManager.localizationManager.localizedString("camera_zoom_description"))
                                 .font(.caption)
                                 .foregroundColor(.white.opacity(0.7))
                         }
@@ -120,7 +120,7 @@ struct SettingsView: View {
                                 .toolbar {
                                     ToolbarItemGroup(placement: .keyboard) {
                                         Spacer()
-                                        Button("完了") {
+                                        Button(settingsManager.localizationManager.localizedString("done")) {
                                             isMessageFieldFocused = false
                                         }
                                     }
@@ -147,18 +147,18 @@ struct SettingsView: View {
 
                                     // 有効期間内の場合は期限を表示
                                     if device.status == .active {
-                                        Text("有効期限: \(device.expirationDisplayString)")
+                                        Text("\(settingsManager.localizationManager.localizedString("expiration_date")): \(device.expirationDisplayString)")
                                             .font(.subheadline)
                                             .foregroundColor(.white.opacity(0.9))
 
                                         if device.daysUntilExpiration < 30 {
-                                            Text("あと\(device.daysUntilExpiration)日で期限切れです")
+                                            Text(settingsManager.localizationManager.localizedString("press_mode_status_expires_soon").replacingOccurrences(of: "{days}", with: "\(device.daysUntilExpiration)"))
                                                 .font(.caption)
                                                 .foregroundColor(.yellow)
                                         }
                                     } else {
                                         // 期限切れ、未開始、無効化の場合は期間を表示
-                                        Text("利用期間: \(device.periodDisplayString)")
+                                        Text("\(settingsManager.localizationManager.localizedString("usage_period")): \(device.periodDisplayString)")
                                             .font(.subheadline)
                                             .foregroundColor(.white.opacity(0.9))
                                     }
@@ -168,7 +168,8 @@ struct SettingsView: View {
                                 HStack {
                                     Image(systemName: "xmark.circle")
                                         .foregroundColor(.white.opacity(0.7))
-                                    Text("プレスモード未登録")
+                                        .accessibilityHidden(true)
+                                    Text(settingsManager.localizationManager.localizedString("press_mode_status_not_registered"))
                                         .font(.headline)
                                         .foregroundColor(.white)
                                 }
@@ -230,8 +231,8 @@ struct SettingsView: View {
                                     .accessibilityHidden(true)
                                 }
                             }
-                            .accessibilityLabel(settingsManager.isPressMode ? "プレスモードをオフにする" : "プレスモードをオンにする")
-                            .accessibilityValue(settingsManager.isPressMode ? "オン" : "オフ")
+                            .accessibilityLabel(settingsManager.isPressMode ? settingsManager.localizationManager.localizedString("press_mode_turn_off") : settingsManager.localizationManager.localizedString("press_mode_turn_on"))
+                            .accessibilityValue(settingsManager.isPressMode ? settingsManager.localizationManager.localizedString("on") : settingsManager.localizationManager.localizedString("off"))
 
                             Text(settingsManager.localizationManager.localizedString("press_mode_description"))
                                 .font(.caption)
@@ -252,7 +253,7 @@ struct SettingsView: View {
                                 .foregroundColor(.white.opacity(0.7))
                         }
                         .accessibilityElement(children: .combine)
-                        .accessibilityLabel("バージョン 1.0.0")
+                        .accessibilityLabel("\(settingsManager.localizationManager.localizedString("version_info")) 1.0.0")
                         .listRowBackground(Color.white.opacity(0.2))
 
                         Link(destination: URL(string: "https://miterundesu.jp")!) {
@@ -266,7 +267,7 @@ struct SettingsView: View {
                             }
                         }
                         .accessibilityLabel(settingsManager.localizationManager.localizedString("official_site"))
-                        .accessibilityHint("リンクを開く")
+                        .accessibilityHint(settingsManager.localizationManager.localizedString("open_link"))
                         .listRowBackground(Color.white.opacity(0.2))
 
                         Button(action: {
@@ -300,7 +301,7 @@ struct SettingsView: View {
                             }
                         }
                         .accessibilityLabel(settingsManager.localizationManager.localizedString("privacy_policy"))
-                        .accessibilityHint("リンクを開く")
+                        .accessibilityHint(settingsManager.localizationManager.localizedString("open_link"))
                         .listRowBackground(Color.white.opacity(0.2))
 
                         Link(destination: URL(string: "https://miterundesu.jp/terms")!) {
@@ -314,7 +315,7 @@ struct SettingsView: View {
                             }
                         }
                         .accessibilityLabel(settingsManager.localizationManager.localizedString("terms_of_service"))
-                        .accessibilityHint("リンクを開く")
+                        .accessibilityHint(settingsManager.localizationManager.localizedString("open_link"))
                         .listRowBackground(Color.white.opacity(0.2))
                     }
 
@@ -365,18 +366,19 @@ struct SettingsView: View {
         .preferredColorScheme(.dark)
         .sheet(isPresented: $showingPressModeAccess) {
             PressModeAccessView(
+                settingsManager: settingsManager,
                 isPressMode: $settingsManager.isPressMode,
                 targetState: pressModeTargetState
             )
             .environmentObject(pressModeManager)
         }
         .sheet(isPresented: $showingPressModeInfo) {
-            PressModeInfoView()
+            PressModeInfoView(settingsManager: settingsManager)
                 .environmentObject(pressModeManager)
         }
         .sheet(isPresented: $showingPressModeStatus) {
             if let device = pressModeManager.pressDevice {
-                PressModeStatusView(device: device)
+                PressModeStatusView(settingsManager: settingsManager, device: device)
             }
         }
     }
@@ -405,13 +407,13 @@ struct SettingsView: View {
     private func statusText(for status: PressDeviceStatus) -> Text {
         switch status {
         case .active:
-            return Text("プレスモード有効")
+            return Text(settingsManager.localizationManager.localizedString("press_mode_status_active"))
         case .expired:
-            return Text("有効期限切れ")
+            return Text(settingsManager.localizationManager.localizedString("press_mode_status_expired"))
         case .notStarted:
-            return Text("開始前")
+            return Text(settingsManager.localizationManager.localizedString("press_mode_not_started"))
         case .deactivated:
-            return Text("無効化")
+            return Text(settingsManager.localizationManager.localizedString("press_mode_status_deactivated"))
         }
     }
 }
