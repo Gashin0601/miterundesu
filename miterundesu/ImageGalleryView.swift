@@ -110,7 +110,6 @@ struct ImageGalleryView: View {
                                 scrollPositionID = imageManager.capturedImages[safe: currentIndex]?.id
                             }
                     }
-                    .modifier(ConditionalPreventCapture(isEnabled: !settingsManager.isPressMode))
 
                     // 画面録画中の警告オーバーレイ
                     if securityManager.isScreenRecording {

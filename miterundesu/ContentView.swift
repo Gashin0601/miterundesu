@@ -799,33 +799,67 @@ struct ThumbnailView: View {
                                     .stroke(Color.white, lineWidth: 2)
                             )
                     } else {
-                        // 通常時: 画像を表示
-                        ZStack {
-                            Image(uiImage: latestImage.image)
-                                .resizable()
-                                .scaledToFill()
-                                .frame(width: thumbnailSize, height: thumbnailSize)
-                                .clipShape(RoundedRectangle(cornerRadius: cornerRadius))
-                                .overlay(
-                                    RoundedRectangle(cornerRadius: cornerRadius)
-                                        .stroke(Color.white, lineWidth: 2)
-                                )
-                                .blur(radius: securityManager.isScreenRecording ? blurRadius : 0)
-                        }
-                        .opacity(securityManager.hideContent ? 0 : 1)
-                        .contextMenu { } // コンテキストメニューを無効化
+                        // 通常時
+                        if settingsManager.isPressMode {
+                            // プレスモード時のみ実際の画像を表示
+                            ZStack {
+                                Image(uiImage: latestImage.image)
+                                    .resizable()
+                                    .scaledToFill()
+                                    .frame(width: thumbnailSize, height: thumbnailSize)
+                                    .clipShape(RoundedRectangle(cornerRadius: cornerRadius))
+                                    .overlay(
+                                        RoundedRectangle(cornerRadius: cornerRadius)
+                                            .stroke(Color.white, lineWidth: 2)
+                                    )
+                                    .blur(radius: securityManager.isScreenRecording ? blurRadius : 0)
 
-                        // 残り時間バッジ
-                        TimeRemainingBadge(remainingTime: latestImage.remainingTime)
+                                // 残り時間バッジ
+                                TimeRemainingBadge(remainingTime: latestImage.remainingTime)
+                            }
+                            .contextMenu { }
+                        } else {
+                            // プレスモードオフ時: 通常は表示、hideContent時のみ非表示
+                            ZStack {
+                                Image(uiImage: latestImage.image)
+                                    .resizable()
+                                    .scaledToFill()
+                                    .frame(width: thumbnailSize, height: thumbnailSize)
+                                    .clipShape(RoundedRectangle(cornerRadius: cornerRadius))
+                                    .overlay(
+                                        RoundedRectangle(cornerRadius: cornerRadius)
+                                            .stroke(Color.white, lineWidth: 2)
+                                    )
+                                    .blur(radius: securityManager.isScreenRecording ? blurRadius : 0)
+
+                                // 残り時間バッジ
+                                TimeRemainingBadge(remainingTime: latestImage.remainingTime)
+                            }
                             .opacity(securityManager.hideContent ? 0 : 1)
+                            .contextMenu { }
+                        }
                     }
                 }
             }
             .frame(width: thumbnailSize, height: thumbnailSize)
             .clipped()
             .disabled(isTheaterMode)
-            .modifier(ConditionalPreventCapture(isEnabled: !settingsManager.isPressMode && !isTheaterMode))
-            .frame(width: thumbnailSize, height: thumbnailSize)
+            .onLongPressGesture(minimumDuration: 0.3, pressing: { pressing in
+                // プレスモードオフ時のみ長押しで表示
+                if !settingsManager.isPressMode {
+                    if pressing {
+                        // 長押し開始: サムネイルを表示
+                        showThumbnail = true
+                        hideTimer?.invalidate()
+                    } else {
+                        // 長押し終了: 2秒後に自動非表示
+                        hideTimer?.invalidate()
+                        hideTimer = Timer.scheduledTimer(withTimeInterval: 2.0, repeats: false) { _ in
+                            showThumbnail = false
+                        }
+                    }
+                }
+            }, perform: {})
             .opacity(isTheaterMode ? 0.3 : 1.0)
             .accessibilityLabel(settingsManager.localizationManager.localizedString(isTheaterMode ? "viewing_disabled" : "latest_image"))
             .onReceive(timer) { _ in
