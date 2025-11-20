@@ -1,33 +1,5 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none">
-  <!-- Head -->
-  <circle cx="30" cy="16" r="6" stroke="white" stroke-width="2" fill="none"/>
-
-  <!-- Glasses frames -->
-  <circle cx="27.5" cy="16" r="2.5" stroke="white" stroke-width="1.5" fill="none"/>
-  <circle cx="32.5" cy="16" r="2.5" stroke="white" stroke-width="1.5" fill="none"/>
-  <!-- Glasses bridge -->
-  <line x1="30" y1="16" x2="30" y2="16" stroke="white" stroke-width="1.5"/>
-
-  <!-- Hair bun (おばあちゃんのまとめ髪) -->
-  <circle cx="30" cy="10" r="2.5" stroke="white" stroke-width="1.5" fill="none"/>
-
-  <!-- Body (slightly hunched forward) -->
-  <path d="M 30 22 Q 29 32 28 42" stroke="white" stroke-width="2" fill="none"/>
-
-  <!-- Arms -->
-  <line x1="30" y1="28" x2="22" y2="34" stroke="white" stroke-width="2"/>
-  <line x1="30" y1="28" x2="36" y2="32" stroke="white" stroke-width="2"/>
-
-  <!-- Legs (shorter stance for elderly) -->
-  <line x1="28" y1="42" x2="24" y2="54" stroke="white" stroke-width="2"/>
-  <line x1="28" y1="42" x2="32" y2="54" stroke="white" stroke-width="2"/>
-
-  <!-- Walking stick/cane for support -->
-  <line x1="36" y1="32" x2="38" y2="54" stroke="white" stroke-width="2.5" stroke-linecap="round"/>
-
-  <!-- Cane handle -->
-  <path d="M 36 32 Q 35 30 36 28" stroke="white" stroke-width="2" fill="none"/>
-
-  <!-- Cane tip -->
-  <circle cx="38" cy="54" r="1.5" fill="white"/>
+<svg width="305" height="512" viewBox="0 0 305 512" fill="none" xmlns="http://www.w3.org/2000/svg">
+<path d="M155.562 85.4519C173.42 62.1649 169.011 28.8219 145.724 10.9809C122.453 -6.88507 89.094 -2.48507 71.245 20.7949C53.379 44.0899 57.787 77.4079 81.074 95.2659C104.354 113.132 137.696 108.732 155.562 85.4519Z" fill="white"/>
+<path d="M290.636 226.052L221.394 118.28C209.65 100.164 185.462 94.9839 167.33 106.736C149.215 118.464 144.035 142.66 155.787 160.792L155.771 160.776L217.371 256.854L154.709 321.945C129.225 343.496 139.538 371.497 143.247 388.421L176.573 476.454C179.622 490.394 193.409 499.21 207.366 496.161C221.298 493.097 230.122 479.309 227.066 465.377L209.353 364.176L274.927 313.064C309.515 291.378 312.347 260.65 290.636 226.052Z" fill="white"/>
+<path d="M57.442 172.906C25.708 172.922 0.016 198.638 0 230.356V496.764C0 505.178 6.822 511.999 15.236 511.999C23.649 511.999 30.478 505.178 30.478 496.764V230.356C30.486 222.867 33.462 216.214 38.377 211.284C43.309 206.385 49.953 203.393 57.442 203.384C64.923 203.392 71.575 206.385 76.506 211.284C81.412 216.214 84.405 222.867 84.414 230.356C84.406 238.368 80.971 245.439 75.461 250.418C69.194 256.04 68.672 265.669 74.303 271.927C79.925 278.193 89.562 278.716 95.821 273.093C107.493 262.636 114.893 247.295 114.885 230.355C114.868 198.63 89.175 172.923 57.442 172.906Z" fill="white"/>
 </svg>
