@@ -460,7 +460,7 @@ struct HeaderView: View {
                 .spotlight(id: "scrolling_message")
                 .frame(height: 32)
                 .clipped()
-                .accessibilityHidden(true)
+                .accessibilityLabel("スクロールメッセージ、\(settingsManager.scrollingMessage)")
 
             // ロゴ
             Image("Logo")
