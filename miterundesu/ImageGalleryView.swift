@@ -80,7 +80,10 @@ struct ImageGalleryView: View {
                                             offset: Binding(
                                                 get: { imageOffsets[capturedImage.id] ?? .zero },
                                                 set: { imageOffsets[capturedImage.id] = $0 }
-                                            )
+                                            ),
+                                            settingsManager: settingsManager,
+                                            photoIndex: index,
+                                            totalPhotos: imageManager.capturedImages.count
                                         )
                                         .frame(width: geometry.size.width, height: geometry.size.height)
                                         .id(capturedImage.id)
@@ -98,6 +101,8 @@ struct ImageGalleryView: View {
                                    let newIndex = imageManager.capturedImages.firstIndex(where: { $0.id == newID }) {
                                     currentIndex = newIndex
                                     remainingTime = imageManager.capturedImages[newIndex].remainingTime
+                                    // VoiceOver: 写真移動をアナウンス
+                                    announcePhotoChange()
                                 }
                             }
                             .onAppear {
@@ -376,6 +381,59 @@ struct ImageGalleryView: View {
             }
         }
         .preferredColorScheme(.dark)
+        .accessibilityElement(children: .contain)
+        .accessibilityLabel(galleryAccessibilityLabel)
+        .accessibilityAction(named: Text(settingsManager.localizationManager.localizedString("next_photo"))) {
+            moveToNextPhoto()
+        }
+        .accessibilityAction(named: Text(settingsManager.localizationManager.localizedString("previous_photo"))) {
+            moveToPreviousPhoto()
+        }
+        .onAppear {
+            // VoiceOver: ギャラリー開始時のアナウンス
+            announceGalleryOpened()
+        }
+    }
+
+    private var galleryAccessibilityLabel: String {
+        let photoGallery = settingsManager.localizationManager.localizedString("photo_gallery")
+        let photoCount = settingsManager.localizationManager.localizedString("photo_count")
+            .replacingOccurrences(of: "{count}", with: "\(imageManager.capturedImages.count)")
+        return "\(photoGallery)、\(photoCount)"
+    }
+
+    private func announceGalleryOpened() {
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+            let announcement = galleryAccessibilityLabel
+            UIAccessibility.post(notification: .announcement, argument: announcement)
+        }
+    }
+
+    private func announcePhotoChange() {
+        let message = settingsManager.localizationManager.localizedString("moved_to_photo")
+            .replacingOccurrences(of: "{number}", with: "\(currentIndex + 1)")
+            .replacingOccurrences(of: "{total}", with: "\(imageManager.capturedImages.count)")
+        DispatchQueue.main.async {
+            UIAccessibility.post(notification: .announcement, argument: message)
+        }
+    }
+
+    private func moveToNextPhoto() {
+        if currentIndex < imageManager.capturedImages.count - 1 {
+            currentIndex += 1
+            scrollPositionID = imageManager.capturedImages[safe: currentIndex]?.id
+            remainingTime = imageManager.capturedImages[currentIndex].remainingTime
+            announcePhotoChange()
+        }
+    }
+
+    private func moveToPreviousPhoto() {
+        if currentIndex > 0 {
+            currentIndex -= 1
+            scrollPositionID = imageManager.capturedImages[safe: currentIndex]?.id
+            remainingTime = imageManager.capturedImages[currentIndex].remainingTime
+            announcePhotoChange()
+        }
     }
 
     private var formattedRemainingTime: String {
@@ -401,6 +459,7 @@ struct ImageGalleryView: View {
             imageScales[id] = min(currentScale * 1.5, CGFloat(settingsManager.maxZoomFactor))
         }
         isZooming = (imageScales[id] ?? 1.0) > 1.0
+        announceZoomChange()
     }
 
     private func zoomOut() {
@@ -413,6 +472,7 @@ struct ImageGalleryView: View {
                 isZooming = false
             }
         }
+        announceZoomChange()
     }
 
     private func resetZoom() {
@@ -423,6 +483,15 @@ struct ImageGalleryView: View {
             imageOffsets[id] = .zero
         }
         isZooming = false
+        let message = settingsManager.localizationManager.localizedString("zoom_reset")
+        UIAccessibility.post(notification: .announcement, argument: message)
+    }
+
+    private func announceZoomChange() {
+        let zoomString = String(format: "%.1f", currentScale)
+        let message = settingsManager.localizationManager.localizedString("zoomed_to")
+            .replacingOccurrences(of: "{zoom}", with: zoomString)
+        UIAccessibility.post(notification: .announcement, argument: message)
     }
 
     enum ZoomDirection {
@@ -491,10 +560,30 @@ struct ZoomableImageView: View {
     @Binding var isZooming: Bool
     @Binding var scale: CGFloat
     @Binding var offset: CGSize
+    let settingsManager: SettingsManager
+    let photoIndex: Int
+    let totalPhotos: Int
     @Environment(\.isPressMode) var isPressMode
 
     @State private var lastScale: CGFloat = 1.0
     @State private var lastOffset: CGSize = .zero
+
+    private var imageAccessibilityLabel: String {
+        let capturedPhoto = settingsManager.localizationManager.localizedString("captured_photo")
+        let photoNumber = settingsManager.localizationManager.localizedString("photo_number")
+            .replacingOccurrences(of: "{current}", with: "\(photoIndex + 1)")
+            .replacingOccurrences(of: "{total}", with: "\(totalPhotos)")
+
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateStyle = .short
+        dateFormatter.timeStyle = .short
+        let timeString = dateFormatter.string(from: capturedImage.capturedAt)
+
+        let capturedAt = settingsManager.localizationManager.localizedString("captured_at")
+            .replacingOccurrences(of: "{time}", with: timeString)
+
+        return "\(capturedPhoto)、\(photoNumber)、\(capturedAt)"
+    }
 
     var body: some View {
         GeometryReader { geometry in
@@ -570,6 +659,9 @@ struct ZoomableImageView: View {
                         }
                 )
                 .contextMenu { }
+                .accessibilityElement()
+                .accessibilityLabel(imageAccessibilityLabel)
+                .accessibilityValue("倍率: \(String(format: "%.1f", scale))倍")
                 .onChange(of: scale) { oldValue, newValue in
                     if newValue > 1.0 {
                         isZooming = true

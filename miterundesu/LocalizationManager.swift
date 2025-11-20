@@ -166,7 +166,17 @@ class LocalizationManager: ObservableObject {
         "press_mode_turn_on": "プレスモードをオンにする",
         "press_mode_turn_off": "プレスモードをオフにする",
         "open_link": "リンクを開く",
-        "version_info": "バージョン"
+        "version_info": "バージョン",
+        "photo_gallery": "写真ギャラリー",
+        "photo_count": "全{count}枚",
+        "photo_number": "写真 {current}/{total}",
+        "captured_at": "撮影時刻: {time}",
+        "moved_to_photo": "写真 {number}/{total}に移動しました",
+        "zoomed_to": "{zoom}倍に拡大しました",
+        "zoom_reset": "ズームをリセットしました",
+        "next_photo": "次の写真",
+        "previous_photo": "前の写真",
+        "captured_photo": "撮影した写真"
     ]
 
     // 英語の文字列
@@ -300,6 +310,16 @@ class LocalizationManager: ObservableObject {
         "press_mode_turn_on": "Turn on Press Mode",
         "press_mode_turn_off": "Turn off Press Mode",
         "open_link": "Open link",
-        "version_info": "Version"
+        "version_info": "Version",
+        "photo_gallery": "Photo Gallery",
+        "photo_count": "Total {count} photos",
+        "photo_number": "Photo {current} of {total}",
+        "captured_at": "Captured at: {time}",
+        "moved_to_photo": "Moved to photo {number} of {total}",
+        "zoomed_to": "Zoomed to {zoom}x",
+        "zoom_reset": "Zoom reset",
+        "next_photo": "Next photo",
+        "previous_photo": "Previous photo",
+        "captured_photo": "Captured photo"
     ]
 }
