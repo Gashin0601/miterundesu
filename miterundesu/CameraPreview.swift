@@ -76,6 +76,13 @@ struct CameraPreviewWithZoom: View {
                 CameraPreview(cameraManager: cameraManager)
                     .frame(maxHeight: .infinity)
                     .aspectRatio(3/4, contentMode: .fit) // .photo プリセットは 4:3（縦向きなので 3:4）
+                    .overlay(alignment: .bottomLeading) {
+                        // ウォーターマーク（カメラプレビュー内の左下）
+                        WatermarkView(isDarkBackground: true)
+                            .padding(.leading, screenWidth * 0.04)
+                            .padding(.bottom, screenWidth * 0.04)
+                            .allowsHitTesting(false)
+                    }
                     .gesture(
                         MagnificationGesture()
                             .onChanged { value in
