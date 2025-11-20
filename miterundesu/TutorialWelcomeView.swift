@@ -23,15 +23,11 @@ struct TutorialWelcomeView: View {
 
                 // ロゴとアニメーション
                 VStack(spacing: 32) {
-                    // 文字ロゴ
-                    Image("LogoTextOnly")
+                    // 正方形ロゴ
+                    Image("LogoSquare")
                         .resizable()
                         .scaledToFit()
-                        .frame(height: 60)
-
-                    // ヒーローアニメーション（ウェブのメインビジュアルを再現）
-                    HeroAnimationView()
-                        .frame(width: 300, height: 300)
+                        .frame(width: 200, height: 200)
 
                     // ようこそメッセージ
                     VStack(spacing: 16) {
