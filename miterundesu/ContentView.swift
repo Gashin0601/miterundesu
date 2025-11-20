@@ -162,8 +162,8 @@ struct ContentView: View {
                                 .fill(Color.white.opacity(0.25))
                         )
                     }
-                    .spotlight(id: "settings_button")
                     .padding(.trailing, horizontalPadding)
+                    .spotlight(id: "settings_button")
                     .opacity(shouldShowUI ? 1 : 0)
                     .accessibilityLabel(settingsManager.localizationManager.localizedString("settings"))
                 }
@@ -492,9 +492,9 @@ struct HeaderView: View {
         VStack(spacing: 14) {
             // 無限スクロールテキスト
             InfiniteScrollingText(text: settingsManager.scrollingMessage)
-                .spotlight(id: "scrolling_message")
                 .frame(height: 32)
                 .clipped()
+                .spotlight(id: "scrolling_message")
                 .accessibilityElement(children: .ignore) // 内部の繰り返し要素を無視
                 .accessibilityLabel("スクロールメッセージ、\(settingsManager.scrollingMessage)") // 一度だけ読み上げ
 
@@ -703,15 +703,15 @@ struct FooterView: View {
                     settingsManager: settingsManager,
                     thumbnailSize: thumbnailSize
                 )
-                .spotlight(id: "photo_button")
                 .padding(.leading, horizontalPadding)
+                .spotlight(id: "photo_button")
 
                 Spacer()
 
                 // 倍率表示（右下）
                 ZoomLevelView(zoomLevel: currentZoom)
-                    .spotlight(id: "zoom_controls")
                     .padding(.trailing, horizontalPadding)
+                    .spotlight(id: "zoom_controls")
             }
         }
         .padding(.top, verticalTopPadding)
