@@ -183,43 +183,45 @@ struct ContentView: View {
                             .aspectRatio(3/4, contentMode: .fit)
                     } else {
                         // 保護されたカメラプレビュー
-                        ZStack(alignment: .bottomLeading) {
-                            // カメラプレビュー部分（保護対象）
+                        GeometryReader { geometry in
                             ZStack(alignment: .bottomLeading) {
-                                CameraPreviewWithZoom(
-                                    cameraManager: cameraManager,
-                                    isTheaterMode: $settingsManager.isTheaterMode,
-                                    onCapture: {
-                                        capturePhoto()
-                                    }
-                                )
-                                .blur(radius: securityManager.isScreenRecording ? 30 : 0)
-
-                                // 画面録画中の警告（中央）
-                                if securityManager.isScreenRecording {
-                                    VStack(spacing: 12) {
-                                        Image(systemName: "eye.slash.fill")
-                                            .font(.system(size: 40))
-                                            .foregroundColor(.white)
-
-                                        Text(settingsManager.localizationManager.localizedString("screen_recording_warning"))
-                                            .font(.headline)
-                                            .foregroundColor(.white)
-                                    }
-                                    .padding(20)
-                                    .background(
-                                        RoundedRectangle(cornerRadius: 12)
-                                            .fill(Color.black.opacity(0.7))
+                                // カメラプレビュー部分（保護対象）
+                                ZStack {
+                                    CameraPreviewWithZoom(
+                                        cameraManager: cameraManager,
+                                        isTheaterMode: $settingsManager.isTheaterMode,
+                                        onCapture: {
+                                            capturePhoto()
+                                        }
                                     )
-                                }
+                                    .blur(radius: securityManager.isScreenRecording ? 30 : 0)
 
-                                // ウォーターマーク（カメラプレビュー内の左下）
+                                    // 画面録画中の警告（中央）
+                                    if securityManager.isScreenRecording {
+                                        VStack(spacing: 12) {
+                                            Image(systemName: "eye.slash.fill")
+                                                .font(.system(size: 40))
+                                                .foregroundColor(.white)
+
+                                            Text(settingsManager.localizationManager.localizedString("screen_recording_warning"))
+                                                .font(.headline)
+                                                .foregroundColor(.white)
+                                        }
+                                        .padding(20)
+                                        .background(
+                                            RoundedRectangle(cornerRadius: 12)
+                                                .fill(Color.black.opacity(0.7))
+                                        )
+                                    }
+                                }
+                                .preventScreenCapture()  // カメラプレビューだけを保護
+
+                                // ウォーターマーク（カメラプレビューの外側、画面上の位置）
                                 WatermarkView(isDarkBackground: true)
-                                    .padding(.leading, screenWidth * 0.04)
-                                    .padding(.bottom, screenWidth * 0.04)
+                                    .padding(.leading, geometry.size.width * 0.04)
+                                    .padding(.bottom, geometry.size.width * 0.04)
                                     .allowsHitTesting(false) // タッチイベントを透過
                             }
-                            .preventScreenCapture()  // カメラプレビューだけを保護
                         }
                     }
                 }
