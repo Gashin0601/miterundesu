@@ -321,22 +321,17 @@ struct TutorialArrowView: View {
     }
 
     var body: some View {
-        ZStack {
-            // 矢印パス（破線の直線）
-            Path { path in
-                path.move(to: arrowStartPoint)
-                path.addLine(to: arrowEndPoint)
-            }
-            .stroke(Color.white, style: StrokeStyle(
-                lineWidth: 3,
-                lineCap: .round,
-                dash: [8, 4]
-            ))
-            .shadow(color: .black.opacity(0.3), radius: 2, x: 0, y: 1)
-
-            // 矢印ヘッド（三角形）
-            ArrowHead(at: arrowEndPoint, angle: arrowAngle)
+        // 矢印パス（破線の直線のみ）
+        Path { path in
+            path.move(to: arrowStartPoint)
+            path.addLine(to: arrowEndPoint)
         }
+        .stroke(Color.white, style: StrokeStyle(
+            lineWidth: 3,
+            lineCap: .round,
+            dash: [8, 4]
+        ))
+        .shadow(color: .black.opacity(0.3), radius: 2, x: 0, y: 1)
     }
 }
 
