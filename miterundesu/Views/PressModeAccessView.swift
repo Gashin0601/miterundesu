@@ -79,7 +79,7 @@ struct PressModeAccessView: View {
                                 Text(errorMessage)
                             }
                             .font(.caption)
-                            .foregroundColor(.red)
+                            .foregroundColor(.white)
                             .accessibilityElement(children: .combine)
                         }
                     }
