@@ -158,17 +158,22 @@ struct ExplanationView: View {
 struct NormalModeIllustrations: View {
     var body: some View {
         VStack(spacing: 32) {
-            // 2つのアイコンを横に並べる
-            HStack(spacing: 40) {
+            // 3つのアイコンを横に並べる
+            HStack(spacing: 30) {
                 Image("icon-white-cane")
                     .resizable()
                     .scaledToFit()
-                    .frame(width: 100, height: 100)
+                    .frame(width: 80, height: 80)
+
+                Image("icon-elderly")
+                    .resizable()
+                    .scaledToFit()
+                    .frame(width: 80, height: 80)
 
                 Image("icon-wheelchair")
                     .resizable()
                     .scaledToFit()
-                    .frame(width: 100, height: 100)
+                    .frame(width: 80, height: 80)
             }
             .padding(.horizontal, 24)
 
