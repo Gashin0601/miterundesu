@@ -11,9 +11,9 @@ import UIKit
 struct ContentView: View {
     @StateObject private var cameraManager = CameraManager()
     @StateObject private var imageManager = ImageManager()
-    @StateObject private var securityManager = SecurityManager.shared
+    @ObservedObject private var securityManager = SecurityManager.shared
     @StateObject private var settingsManager = SettingsManager()
-    @StateObject private var onboardingManager = OnboardingManager.shared
+    @ObservedObject private var onboardingManager = OnboardingManager.shared
 
     @State private var showSettings = false
     @State private var showExplanation = false
