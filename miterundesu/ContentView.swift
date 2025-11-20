@@ -783,23 +783,34 @@ struct ThumbnailView: View {
                 }
             }) {
                 ZStack(alignment: .topTrailing) {
-                    // 画像を表示（サムネイルは小さいので保護不要）
-                    ZStack {
-                        Image(uiImage: latestImage.image)
-                            .resizable()
-                            .scaledToFill()
+                    if securityManager.hideContent {
+                        // スクリーンショット/画面収録時: サムネイルを完全に非表示
+                        RoundedRectangle(cornerRadius: cornerRadius)
+                            .fill(Color.black)
                             .frame(width: thumbnailSize, height: thumbnailSize)
-                            .clipShape(RoundedRectangle(cornerRadius: cornerRadius))
                             .overlay(
                                 RoundedRectangle(cornerRadius: cornerRadius)
                                     .stroke(Color.white, lineWidth: 2)
                             )
-                            .blur(radius: securityManager.isScreenRecording ? blurRadius : 0)
-                    }
-                    .contextMenu { } // コンテキストメニューを無効化
+                    } else {
+                        // 通常時: 画像を表示
+                        ZStack {
+                            Image(uiImage: latestImage.image)
+                                .resizable()
+                                .scaledToFill()
+                                .frame(width: thumbnailSize, height: thumbnailSize)
+                                .clipShape(RoundedRectangle(cornerRadius: cornerRadius))
+                                .overlay(
+                                    RoundedRectangle(cornerRadius: cornerRadius)
+                                        .stroke(Color.white, lineWidth: 2)
+                                )
+                                .blur(radius: securityManager.isScreenRecording ? blurRadius : 0)
+                        }
+                        .contextMenu { } // コンテキストメニューを無効化
 
-                    // 残り時間バッジ（保護の外側）
-                    TimeRemainingBadge(remainingTime: latestImage.remainingTime)
+                        // 残り時間バッジ
+                        TimeRemainingBadge(remainingTime: latestImage.remainingTime)
+                    }
                 }
             }
             .disabled(isTheaterMode)
