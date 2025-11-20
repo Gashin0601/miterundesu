@@ -105,7 +105,7 @@ struct SettingsView: View {
                             }
 
                             TextEditor(text: settingsManager.isTheaterMode ? $settingsManager.scrollingMessageTheater : $settingsManager.scrollingMessageNormal)
-                                .frame(minHeight: 60, maxHeight: 120)
+                                .frame(minHeight: 100, maxHeight: 200)
                                 .padding(8)
                                 .background(Color.white.opacity(0.1))
                                 .cornerRadius(8)
