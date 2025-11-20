@@ -185,7 +185,7 @@ struct ContentView: View {
                         // 保護されたカメラプレビュー
                         ZStack(alignment: .bottomLeading) {
                             // カメラプレビュー部分（保護対象）
-                            ZStack {
+                            ZStack(alignment: .bottomLeading) {
                                 CameraPreviewWithZoom(
                                     cameraManager: cameraManager,
                                     isTheaterMode: $settingsManager.isTheaterMode,
@@ -212,14 +212,14 @@ struct ContentView: View {
                                             .fill(Color.black.opacity(0.7))
                                     )
                                 }
+
+                                // ウォーターマーク（カメラプレビュー内の左下）
+                                WatermarkView(isDarkBackground: true)
+                                    .padding(.leading, screenWidth * 0.04)
+                                    .padding(.bottom, screenWidth * 0.04)
+                                    .allowsHitTesting(false) // タッチイベントを透過
                             }
                             .preventScreenCapture()  // カメラプレビューだけを保護
-
-                            // ウォーターマーク（保護の外側、カメラプレビュー上の左下）
-                            WatermarkView(isDarkBackground: true)
-                                .padding(.leading, screenWidth * 0.031)  // 12pt
-                                .padding(.bottom, screenWidth * 0.031)   // 12pt
-                                .allowsHitTesting(false) // タッチイベントを透過
                         }
                     }
                 }
