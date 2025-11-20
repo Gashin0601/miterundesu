@@ -63,7 +63,11 @@ struct SettingsView: View {
                         }
                         .padding(.vertical, 8)
                     }
-                    .listRowBackground(Color.white.opacity(0.2))
+                    .listRowBackground(
+                        isTheaterMode
+                            ? Color(red: 0.95, green: 0.6, blue: 0.3, opacity: 0.35)
+                            : Color(red: 0.2, green: 0.6, blue: 0.4, opacity: 0.35)
+                    )
 
                     // 言語設定
                     Section(header: Text(settingsManager.localizationManager.localizedString("language_settings")).foregroundColor(.white)) {
@@ -75,7 +79,11 @@ struct SettingsView: View {
                         }
                         .pickerStyle(.segmented)
                     }
-                    .listRowBackground(Color.white.opacity(0.2))
+                    .listRowBackground(
+                        isTheaterMode
+                            ? Color(red: 0.95, green: 0.6, blue: 0.3, opacity: 0.35)
+                            : Color(red: 0.2, green: 0.6, blue: 0.4, opacity: 0.35)
+                    )
 
                     // スクロールメッセージ設定
                     Section(header: Text(settingsManager.localizationManager.localizedString("scrolling_message_settings")).foregroundColor(.white)) {
@@ -128,7 +136,11 @@ struct SettingsView: View {
                         }
                         .padding(.vertical, 8)
                     }
-                    .listRowBackground(Color.white.opacity(0.2))
+                    .listRowBackground(
+                        isTheaterMode
+                            ? Color(red: 0.95, green: 0.6, blue: 0.3, opacity: 0.35)
+                            : Color(red: 0.2, green: 0.6, blue: 0.4, opacity: 0.35)
+                    )
 
                     // プレスモード設定
                     Section(header: Text(settingsManager.localizationManager.localizedString("press_mode_settings")).foregroundColor(.white)) {
@@ -241,7 +253,11 @@ struct SettingsView: View {
                         }
                         .padding(.vertical, 8)
                     }
-                    .listRowBackground(Color.white.opacity(0.2))
+                    .listRowBackground(
+                        isTheaterMode
+                            ? Color(red: 0.95, green: 0.6, blue: 0.3, opacity: 0.35)
+                            : Color(red: 0.2, green: 0.6, blue: 0.4, opacity: 0.35)
+                    )
 
                     // アプリ情報
                     Section(header: Text(settingsManager.localizationManager.localizedString("app_info")).foregroundColor(.white)) {
@@ -254,7 +270,11 @@ struct SettingsView: View {
                         }
                         .accessibilityElement(children: .combine)
                         .accessibilityLabel("\(settingsManager.localizationManager.localizedString("version_info")) 1.0.0")
-                        .listRowBackground(Color.white.opacity(0.2))
+                        .listRowBackground(
+                        isTheaterMode
+                            ? Color(red: 0.95, green: 0.6, blue: 0.3, opacity: 0.35)
+                            : Color(red: 0.2, green: 0.6, blue: 0.4, opacity: 0.35)
+                    )
 
                         Link(destination: URL(string: "https://miterundesu.jp")!) {
                             HStack {
@@ -268,7 +288,11 @@ struct SettingsView: View {
                         }
                         .accessibilityLabel(settingsManager.localizationManager.localizedString("official_site"))
                         .accessibilityHint(settingsManager.localizationManager.localizedString("open_link"))
-                        .listRowBackground(Color.white.opacity(0.2))
+                        .listRowBackground(
+                        isTheaterMode
+                            ? Color(red: 0.95, green: 0.6, blue: 0.3, opacity: 0.35)
+                            : Color(red: 0.2, green: 0.6, blue: 0.4, opacity: 0.35)
+                    )
 
                         Button(action: {
                             // 設定画面を閉じてからチュートリアルを表示
@@ -288,7 +312,11 @@ struct SettingsView: View {
                             }
                         }
                         .accessibilityLabel(settingsManager.localizationManager.localizedString("show_tutorial"))
-                        .listRowBackground(Color.white.opacity(0.2))
+                        .listRowBackground(
+                        isTheaterMode
+                            ? Color(red: 0.95, green: 0.6, blue: 0.3, opacity: 0.35)
+                            : Color(red: 0.2, green: 0.6, blue: 0.4, opacity: 0.35)
+                    )
 
                         Link(destination: URL(string: "https://miterundesu.jp/privacy")!) {
                             HStack {
@@ -302,7 +330,11 @@ struct SettingsView: View {
                         }
                         .accessibilityLabel(settingsManager.localizationManager.localizedString("privacy_policy"))
                         .accessibilityHint(settingsManager.localizationManager.localizedString("open_link"))
-                        .listRowBackground(Color.white.opacity(0.2))
+                        .listRowBackground(
+                        isTheaterMode
+                            ? Color(red: 0.95, green: 0.6, blue: 0.3, opacity: 0.35)
+                            : Color(red: 0.2, green: 0.6, blue: 0.4, opacity: 0.35)
+                    )
 
                         Link(destination: URL(string: "https://miterundesu.jp/terms")!) {
                             HStack {
@@ -316,7 +348,11 @@ struct SettingsView: View {
                         }
                         .accessibilityLabel(settingsManager.localizationManager.localizedString("terms_of_service"))
                         .accessibilityHint(settingsManager.localizationManager.localizedString("open_link"))
-                        .listRowBackground(Color.white.opacity(0.2))
+                        .listRowBackground(
+                        isTheaterMode
+                            ? Color(red: 0.95, green: 0.6, blue: 0.3, opacity: 0.35)
+                            : Color(red: 0.2, green: 0.6, blue: 0.4, opacity: 0.35)
+                    )
                     }
 
                     // リセット
@@ -331,7 +367,11 @@ struct SettingsView: View {
                                 Spacer()
                             }
                         }
-                        .listRowBackground(Color.white.opacity(0.2))
+                        .listRowBackground(
+                        isTheaterMode
+                            ? Color(red: 0.95, green: 0.6, blue: 0.3, opacity: 0.35)
+                            : Color(red: 0.2, green: 0.6, blue: 0.4, opacity: 0.35)
+                    )
                     }
                 }
                 .scrollContentBackground(.hidden)
