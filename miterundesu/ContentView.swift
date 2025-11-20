@@ -844,22 +844,6 @@ struct ThumbnailView: View {
             .frame(width: thumbnailSize, height: thumbnailSize)
             .clipped()
             .disabled(isTheaterMode)
-            .onLongPressGesture(minimumDuration: 0.3, pressing: { pressing in
-                // プレスモードオフ時のみ長押しで表示
-                if !settingsManager.isPressMode {
-                    if pressing {
-                        // 長押し開始: サムネイルを表示
-                        showThumbnail = true
-                        hideTimer?.invalidate()
-                    } else {
-                        // 長押し終了: 2秒後に自動非表示
-                        hideTimer?.invalidate()
-                        hideTimer = Timer.scheduledTimer(withTimeInterval: 2.0, repeats: false) { _ in
-                            showThumbnail = false
-                        }
-                    }
-                }
-            }, perform: {})
             .opacity(isTheaterMode ? 0.3 : 1.0)
             .accessibilityLabel(settingsManager.localizationManager.localizedString(isTheaterMode ? "viewing_disabled" : "latest_image"))
             .onReceive(timer) { _ in
