@@ -143,6 +143,7 @@ struct SettingsView: View {
                                             .font(.headline)
                                             .foregroundColor(.white)
                                     }
+                                    .accessibilityElement(children: .combine)
 
                                     // 有効期間内の場合は期限を表示
                                     if device.status == .active {
@@ -171,6 +172,7 @@ struct SettingsView: View {
                                         .font(.headline)
                                         .foregroundColor(.white)
                                 }
+                                .accessibilityElement(children: .combine)
                                 .padding(.vertical, 4)
                             }
 
@@ -225,8 +227,11 @@ struct SettingsView: View {
                                             .frame(width: 27, height: 27)
                                             .offset(x: settingsManager.isPressMode ? 10 : -10)
                                     }
+                                    .accessibilityHidden(true)
                                 }
                             }
+                            .accessibilityLabel(settingsManager.isPressMode ? "プレスモードをオフにする" : "プレスモードをオンにする")
+                            .accessibilityValue(settingsManager.isPressMode ? "オン" : "オフ")
 
                             Text(settingsManager.localizationManager.localizedString("press_mode_description"))
                                 .font(.caption)
@@ -246,6 +251,8 @@ struct SettingsView: View {
                             Text("1.0.0")
                                 .foregroundColor(.white.opacity(0.7))
                         }
+                        .accessibilityElement(children: .combine)
+                        .accessibilityLabel("バージョン 1.0.0")
                         .listRowBackground(Color.white.opacity(0.2))
 
                         Link(destination: URL(string: "https://miterundesu.jp")!) {
@@ -255,8 +262,11 @@ struct SettingsView: View {
                                 Spacer()
                                 Image(systemName: "arrow.up.right.square")
                                     .foregroundColor(.white)
+                                    .accessibilityHidden(true)
                             }
                         }
+                        .accessibilityLabel(settingsManager.localizationManager.localizedString("official_site"))
+                        .accessibilityHint("リンクを開く")
                         .listRowBackground(Color.white.opacity(0.2))
 
                         Button(action: {
@@ -273,8 +283,10 @@ struct SettingsView: View {
                                 Spacer()
                                 Image(systemName: "questionmark.circle")
                                     .foregroundColor(.white)
+                                    .accessibilityHidden(true)
                             }
                         }
+                        .accessibilityLabel(settingsManager.localizationManager.localizedString("show_tutorial"))
                         .listRowBackground(Color.white.opacity(0.2))
 
                         Link(destination: URL(string: "https://miterundesu.jp/privacy")!) {
@@ -284,8 +296,11 @@ struct SettingsView: View {
                                 Spacer()
                                 Image(systemName: "arrow.up.right.square")
                                     .foregroundColor(.white)
+                                    .accessibilityHidden(true)
                             }
                         }
+                        .accessibilityLabel(settingsManager.localizationManager.localizedString("privacy_policy"))
+                        .accessibilityHint("リンクを開く")
                         .listRowBackground(Color.white.opacity(0.2))
 
                         Link(destination: URL(string: "https://miterundesu.jp/terms")!) {
@@ -295,8 +310,11 @@ struct SettingsView: View {
                                 Spacer()
                                 Image(systemName: "arrow.up.right.square")
                                     .foregroundColor(.white)
+                                    .accessibilityHidden(true)
                             }
                         }
+                        .accessibilityLabel(settingsManager.localizationManager.localizedString("terms_of_service"))
+                        .accessibilityHint("リンクを開く")
                         .listRowBackground(Color.white.opacity(0.2))
                     }
 

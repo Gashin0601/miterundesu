@@ -49,7 +49,7 @@ struct PressModeInfoView: View {
                                         .foregroundColor(.white)
                                 }
 
-                                Text("報道機関の方が取材や撮影の際に、より便利にご利用いただける特別モードです。")
+                                Text("報道機関の方が取材や撮影の際に、より便利にご利用いただけるモードです。")
                                     .font(.body)
                                     .foregroundColor(.white.opacity(0.9))
                                     .fixedSize(horizontal: false, vertical: true)
@@ -160,42 +160,20 @@ struct PressModeInfoView: View {
                         }
                         .padding(.horizontal, 24)
 
-                        // お問い合わせボタン
+                        // 詳細と申請フォームへのリンク
                         VStack(spacing: 16) {
-                            Text("お問い合わせ先")
+                            Text("プレスモード申請")
                                 .font(.subheadline)
                                 .foregroundColor(.white.opacity(0.8))
 
-                            Button(action: {
-                                let deviceId = pressModeManager.getDeviceIdForDisplay()
-                                let subject = "プレスモード利用申請"
-                                let body = """
-                                プレスモードの利用を希望します。
-
-                                【申請情報】
-                                所属:
-                                お名前:
-                                連絡先:
-                                デバイスID: \(deviceId)
-
-                                【備考】
-
-                                """
-
-                                let encodedSubject = subject.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? ""
-                                let encodedBody = body.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? ""
-
-                                if let url = URL(string: "mailto:\(contactEmail)?subject=\(encodedSubject)&body=\(encodedBody)") {
-                                    UIApplication.shared.open(url)
-                                }
-                            }) {
+                            Link(destination: URL(string: "https://miterundesu.jp/press")!) {
                                 HStack(spacing: 12) {
-                                    Image(systemName: "envelope.fill")
+                                    Image(systemName: "arrow.up.forward.square.fill")
                                         .font(.title3)
                                     VStack(alignment: .leading, spacing: 4) {
-                                        Text("メールで申請する")
+                                        Text("詳細・申請フォーム")
                                             .font(.headline)
-                                        Text(contactEmail)
+                                        Text("miterundesu.jp/press")
                                             .font(.caption)
                                     }
                                 }

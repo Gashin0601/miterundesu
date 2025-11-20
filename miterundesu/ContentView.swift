@@ -460,6 +460,7 @@ struct HeaderView: View {
                 .spotlight(id: "scrolling_message")
                 .frame(height: 32)
                 .clipped()
+                .accessibilityHidden(true)
 
             // ロゴ
             Image("Logo")
@@ -545,7 +546,8 @@ struct TheaterModeToggle: View {
                     .fill(Color.white.opacity(0.25))
             )
         }
-        .accessibilityLabel(settingsManager.localizationManager.localizedString("theater_mode"))
+        .accessibilityLabel(isTheaterMode ? "通常モードに変更する" : "シアターモードに変更する")
+        .accessibilityHint(isTheaterMode ? "タップすると通常モードに切り替わります" : "タップするとシアターモードに切り替わります")
     }
 }
 
