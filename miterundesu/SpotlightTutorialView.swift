@@ -180,6 +180,7 @@ struct SpotlightTutorialView: View {
                 highlightFrames: targetFrames.isEmpty ? [defaultFrame] : targetFrames,
                 cornerRadius: 12
             )
+            .accessibilityHidden(true)
 
             // 矢印（カードからプライマリターゲットへ1本のみ）
             // ターゲットが見つかった場合のみ表示
@@ -190,6 +191,7 @@ struct SpotlightTutorialView: View {
                     position: currentStep.position
                 )
                 .transition(.opacity)
+                .accessibilityHidden(true)
             }
 
             // 説明カード（動的位置）
@@ -204,6 +206,12 @@ struct SpotlightTutorialView: View {
                 onComplete: completeTutorial,
                 settingsManager: settingsManager
             )
+        }
+        .onAppear {
+            // VoiceOver: チュートリアル開始時に最初のステップを読み上げ
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                announceCurrentStep()
+            }
         }
     }
 
@@ -225,6 +233,8 @@ struct SpotlightTutorialView: View {
             withAnimation(.easeInOut(duration: 0.25)) {
                 currentStepIndex += 1
             }
+            // VoiceOver: 次のステップを読み上げ
+            announceCurrentStep()
         }
     }
 
@@ -233,6 +243,16 @@ struct SpotlightTutorialView: View {
             withAnimation(.easeInOut(duration: 0.25)) {
                 currentStepIndex -= 1
             }
+            // VoiceOver: 前のステップを読み上げ
+            announceCurrentStep()
+        }
+    }
+
+    private func announceCurrentStep() {
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+            let step = steps[currentStepIndex]
+            let announcement = "\(step.title)。\(step.description)"
+            UIAccessibility.post(notification: .announcement, argument: announcement)
         }
     }
 
