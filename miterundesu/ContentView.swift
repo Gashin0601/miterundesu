@@ -405,12 +405,28 @@ struct ContentView: View {
             return
         }
 
+        // VoiceOver: 撮影開始をアナウンス
+        DispatchQueue.main.async {
+            UIAccessibility.post(
+                notification: .announcement,
+                argument: settingsManager.localizationManager.localizedString("capture_started")
+            )
+        }
+
         cameraManager.capturePhoto { image in
             if let image = image {
                 imageManager.addImage(image)
                 // 撮影後、自動的に撮影直後プレビューを表示
                 if let latestImage = imageManager.capturedImages.first {
                     justCapturedImage = latestImage
+                }
+
+                // VoiceOver: 撮影完了をアナウンス
+                DispatchQueue.main.async {
+                    UIAccessibility.post(
+                        notification: .announcement,
+                        argument: settingsManager.localizationManager.localizedString("capture_complete")
+                    )
                 }
             }
         }
