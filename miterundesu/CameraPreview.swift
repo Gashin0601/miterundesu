@@ -9,12 +9,12 @@ import SwiftUI
 import AVFoundation
 import AVKit
 
-struct CameraPreview: UIViewRepresentable {
+struct CameraPreview: UIViewRepresentable, Equatable {
     @ObservedObject var cameraManager: CameraManager
 
     func makeUIView(context: Context) -> PreviewView {
         let view = PreviewView()
-        view.videoPreviewLayer.session = cameraManager.session // 直接 session を参照
+        view.videoPreviewLayer.session = cameraManager.session
         view.videoPreviewLayer.videoGravity = .resizeAspectFill
         #if DEBUG
         print("📹 CameraPreview created")
@@ -23,13 +23,18 @@ struct CameraPreview: UIViewRepresentable {
     }
 
     func updateUIView(_ uiView: PreviewView, context: Context) {
-        // セッションを確実に接続（preventScreenCapture の再構築後も維持）
-        if uiView.videoPreviewLayer.session !== cameraManager.session {
-            #if DEBUG
-            print("📹 Re-assigning camera session to preview layer")
-            #endif
-            uiView.videoPreviewLayer.session = cameraManager.session
-        }
+        // セッションが変わった場合のみ再割り当て（パフォーマンス最適化）
+        guard uiView.videoPreviewLayer.session !== cameraManager.session else { return }
+
+        #if DEBUG
+        print("📹 Re-assigning camera session to preview layer")
+        #endif
+        uiView.videoPreviewLayer.session = cameraManager.session
+    }
+
+    // Equatableに準拠して不要な更新を防ぐ
+    static func == (lhs: CameraPreview, rhs: CameraPreview) -> Bool {
+        lhs.cameraManager === rhs.cameraManager
     }
 
     func makeCoordinator() -> Coordinator {
@@ -74,6 +79,7 @@ struct CameraPreviewWithZoom: View {
 
             ZStack(alignment: .bottomTrailing) {
                 CameraPreview(cameraManager: cameraManager)
+                    .equatable()
                     .frame(maxHeight: .infinity)
                     .aspectRatio(3/4, contentMode: .fit) // .photo プリセットは 4:3（縦向きなので 3:4）
                     .overlay(alignment: .bottomLeading) {
