@@ -232,7 +232,9 @@ struct SettingsView: View {
                                     // トグル風の表示
                                     ZStack {
                                         RoundedRectangle(cornerRadius: 16)
-                                            .fill(settingsManager.isPressMode ? Color("MainGreen") : Color.white.opacity(0.3))
+                                            .fill(settingsManager.isPressMode
+                                                ? (isTheaterMode ? Color("TheaterOrange") : Color("MainGreen"))
+                                                : Color.white.opacity(0.3))
                                             .frame(width: 51, height: 31)
 
                                         Circle()
