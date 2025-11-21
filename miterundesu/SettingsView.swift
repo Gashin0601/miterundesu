@@ -19,6 +19,7 @@ struct SettingsView: View {
     @State private var showingPressModeStatus = false
     @State private var pressModeTargetState = false
     @State private var showingLogoutConfirmation = false
+    @State private var showingResetConfirmation = false
 
     var body: some View {
         NavigationView {
@@ -412,7 +413,7 @@ struct SettingsView: View {
                     // リセット
                     Section {
                         Button(action: {
-                            settingsManager.resetToDefaults()
+                            showingResetConfirmation = true
                         }) {
                             HStack {
                                 Spacer()
@@ -485,6 +486,14 @@ struct SettingsView: View {
             }
         } message: {
             Text("プレスモードからログアウトしますか？\n再度ログインするには、ユーザーIDとパスワードが必要です。")
+        }
+        .alert("設定のリセット", isPresented: $showingResetConfirmation) {
+            Button("キャンセル", role: .cancel) { }
+            Button("リセット", role: .destructive) {
+                settingsManager.resetToDefaults()
+            }
+        } message: {
+            Text("すべての設定を初期値に戻しますか？\nこの操作は元に戻せません。")
         }
     }
 
