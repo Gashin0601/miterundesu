@@ -24,7 +24,7 @@ class CameraManager: NSObject, ObservableObject, AVCaptureSessionControlsDelegat
     private var videoDeviceInput: AVCaptureDeviceInput?
     private var device: AVCaptureDevice?
     private var customZoomSlider: Any? // iOS 18.0以降では AVCaptureSlider
-    private var photoDelegates = NSMutableSet() // アクティブなデリゲートを管理
+    private var photoDelegates: [UUID: PhotoCaptureDelegate] = [:] // アクティブなデリゲートを管理
 
     private let sessionQueue = DispatchQueue(label: "camera.session.queue")
 
@@ -264,31 +264,39 @@ class CameraManager: NSObject, ObservableObject, AVCaptureSessionControlsDelegat
         let settings = AVCapturePhotoSettings()
         settings.photoQualityPrioritization = .quality
 
-        let photoCaptureDelegate = PhotoCaptureDelegate { [weak self] image in
-            guard let self = self else { return }
+        // デリゲート用の一意のID
+        let delegateId = UUID()
 
-            // 撮影完了後にフラグを解除
-            DispatchQueue.main.async {
-                self.isCapturing = false
-                #if DEBUG
-                print("📷 撮影完了 - isCapturing = false")
-                #endif
+        let photoCaptureDelegate = PhotoCaptureDelegate(
+            completion: { [weak self] image in
+                guard let self = self else { return }
+
+                // 撮影完了後にフラグを解除
+                DispatchQueue.main.async {
+                    self.isCapturing = false
+                    #if DEBUG
+                    print("📷 撮影完了 - isCapturing = false")
+                    #endif
+                }
+
+                // 元のcompletionを呼び出す
+                completion(image)
+            },
+            cleanup: { [weak self] in
+                guard let self = self else { return }
+
+                // デリゲートを辞書から削除（メモリ解放）
+                self.sessionQueue.async {
+                    self.photoDelegates.removeValue(forKey: delegateId)
+                    #if DEBUG
+                    print("🗑️ PhotoCaptureDelegate解放 - 残り: \(self.photoDelegates.count)")
+                    #endif
+                }
             }
-
-            // 元のcompletionを呼び出す
-            completion(image)
-
-            // デリゲートをセットから削除（メモリ解放）
-            self.sessionQueue.async {
-                self.photoDelegates.remove(photoCaptureDelegate)
-                #if DEBUG
-                print("🗑️ PhotoCaptureDelegate解放 - 残り: \(self.photoDelegates.count)")
-                #endif
-            }
-        }
+        )
 
         // デリゲートを保持（キャプチャ完了まで）
-        photoDelegates.add(photoCaptureDelegate)
+        photoDelegates[delegateId] = photoCaptureDelegate
         #if DEBUG
         print("📷 PhotoCaptureDelegate追加 - 合計: \(photoDelegates.count)")
         #endif
@@ -376,12 +384,19 @@ class CameraManager: NSObject, ObservableObject, AVCaptureSessionControlsDelegat
 // MARK: - Photo Capture Delegate
 private class PhotoCaptureDelegate: NSObject, AVCapturePhotoCaptureDelegate {
     private let completion: (UIImage?) -> Void
+    private let cleanup: () -> Void
 
-    init(completion: @escaping (UIImage?) -> Void) {
+    init(completion: @escaping (UIImage?) -> Void, cleanup: @escaping () -> Void) {
         self.completion = completion
+        self.cleanup = cleanup
     }
 
     func photoOutput(_ output: AVCapturePhotoOutput, didFinishProcessingPhoto photo: AVCapturePhoto, error: Error?) {
+        defer {
+            // 処理完了後にクリーンアップ
+            cleanup()
+        }
+
         if let error = error {
             #if DEBUG
             print("Error capturing photo: \(error)")
