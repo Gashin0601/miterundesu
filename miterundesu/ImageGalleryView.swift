@@ -95,6 +95,7 @@ struct ImageGalleryView: View {
                             .scrollPosition(id: $scrollPositionID)
                             .scrollDisabled(isZooming)
                             .blur(radius: securityManager.isScreenRecording ? 50 : 0)
+                            .modifier(ConditionalPreventCapture(isEnabled: !settingsManager.isPressMode))
                             .onChange(of: scrollPositionID) { oldValue, newValue in
                                 // スクロール位置からインデックスを更新
                                 if let newID = newValue,
