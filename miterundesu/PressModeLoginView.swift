@@ -20,8 +20,8 @@ struct PressModeLoginView: View {
     var body: some View {
         NavigationView {
             ZStack {
-                // Background
-                Color(UIColor.systemGroupedBackground)
+                // Background - アプリの統一背景色
+                Color("MainGreen")
                     .ignoresSafeArea()
 
                 ScrollView {
@@ -30,15 +30,16 @@ struct PressModeLoginView: View {
                         VStack(spacing: 12) {
                             Image(systemName: "newspaper.circle.fill")
                                 .font(.system(size: 60))
-                                .foregroundColor(.blue)
+                                .foregroundColor(.white)
 
                             Text("プレスモードログイン")
                                 .font(.title2)
                                 .fontWeight(.bold)
+                                .foregroundColor(.white)
 
                             Text("取材用アカウントでログインしてください")
                                 .font(.subheadline)
-                                .foregroundColor(.secondary)
+                                .foregroundColor(.white.opacity(0.9))
                                 .multilineTextAlignment(.center)
                         }
                         .padding(.top, 40)
@@ -50,25 +51,22 @@ struct PressModeLoginView: View {
                                 Text("ユーザーID")
                                     .font(.subheadline)
                                     .fontWeight(.medium)
-                                    .foregroundColor(.primary)
+                                    .foregroundColor(.white)
 
                                 HStack {
                                     Image(systemName: "person")
-                                        .foregroundColor(.secondary)
+                                        .foregroundColor(.white.opacity(0.7))
                                         .frame(width: 20)
 
                                     TextField("ユーザーIDを入力", text: $userId)
                                         .textContentType(.username)
                                         .autocapitalization(.none)
                                         .disableAutocorrection(true)
+                                        .foregroundColor(.white)
                                 }
                                 .padding()
-                                .background(Color(UIColor.systemBackground))
+                                .background(Color.white.opacity(0.15))
                                 .cornerRadius(10)
-                                .overlay(
-                                    RoundedRectangle(cornerRadius: 10)
-                                        .stroke(Color.gray.opacity(0.2), lineWidth: 1)
-                                )
                             }
 
                             // Password Field
@@ -76,11 +74,11 @@ struct PressModeLoginView: View {
                                 Text("パスワード")
                                     .font(.subheadline)
                                     .fontWeight(.medium)
-                                    .foregroundColor(.primary)
+                                    .foregroundColor(.white)
 
                                 HStack {
                                     Image(systemName: "lock")
-                                        .foregroundColor(.secondary)
+                                        .foregroundColor(.white.opacity(0.7))
                                         .frame(width: 20)
 
                                     if showPassword {
@@ -88,41 +86,39 @@ struct PressModeLoginView: View {
                                             .textContentType(.password)
                                             .autocapitalization(.none)
                                             .disableAutocorrection(true)
+                                            .foregroundColor(.white)
                                     } else {
                                         SecureField("パスワードを入力", text: $password)
                                             .textContentType(.password)
                                             .autocapitalization(.none)
                                             .disableAutocorrection(true)
+                                            .foregroundColor(.white)
                                     }
 
                                     Button(action: {
                                         showPassword.toggle()
                                     }) {
                                         Image(systemName: showPassword ? "eye.slash" : "eye")
-                                            .foregroundColor(.secondary)
+                                            .foregroundColor(.white.opacity(0.7))
                                     }
                                 }
                                 .padding()
-                                .background(Color(UIColor.systemBackground))
+                                .background(Color.white.opacity(0.15))
                                 .cornerRadius(10)
-                                .overlay(
-                                    RoundedRectangle(cornerRadius: 10)
-                                        .stroke(Color.gray.opacity(0.2), lineWidth: 1)
-                                )
                             }
 
                             // Error Message
                             if let error = pressModeManager.error, loginAttempted {
                                 HStack(spacing: 8) {
                                     Image(systemName: "exclamationmark.triangle.fill")
-                                        .foregroundColor(.red)
+                                        .foregroundColor(.yellow)
                                     Text(error)
                                         .font(.subheadline)
-                                        .foregroundColor(.red)
+                                        .foregroundColor(.white)
                                 }
                                 .padding()
                                 .frame(maxWidth: .infinity, alignment: .leading)
-                                .background(Color.red.opacity(0.1))
+                                .background(Color.red.opacity(0.3))
                                 .cornerRadius(8)
                             }
 
@@ -144,8 +140,8 @@ struct PressModeLoginView: View {
                                 }
                                 .frame(maxWidth: .infinity)
                                 .padding()
-                                .background(canLogin ? Color.blue : Color.gray)
-                                .foregroundColor(.white)
+                                .background(canLogin ? Color.white : Color.white.opacity(0.3))
+                                .foregroundColor(canLogin ? Color("MainGreen") : .white.opacity(0.5))
                                 .cornerRadius(12)
                             }
                             .disabled(!canLogin || pressModeManager.isLoading)
@@ -155,23 +151,24 @@ struct PressModeLoginView: View {
                         // Info Section
                         VStack(spacing: 16) {
                             Divider()
+                                .background(.white.opacity(0.3))
 
                             VStack(alignment: .leading, spacing: 12) {
                                 Label("取材用アカウントについて", systemImage: "info.circle.fill")
                                     .font(.headline)
-                                    .foregroundColor(.blue)
+                                    .foregroundColor(.white)
 
                                 Text("プレスモードは、報道機関の方々が取材活動で本アプリを使用する際の専用機能です。")
                                     .font(.subheadline)
-                                    .foregroundColor(.secondary)
+                                    .foregroundColor(.white.opacity(0.9))
 
                                 Text("アカウントをお持ちでない場合は、公式ウェブサイトから申請してください。")
                                     .font(.subheadline)
-                                    .foregroundColor(.secondary)
+                                    .foregroundColor(.white.opacity(0.9))
                             }
                             .padding()
                             .frame(maxWidth: .infinity, alignment: .leading)
-                            .background(Color.blue.opacity(0.1))
+                            .background(Color.white.opacity(0.15))
                             .cornerRadius(12)
                         }
                         .padding(.horizontal, 24)
@@ -183,13 +180,21 @@ struct PressModeLoginView: View {
             }
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
-                ToolbarItem(placement: .navigationBarLeading) {
-                    Button("キャンセル") {
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    Button(action: {
                         dismiss()
+                    }) {
+                        Image(systemName: "xmark.circle.fill")
+                            .font(.system(size: UIScreen.main.bounds.width * 0.07))
+                            .foregroundColor(.white)
                     }
                 }
             }
+            .toolbarBackground(Color("MainGreen"), for: .navigationBar)
+            .toolbarBackground(.visible, for: .navigationBar)
         }
+        .navigationViewStyle(.stack)
+        .preferredColorScheme(.dark)
     }
 
     // MARK: - Computed Properties
