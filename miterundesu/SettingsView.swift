@@ -18,6 +18,7 @@ struct SettingsView: View {
     @State private var showingPressModeInfo = false
     @State private var showingPressModeStatus = false
     @State private var pressModeTargetState = false
+    @State private var showingLogoutConfirmation = false
 
     var body: some View {
         NavigationView {
@@ -187,8 +188,7 @@ struct SettingsView: View {
 
                                     // ログアウトボタン
                                     Button(action: {
-                                        pressModeManager.logout()
-                                        settingsManager.isPressMode = false
+                                        showingLogoutConfirmation = true
                                     }) {
                                         HStack {
                                             Image(systemName: "rectangle.portrait.and.arrow.right")
@@ -198,21 +198,53 @@ struct SettingsView: View {
                                         .foregroundColor(.white)
                                         .padding(.vertical, 8)
                                         .padding(.horizontal, 16)
-                                        .background(Color.white.opacity(0.2))
+                                        .background(Color.red.opacity(0.3))
                                         .cornerRadius(8)
                                     }
                                 }
                                 .padding(.vertical, 4)
                             } else {
-                                HStack {
-                                    Image(systemName: "xmark.circle")
-                                        .foregroundColor(.white.opacity(0.7))
-                                        .accessibilityHidden(true)
-                                    Text("ログインしていません")
-                                        .font(.headline)
-                                        .foregroundColor(.white)
+                                VStack(alignment: .leading, spacing: 12) {
+                                    HStack {
+                                        Image(systemName: "info.circle")
+                                            .foregroundColor(.white.opacity(0.7))
+                                            .accessibilityHidden(true)
+                                        Text("ログインしていません")
+                                            .font(.headline)
+                                            .foregroundColor(.white)
+                                    }
+                                    .accessibilityElement(children: .combine)
+
+                                    // ウェブサイト案内
+                                    VStack(alignment: .leading, spacing: 8) {
+                                        Text("プレスモードを利用するには、公式ウェブサイトからアカウントを申請してください。")
+                                            .font(.subheadline)
+                                            .foregroundColor(.white.opacity(0.9))
+                                            .fixedSize(horizontal: false, vertical: true)
+
+                                        Link(destination: URL(string: "https://miterundesu.jp/press")!) {
+                                            HStack(spacing: 8) {
+                                                Image(systemName: "globe")
+                                                    .font(.caption)
+                                                VStack(alignment: .leading, spacing: 2) {
+                                                    Text("詳細と申請")
+                                                        .font(.subheadline)
+                                                        .fontWeight(.semibold)
+                                                    Text("miterundesu.jp/press")
+                                                        .font(.caption)
+                                                }
+                                                Spacer()
+                                                Image(systemName: "arrow.up.forward")
+                                                    .font(.caption)
+                                            }
+                                            .foregroundColor(.white)
+                                            .padding(.horizontal, 12)
+                                            .padding(.vertical, 10)
+                                            .background(Color.white.opacity(0.2))
+                                            .cornerRadius(8)
+                                        }
+                                    }
                                 }
-                                .accessibilityElement(children: .combine)
                                 .padding(.vertical, 4)
                             }
 
@@ -444,6 +476,15 @@ struct SettingsView: View {
             if isLoggedIn && pressModeManager.pressAccount?.isValid == true {
                 settingsManager.isPressMode = true
             }
+        }
+        .alert("ログアウトの確認", isPresented: $showingLogoutConfirmation) {
+            Button("キャンセル", role: .cancel) { }
+            Button("ログアウト", role: .destructive) {
+                pressModeManager.logout()
+                settingsManager.isPressMode = false
+            }
+        } message: {
+            Text("プレスモードからログアウトしますか？\n再度ログインするには、ユーザーIDとパスワードが必要です。")
         }
     }
 
