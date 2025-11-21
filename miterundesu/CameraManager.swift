@@ -410,8 +410,8 @@ private class PhotoCaptureDelegate: NSObject, AVCapturePhotoCaptureDelegate {
             return
         }
 
-        // メモリ効率的にダウンサンプリング（最大4096px）
-        guard let downsampledImage = UIImage.downsample(imageData: imageData, maxDimension: 4096) else {
+        // メモリ効率的にダウンサンプリング（最大2048px）
+        guard let downsampledImage = UIImage.downsample(imageData: imageData, maxDimension: 2048) else {
             completion(nil)
             return
         }

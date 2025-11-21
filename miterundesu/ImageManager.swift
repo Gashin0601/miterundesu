@@ -23,13 +23,14 @@ struct CapturedImage: Identifiable {
             return cached
         }
 
-        // データからデコードしてキャッシュに追加
-        if let decoded = UIImage(data: imageData) {
-            ImageCache.shared.set(decoded, forKey: id)
-            return decoded
+        // データからデコードしてキャッシュに追加（autoreleasepoolで一時オブジェクトを即解放）
+        return autoreleasepool {
+            if let decoded = UIImage(data: imageData) {
+                ImageCache.shared.set(decoded, forKey: id)
+                return decoded
+            }
+            return UIImage()
         }
-
-        return UIImage()
     }
 
     var remainingTime: TimeInterval {
@@ -45,8 +46,8 @@ struct CapturedImage: Identifiable {
         self.capturedAt = capturedAt
         self.expiresAt = capturedAt.addingTimeInterval(600) // 10分後
 
-        // 画像を0.8品質でJPEG圧縮して保存（メモリ節約）
-        self.imageData = image.jpegData(compressionQuality: 0.8) ?? Data()
+        // 画像を0.6品質でJPEG圧縮して保存（メモリ節約）
+        self.imageData = image.jpegData(compressionQuality: 0.6) ?? Data()
 
         // 最初の画像はキャッシュに追加
         if let optimizedImage = UIImage(data: self.imageData) {
@@ -69,8 +70,22 @@ class ImageCache {
 
     private var cache: [UUID: UIImage] = [:]
     private var accessOrder: [UUID] = []
-    private let maxCacheSize = 3 // 最大3枚までキャッシュ
+    private let maxCacheSize = 2 // 最大2枚までキャッシュ（メモリ節約）
     private let queue = DispatchQueue(label: "com.miterundesu.imagecache", attributes: .concurrent)
+
+    init() {
+        // メモリ警告時にキャッシュをクリア
+        NotificationCenter.default.addObserver(
+            forName: UIApplication.didReceiveMemoryWarningNotification,
+            object: nil,
+            queue: .main
+        ) { [weak self] _ in
+            #if DEBUG
+            print("⚠️ メモリ警告 - 画像キャッシュをクリア")
+            #endif
+            self?.clear()
+        }
+    }
 
     func get(_ key: UUID) -> UIImage? {
         queue.sync {
@@ -114,10 +129,11 @@ class ImageCache {
 
     func clear() {
         queue.async(flags: .barrier) {
+            let count = self.cache.count
             self.cache.removeAll()
             self.accessOrder.removeAll()
             #if DEBUG
-            print("🗑️ 画像キャッシュをクリア")
+            print("🗑️ 画像キャッシュをクリア (\(count)枚)")
             #endif
         }
     }
@@ -187,7 +203,7 @@ class ImageManager: ObservableObject {
         // CoreDataに保存
         let entity = CapturedImageEntity(context: context)
         entity.id = capturedImage.id
-        entity.imageData = capturedImage.image.jpegData(compressionQuality: 0.8) ?? Data()
+        entity.imageData = capturedImage.image.jpegData(compressionQuality: 0.6) ?? Data()
         entity.capturedAt = capturedImage.capturedAt
         entity.expirationDate = capturedImage.expiresAt
 
