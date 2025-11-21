@@ -45,29 +45,22 @@ class PressModeManager: ObservableObject {
         error = nil
 
         do {
-            // 1. Supabaseからアカウント情報を取得
+            // 1. Supabase RPC関数でパスワード検証付きアカウント取得
             let response: [PressAccount] = try await supabase
-                .from("press_accounts")
-                .select()
-                .eq("user_id", value: userId)
-                .eq("is_active", value: true)
-                .limit(1)
+                .rpc("verify_press_account_password", params: [
+                    "p_user_id": userId,
+                    "p_password": password
+                ])
                 .execute()
                 .value
 
+            // 2. 認証失敗チェック（パスワードが間違っている場合は空配列が返る）
             guard let account = response.first else {
                 error = "ユーザーIDまたはパスワードが正しくありません"
                 isLoading = false
-                return false
-            }
-
-            // 2. パスワード検証
-            // Note: 本番環境ではSupabaseのEdge Functionを使用してサーバー側で検証することを推奨
-            let isPasswordValid = await verifyPassword(password, account: account)
-
-            if !isPasswordValid {
-                error = "ユーザーIDまたはパスワードが正しくありません"
-                isLoading = false
+                #if DEBUG
+                print("❌ 認証失敗: ユーザーIDまたはパスワードが間違っています")
+                #endif
                 return false
             }
 
@@ -154,25 +147,6 @@ class PressModeManager: ObservableObject {
             print("⚠️ 自動ログイン失敗")
             #endif
         }
-    }
-
-    // MARK: - Password Verification
-
-    /// パスワード検証（bcryptハッシュと照合）
-    private func verifyPassword(_ password: String, account: PressAccount) async -> Bool {
-        // 一時的な実装: Supabaseから取得したpassword_hashを使用
-        // TODO: BCryptSwiftライブラリを追加してbcrypt検証を実装
-        // 現在はプレースホルダーとして常にtrueを返す（開発用）
-        // 本番環境では必ずbcrypt検証またはEdge Function経由での検証を実装すること
-
-        #if DEBUG
-        print("⚠️ パスワード検証: bcryptライブラリ未実装のため一時的にスキップ")
-        print("   TODO: BCryptSwiftを追加してbcrypt.verify(password, hash)を実装")
-        #endif
-
-        // TEMPORARY: 開発用の簡易検証
-        // 本番環境では削除すること！
-        return true
     }
 
     // MARK: - Keychain Operations
