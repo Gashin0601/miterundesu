@@ -141,10 +141,11 @@ class PressModeManager: ObservableObject {
 
         let success = await login(userId: userId, password: password)
         if !success {
-            // 自動ログイン失敗時は認証情報をクリア
+            // 自動ログイン失敗時は認証情報をクリアし、プレスモードをオフにする
+            isPressModeEnabled = false
             clearCredentials()
             #if DEBUG
-            print("⚠️ 自動ログイン失敗")
+            print("⚠️ 自動ログイン失敗 - プレスモードをオフにしました")
             #endif
         }
     }

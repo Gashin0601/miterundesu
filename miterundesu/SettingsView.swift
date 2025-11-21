@@ -480,9 +480,14 @@ struct SettingsView: View {
             }
         }
         .onChange(of: pressModeManager.isLoggedIn) { _, isLoggedIn in
-            // ログイン成功時に自動的にプレスモードをオンにする
-            if isLoggedIn && pressModeManager.pressAccount?.isValid == true {
-                settingsManager.isPressMode = true
+            if isLoggedIn {
+                // ログイン成功時に自動的にプレスモードをオンにする
+                if pressModeManager.pressAccount?.isValid == true {
+                    settingsManager.isPressMode = true
+                }
+            } else {
+                // ログアウト時は必ずプレスモードをオフにする
+                settingsManager.isPressMode = false
             }
         }
         .alert("ログアウトの確認", isPresented: $showingLogoutConfirmation) {
