@@ -304,6 +304,7 @@ struct SettingsView: View {
                                     .accessibilityHidden(true)
                                 }
                             }
+                            .buttonStyle(.plain)
                             .accessibilityLabel(settingsManager.isPressMode ? settingsManager.localizationManager.localizedString("press_mode_turn_off") : settingsManager.localizationManager.localizedString("press_mode_turn_on"))
                             .accessibilityValue(settingsManager.isPressMode ? settingsManager.localizationManager.localizedString("on") : settingsManager.localizationManager.localizedString("off"))
 
