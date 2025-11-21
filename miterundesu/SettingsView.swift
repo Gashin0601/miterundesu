@@ -11,6 +11,7 @@ struct SettingsView: View {
     @ObservedObject var settingsManager: SettingsManager
     let isTheaterMode: Bool
     @Environment(\.dismiss) var dismiss
+    @Environment(\.openURL) var openURL
     @FocusState private var isMessageFieldFocused: Bool
     @EnvironmentObject var pressModeManager: PressModeManager
     @ObservedObject private var onboardingManager = OnboardingManager.shared
@@ -223,7 +224,11 @@ struct SettingsView: View {
                                             .foregroundColor(.white.opacity(0.9))
                                             .fixedSize(horizontal: false, vertical: true)
 
-                                        Link(destination: URL(string: "https://miterundesu.jp/press")!) {
+                                        Button(action: {
+                                            if let url = URL(string: "https://miterundesu.jp/press") {
+                                                openURL(url)
+                                            }
+                                        }) {
                                             HStack(spacing: 8) {
                                                 Image(systemName: "globe")
                                                     .font(.caption)
@@ -244,6 +249,7 @@ struct SettingsView: View {
                                             .background(Color.white.opacity(0.2))
                                             .cornerRadius(8)
                                         }
+                                        .buttonStyle(.plain)
                                     }
                                 }
                                 .padding(.vertical, 4)
