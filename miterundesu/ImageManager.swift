@@ -16,11 +16,20 @@ struct CapturedImage: Identifiable {
     let expiresAt: Date
     private let imageData: Data
 
-    // キャッシュされたUIImage（パフォーマンス最適化）
-    private let _cachedImage: UIImage
-
+    // 画像をオンデマンドでデコード（メモリ効率化）
     var image: UIImage {
-        _cachedImage
+        // キャッシュをチェック
+        if let cached = ImageCache.shared.get(id) {
+            return cached
+        }
+
+        // データからデコードしてキャッシュに追加
+        if let decoded = UIImage(data: imageData) {
+            ImageCache.shared.set(decoded, forKey: id)
+            return decoded
+        }
+
+        return UIImage()
     }
 
     var remainingTime: TimeInterval {
@@ -36,14 +45,12 @@ struct CapturedImage: Identifiable {
         self.capturedAt = capturedAt
         self.expiresAt = capturedAt.addingTimeInterval(600) // 10分後
 
-        // 画像を0.8品質でJPEG圧縮して保存
+        // 画像を0.8品質でJPEG圧縮して保存（メモリ節約）
         self.imageData = image.jpegData(compressionQuality: 0.8) ?? Data()
 
-        // 表示用に最適化された画像をキャッシュ
+        // 最初の画像はキャッシュに追加
         if let optimizedImage = UIImage(data: self.imageData) {
-            self._cachedImage = optimizedImage
-        } else {
-            self._cachedImage = image
+            ImageCache.shared.set(optimizedImage, forKey: id)
         }
     }
 
@@ -53,12 +60,72 @@ struct CapturedImage: Identifiable {
         self.capturedAt = entity.capturedAt
         self.expiresAt = entity.expirationDate
         self.imageData = entity.imageData
+    }
+}
 
-        // データから画像を復元してキャッシュ
-        if let restoredImage = UIImage(data: entity.imageData) {
-            self._cachedImage = restoredImage
-        } else {
-            self._cachedImage = UIImage()
+// MARK: - Image Cache (LRU)
+class ImageCache {
+    static let shared = ImageCache()
+
+    private var cache: [UUID: UIImage] = [:]
+    private var accessOrder: [UUID] = []
+    private let maxCacheSize = 3 // 最大3枚までキャッシュ
+    private let queue = DispatchQueue(label: "com.miterundesu.imagecache", attributes: .concurrent)
+
+    func get(_ key: UUID) -> UIImage? {
+        queue.sync {
+            if let image = cache[key] {
+                // アクセス順を更新
+                updateAccessOrder(key)
+                return image
+            }
+            return nil
+        }
+    }
+
+    func set(_ image: UIImage, forKey key: UUID) {
+        queue.async(flags: .barrier) {
+            // 既存のエントリがあれば更新
+            if self.cache[key] != nil {
+                self.updateAccessOrder(key)
+            } else {
+                // 新規追加
+                self.cache[key] = image
+                self.accessOrder.append(key)
+
+                // キャッシュサイズ超過時は古いものを削除
+                if self.accessOrder.count > self.maxCacheSize {
+                    let oldestKey = self.accessOrder.removeFirst()
+                    self.cache.removeValue(forKey: oldestKey)
+                    #if DEBUG
+                    print("🗑️ 画像キャッシュから削除: \(oldestKey)")
+                    #endif
+                }
+            }
+        }
+    }
+
+    func remove(_ key: UUID) {
+        queue.async(flags: .barrier) {
+            self.cache.removeValue(forKey: key)
+            self.accessOrder.removeAll { $0 == key }
+        }
+    }
+
+    func clear() {
+        queue.async(flags: .barrier) {
+            self.cache.removeAll()
+            self.accessOrder.removeAll()
+            #if DEBUG
+            print("🗑️ 画像キャッシュをクリア")
+            #endif
+        }
+    }
+
+    private func updateAccessOrder(_ key: UUID) {
+        if let index = self.accessOrder.firstIndex(of: key) {
+            self.accessOrder.remove(at: index)
+            self.accessOrder.append(key)
         }
     }
 }
@@ -139,6 +206,9 @@ class ImageManager: ObservableObject {
             capturedImages.remove(at: index)
         }
 
+        // キャッシュから削除
+        ImageCache.shared.remove(id)
+
         // CoreDataから削除
         let fetchRequest: NSFetchRequest<CapturedImageEntity> = NSFetchRequest(entityName: "CapturedImageEntity")
         fetchRequest.predicate = NSPredicate(format: "id == %@", id as CVarArg)
@@ -170,6 +240,9 @@ class ImageManager: ObservableObject {
         timers.removeAll()
 
         capturedImages.removeAll()
+
+        // キャッシュをクリア
+        ImageCache.shared.clear()
 
         // CoreDataからすべて削除
         let fetchRequest: NSFetchRequest<NSFetchRequestResult> = NSFetchRequest(entityName: "CapturedImageEntity")

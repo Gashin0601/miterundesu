@@ -24,6 +24,7 @@ class CameraManager: NSObject, ObservableObject, AVCaptureSessionControlsDelegat
     private var videoDeviceInput: AVCaptureDeviceInput?
     private var device: AVCaptureDevice?
     private var customZoomSlider: Any? // iOS 18.0以降では AVCaptureSlider
+    private var photoDelegates = NSMutableSet() // アクティブなデリゲートを管理
 
     private let sessionQueue = DispatchQueue(label: "camera.session.queue")
 
@@ -264,20 +265,35 @@ class CameraManager: NSObject, ObservableObject, AVCaptureSessionControlsDelegat
         settings.photoQualityPrioritization = .quality
 
         let photoCaptureDelegate = PhotoCaptureDelegate { [weak self] image in
+            guard let self = self else { return }
+
             // 撮影完了後にフラグを解除
             DispatchQueue.main.async {
-                self?.isCapturing = false
+                self.isCapturing = false
                 #if DEBUG
                 print("📷 撮影完了 - isCapturing = false")
                 #endif
             }
+
             // 元のcompletionを呼び出す
             completion(image)
+
+            // デリゲートをセットから削除（メモリ解放）
+            self.sessionQueue.async {
+                self.photoDelegates.remove(photoCaptureDelegate)
+                #if DEBUG
+                print("🗑️ PhotoCaptureDelegate解放 - 残り: \(self.photoDelegates.count)")
+                #endif
+            }
         }
-        photoOutput.capturePhoto(with: settings, delegate: photoCaptureDelegate)
 
         // デリゲートを保持（キャプチャ完了まで）
-        objc_setAssociatedObject(self, "photoCaptureDelegate_\(UUID().uuidString)", photoCaptureDelegate, .OBJC_ASSOCIATION_RETAIN)
+        photoDelegates.add(photoCaptureDelegate)
+        #if DEBUG
+        print("📷 PhotoCaptureDelegate追加 - 合計: \(photoDelegates.count)")
+        #endif
+
+        photoOutput.capturePhoto(with: settings, delegate: photoCaptureDelegate)
     }
 
     // 最大ズーム倍率を設定
