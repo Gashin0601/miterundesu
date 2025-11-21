@@ -802,7 +802,7 @@ struct ThumbnailView: View {
                         // 通常時
                         if settingsManager.isPressMode {
                             // プレスモード時のみ実際の画像を表示
-                            ZStack {
+                            ZStack(alignment: .topTrailing) {
                                 Image(uiImage: latestImage.image)
                                     .resizable()
                                     .scaledToFill()
@@ -814,13 +814,13 @@ struct ThumbnailView: View {
                                     )
                                     .blur(radius: securityManager.isScreenRecording ? blurRadius : 0)
 
-                                // 残り時間バッジ
+                                // 残り時間バッジ（右上）
                                 TimeRemainingBadge(remainingTime: latestImage.remainingTime)
                             }
                             .contextMenu { }
                         } else {
                             // プレスモードオフ時: 通常表示（10分自動削除で保護）
-                            ZStack {
+                            ZStack(alignment: .topTrailing) {
                                 Image(uiImage: latestImage.image)
                                     .resizable()
                                     .scaledToFill()
@@ -832,7 +832,7 @@ struct ThumbnailView: View {
                                     )
                                     .blur(radius: securityManager.isScreenRecording ? blurRadius : 0)
 
-                                // 残り時間バッジ
+                                // 残り時間バッジ（右上）
                                 TimeRemainingBadge(remainingTime: latestImage.remainingTime)
                             }
                             .contextMenu { }
