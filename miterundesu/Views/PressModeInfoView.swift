@@ -7,14 +7,13 @@
 
 import SwiftUI
 
-/// プレスモード未登録時の案内画面
+/// プレスモード未ログイン時の案内画面
 struct PressModeInfoView: View {
     @Environment(\.dismiss) var dismiss
     @EnvironmentObject var pressModeManager: PressModeManager
     @ObservedObject var settingsManager: SettingsManager
-    @State private var showingDeviceIdCopied = false
 
-    private let contactEmail = "press@miterundesu.jp"
+    private let websiteURL = "https://miterundesu.jp/press"
 
     var body: some View {
         NavigationView {
@@ -106,48 +105,68 @@ struct PressModeInfoView: View {
                                 HStack {
                                     Image(systemName: "envelope.badge.fill")
                                         .foregroundColor(.white)
-                                    Text(settingsManager.localizationManager.localizedString("press_mode_application"))
+                                    Text("アカウント申請方法")
                                         .font(.headline)
                                         .foregroundColor(.white)
                                 }
 
-                                Text(settingsManager.localizationManager.localizedString("press_mode_application_desc"))
+                                Text("公式ウェブサイトからアカウントを申請してください。承認後、ログインしてご利用いただけます。")
                                     .font(.body)
                                     .foregroundColor(.white.opacity(0.9))
                                     .fixedSize(horizontal: false, vertical: true)
 
-                                // デバイスID表示
-                                VStack(alignment: .leading, spacing: 8) {
-                                    Text(settingsManager.localizationManager.localizedString("press_mode_your_device_id"))
-                                        .font(.caption)
-                                        .foregroundColor(.white.opacity(0.7))
-
-                                    HStack {
-                                        Text(pressModeManager.getDeviceIdForDisplay())
-                                            .font(.system(.body, design: .monospaced))
+                                VStack(alignment: .leading, spacing: 12) {
+                                    HStack(alignment: .top, spacing: 12) {
+                                        Text("1")
+                                            .font(.headline)
                                             .foregroundColor(.white)
-                                            .lineLimit(2)
-                                            .minimumScaleFactor(0.8)
-
-                                        Spacer()
-
-                                        Button(action: {
-                                            pressModeManager.copyDeviceIdToClipboard()
-                                            showingDeviceIdCopied = true
-                                            DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
-                                                showingDeviceIdCopied = false
-                                            }
-                                        }) {
-                                            HStack(spacing: 4) {
-                                                Image(systemName: showingDeviceIdCopied ? "checkmark" : "doc.on.doc")
-                                                Text(settingsManager.localizationManager.localizedString(showingDeviceIdCopied ? "press_mode_copied" : "press_mode_copy"))
-                                            }
-                                            .font(.caption)
-                                            .foregroundColor(.white)
-                                            .padding(.horizontal, 10)
-                                            .padding(.vertical, 6)
+                                            .frame(width: 24, height: 24)
                                             .background(Color.white.opacity(0.3))
-                                            .cornerRadius(6)
+                                            .clipShape(Circle())
+                                        VStack(alignment: .leading, spacing: 4) {
+                                            Text("ウェブサイトで申請")
+                                                .font(.subheadline)
+                                                .fontWeight(.semibold)
+                                                .foregroundColor(.white)
+                                            Text("ユーザーIDとパスワードを設定")
+                                                .font(.caption)
+                                                .foregroundColor(.white.opacity(0.8))
+                                        }
+                                    }
+
+                                    HStack(alignment: .top, spacing: 12) {
+                                        Text("2")
+                                            .font(.headline)
+                                            .foregroundColor(.white)
+                                            .frame(width: 24, height: 24)
+                                            .background(Color.white.opacity(0.3))
+                                            .clipShape(Circle())
+                                        VStack(alignment: .leading, spacing: 4) {
+                                            Text("審査・承認")
+                                                .font(.subheadline)
+                                                .fontWeight(.semibold)
+                                                .foregroundColor(.white)
+                                            Text("2-3営業日以内にメールで通知")
+                                                .font(.caption)
+                                                .foregroundColor(.white.opacity(0.8))
+                                        }
+                                    }
+
+                                    HStack(alignment: .top, spacing: 12) {
+                                        Text("3")
+                                            .font(.headline)
+                                            .foregroundColor(.white)
+                                            .frame(width: 24, height: 24)
+                                            .background(Color.white.opacity(0.3))
+                                            .clipShape(Circle())
+                                        VStack(alignment: .leading, spacing: 4) {
+                                            Text("ログイン")
+                                                .font(.subheadline)
+                                                .fontWeight(.semibold)
+                                                .foregroundColor(.white)
+                                            Text("設定したIDとパスワードでログイン")
+                                                .font(.caption)
+                                                .foregroundColor(.white.opacity(0.8))
                                         }
                                     }
                                 }

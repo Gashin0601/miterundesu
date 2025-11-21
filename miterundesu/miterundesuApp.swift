@@ -63,12 +63,11 @@ struct miterundesuApp: App {
     }
 
     private func handleAppActive() {
-        // アプリがアクティブになった際にプレスモード権限をチェック
+        // アプリがアクティブになった際の処理
         #if DEBUG
-        print("▶️ アプリがアクティブになりました - プレスモード権限をチェック")
+        print("▶️ アプリがアクティブになりました")
         #endif
-        Task {
-            await pressModeManager.checkPressModePermission()
-        }
+        // Note: PressModeManagerは初期化時に自動ログインを試行するため、
+        // ここでの明示的なチェックは不要
     }
 }
