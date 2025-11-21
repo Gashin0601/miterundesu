@@ -819,7 +819,7 @@ struct ThumbnailView: View {
                             }
                             .contextMenu { }
                         } else {
-                            // プレスモードオフ時: 通常は表示、スクショ保護あり
+                            // プレスモードオフ時: 通常表示（10分自動削除で保護）
                             ZStack {
                                 Image(uiImage: latestImage.image)
                                     .resizable()
@@ -835,7 +835,6 @@ struct ThumbnailView: View {
                                 // 残り時間バッジ
                                 TimeRemainingBadge(remainingTime: latestImage.remainingTime)
                             }
-                            .preventScreenCapture()
                             .contextMenu { }
                         }
                     }
