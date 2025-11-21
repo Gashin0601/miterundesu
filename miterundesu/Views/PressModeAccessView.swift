@@ -53,10 +53,4 @@ struct PressModeAccessView: View {
     }
 }
 
-#Preview {
-    PressModeAccessView(
-        settingsManager: SettingsManager(),
-        isPressMode: .constant(false),
-        targetState: true
-    )
-}
+// Preview removed - this view is deprecated and should not be used

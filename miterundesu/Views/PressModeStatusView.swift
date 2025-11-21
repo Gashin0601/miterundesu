@@ -52,24 +52,4 @@ struct PressModeStatusView: View {
     }
 }
 
-#Preview {
-    let expiredDevice = PressDevice(
-        id: UUID(),
-        deviceId: "test-device",
-        accessCode: "test-code",
-        organization: "Test Org",
-        contactEmail: "test@example.com",
-        contactName: "Test User",
-        startsAt: Date().addingTimeInterval(-86400 * 30),
-        expiresAt: Date().addingTimeInterval(-86400),
-        isActive: true,
-        createdAt: Date(),
-        updatedAt: Date(),
-        notes: nil
-    )
-
-    return PressModeStatusView(
-        settingsManager: SettingsManager(),
-        device: expiredDevice
-    )
-}
+// Preview removed - this view is deprecated and should not be used
