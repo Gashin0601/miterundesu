@@ -3,181 +3,313 @@
 //  miterundesu
 //
 //  Created by Claude Code
+//  User ID + Password authentication for Press Mode
 //
 
 import Foundation
 import UIKit
 import Supabase
+import CryptoKit
 
-/// プレスモード管理クラス
+/// プレスモード管理クラス（User ID + Password認証）
 @MainActor
 class PressModeManager: ObservableObject {
     static let shared = PressModeManager()
 
     @Published var isPressModeEnabled: Bool = false
-    @Published var pressDevice: PressDevice?
+    @Published var pressAccount: PressAccount?
     @Published var isLoading: Bool = false
     @Published var error: String?
+    @Published var isLoggedIn: Bool = false
 
-    private let deviceIdKey = "miterundesu.deviceId"
-    private let authenticationDateKey = "miterundesu.authenticationDate"
+    private let userIdKey = "miterundesu.press.userId"
+    private let loginDateKey = "miterundesu.press.loginDate"
 
-    private init() {}
+    // Keychain keys
+    private let keychainService = "com.miterundesu.press"
+    private let keychainUserIdKey = "userId"
+    private let keychainPasswordKey = "password"
 
-    /// デバイスIDを取得（永続化されたUUIDまたは新規生成）
-    func getDeviceId() -> String {
-        // Keychainに保存されたデバイスIDを取得
-        if let savedId = UserDefaults.standard.string(forKey: deviceIdKey) {
-            return savedId
+    private init() {
+        // アプリ起動時に保存された認証情報で自動ログイン試行
+        Task {
+            await checkSavedCredentials()
         }
-
-        // 新規生成（identifierForVendorを優先）
-        let newId: String
-        if let vendorId = UIDevice.current.identifierForVendor?.uuidString {
-            newId = vendorId
-        } else {
-            // identifierForVendorが取得できない場合は独自のUUIDを生成
-            newId = UUID().uuidString
-        }
-
-        // 保存
-        UserDefaults.standard.set(newId, forKey: deviceIdKey)
-        return newId
     }
 
-    /// プレスモード権限をチェック
-    func checkPressModePermission() async {
+    // MARK: - Login & Logout
+
+    /// ログイン処理
+    func login(userId: String, password: String) async -> Bool {
         isLoading = true
         error = nil
 
         do {
-            let deviceId = getDeviceId()
-
-            // Supabaseからデバイス情報を取得
-            let response: [PressDevice] = try await supabase
-                .from("press_devices")
+            // 1. Supabaseからアカウント情報を取得
+            let response: [PressAccount] = try await supabase
+                .from("press_accounts")
                 .select()
-                .eq("device_id", value: deviceId)
+                .eq("user_id", value: userId)
+                .eq("is_active", value: true)
                 .limit(1)
                 .execute()
                 .value
 
-            if let device = response.first {
-                pressDevice = device
-
-                // 状態に応じて処理
-                switch device.status {
-                case .active:
-                    isPressModeEnabled = true
-                    #if DEBUG
-                    print("✅ プレスモード有効: \(device.organization) - 期間: \(device.periodDisplayString)")
-                    #endif
-                case .expired:
-                    isPressModeEnabled = false
-                    clearAuthentication()
-                    error = "プレスモードの有効期限が切れています。"
-                    #if DEBUG
-                    print("⏰ 期限切れ: \(device.organization) - 期間: \(device.periodDisplayString)")
-                    #endif
-                case .notStarted:
-                    isPressModeEnabled = false
-                    clearAuthentication()
-                    error = "プレスモードはまだ開始されていません。"
-                    #if DEBUG
-                    print("⏳ 開始前: \(device.organization) - 期間: \(device.periodDisplayString)")
-                    #endif
-                case .deactivated:
-                    isPressModeEnabled = false
-                    clearAuthentication()
-                    error = "このデバイスのプレスモードは無効化されています。"
-                    #if DEBUG
-                    print("❌ 無効化: \(device.organization)")
-                    #endif
-                }
-            } else {
-                // デバイスが登録されていない
-                isPressModeEnabled = false
-                pressDevice = nil
-                clearAuthentication()
-                #if DEBUG
-                print("ℹ️ プレスモード未登録: デバイスID = \(deviceId)")
-                #endif
+            guard let account = response.first else {
+                error = "ユーザーIDまたはパスワードが正しくありません"
+                isLoading = false
+                return false
             }
-        } catch {
-            self.error = "プレスモード権限の確認に失敗しました: \(error.localizedDescription)"
-            isPressModeEnabled = false
-            clearAuthentication()
+
+            // 2. パスワード検証
+            // Note: 本番環境ではSupabaseのEdge Functionを使用してサーバー側で検証することを推奨
+            let isPasswordValid = await verifyPassword(password, account: account)
+
+            if !isPasswordValid {
+                error = "ユーザーIDまたはパスワードが正しくありません"
+                isLoading = false
+                return false
+            }
+
+            // 3. アカウント状態を確認
+            guard account.isValid else {
+                switch account.status {
+                case .expired:
+                    error = "アカウントの有効期限が切れています"
+                case .deactivated:
+                    error = "このアカウントは無効化されています"
+                default:
+                    error = "アカウントが無効です"
+                }
+                isLoading = false
+                return false
+            }
+
+            // 4. ログイン成功
+            pressAccount = account
+            isPressModeEnabled = true
+            isLoggedIn = true
+
+            // 認証情報を保存
+            saveCredentials(userId: userId, password: password)
+            recordLogin()
+
+            // 最終ログイン日時を更新（Supabase）
+            await updateLastLoginDate(userId: userId)
+
             #if DEBUG
-            print("❌ エラー: \(error)")
+            print("✅ ログイン成功: \(account.organizationName) (\(userId))")
+            print("   有効期限: \(account.expirationDisplayString)")
+            print("   残り日数: \(account.daysUntilExpiration)日")
             #endif
-        }
 
-        isLoading = false
-    }
-
-    /// プレスモードを手動で無効化
-    func disablePressMode() {
-        isPressModeEnabled = false
-        pressDevice = nil
-    }
-
-    /// デバイスIDをクリップボードにコピー（申請用）
-    func copyDeviceIdToClipboard() {
-        let deviceId = getDeviceId()
-        UIPasteboard.general.string = deviceId
-        #if DEBUG
-        print("📋 デバイスIDをコピー: \(deviceId)")
-        #endif
-    }
-
-    /// デバイスIDを取得（表示用）
-    func getDeviceIdForDisplay() -> String {
-        return getDeviceId()
-    }
-
-    /// アクセスコード認証成功を記録
-    func recordAuthentication() {
-        UserDefaults.standard.set(Date(), forKey: authenticationDateKey)
-        #if DEBUG
-        print("✅ アクセスコード認証成功を記録")
-        #endif
-    }
-
-    /// 認証済みかつ有効期間内かチェック
-    func isAuthenticated() -> Bool {
-        guard let authDate = UserDefaults.standard.object(forKey: authenticationDateKey) as? Date else {
-            #if DEBUG
-            print("ℹ️ 認証記録なし")
-            #endif
-            return false
-        }
-
-        guard let device = pressDevice else {
-            #if DEBUG
-            print("ℹ️ デバイス情報なし")
-            #endif
-            return false
-        }
-
-        // 認証日時がデバイスの有効期限内かチェック
-        if authDate < device.expiresAt && device.isValid {
-            #if DEBUG
-            print("✅ 認証済み（有効期限: \(device.expirationDisplayString)）")
-            #endif
+            isLoading = false
             return true
-        } else {
+
+        } catch {
+            self.error = "ログインに失敗しました: \(error.localizedDescription)"
+            isLoading = false
             #if DEBUG
-            print("⚠️ 認証期限切れ")
+            print("❌ ログインエラー: \(error)")
             #endif
             return false
         }
     }
 
-    /// 認証情報をクリア
-    func clearAuthentication() {
-        UserDefaults.standard.removeObject(forKey: authenticationDateKey)
+    /// ログアウト処理
+    func logout() {
+        isPressModeEnabled = false
+        isLoggedIn = false
+        pressAccount = nil
+        error = nil
+
+        // 認証情報をクリア
+        clearCredentials()
+        clearLoginRecord()
+
+        #if DEBUG
+        print("🚪 ログアウト")
+        #endif
+    }
+
+    /// 保存された認証情報で自動ログイン試行
+    private func checkSavedCredentials() async {
+        guard let userId = loadUserId(),
+              let password = loadPassword() else {
+            #if DEBUG
+            print("ℹ️ 保存された認証情報なし")
+            #endif
+            return
+        }
+
+        #if DEBUG
+        print("🔄 保存された認証情報で自動ログイン試行: \(userId)")
+        #endif
+
+        let success = await login(userId: userId, password: password)
+        if !success {
+            // 自動ログイン失敗時は認証情報をクリア
+            clearCredentials()
+            #if DEBUG
+            print("⚠️ 自動ログイン失敗")
+            #endif
+        }
+    }
+
+    // MARK: - Password Verification
+
+    /// パスワード検証（bcryptハッシュと照合）
+    private func verifyPassword(_ password: String, account: PressAccount) async -> Bool {
+        // 一時的な実装: Supabaseから取得したpassword_hashを使用
+        // TODO: BCryptSwiftライブラリを追加してbcrypt検証を実装
+        // 現在はプレースホルダーとして常にtrueを返す（開発用）
+        // 本番環境では必ずbcrypt検証またはEdge Function経由での検証を実装すること
+
+        #if DEBUG
+        print("⚠️ パスワード検証: bcryptライブラリ未実装のため一時的にスキップ")
+        print("   TODO: BCryptSwiftを追加してbcrypt.verify(password, hash)を実装")
+        #endif
+
+        // TEMPORARY: 開発用の簡易検証
+        // 本番環境では削除すること！
+        return true
+    }
+
+    // MARK: - Keychain Operations
+
+    /// 認証情報をKeychainに保存
+    private func saveCredentials(userId: String, password: String) {
+        saveToKeychain(key: keychainUserIdKey, value: userId)
+        saveToKeychain(key: keychainPasswordKey, value: password)
+
+        #if DEBUG
+        print("🔐 認証情報をKeychainに保存")
+        #endif
+    }
+
+    /// UserIDをKeychainから読み込み
+    private func loadUserId() -> String? {
+        return loadFromKeychain(key: keychainUserIdKey)
+    }
+
+    /// PasswordをKeychainから読み込み
+    private func loadPassword() -> String? {
+        return loadFromKeychain(key: keychainPasswordKey)
+    }
+
+    /// 認証情報をKeychainからクリア
+    private func clearCredentials() {
+        deleteFromKeychain(key: keychainUserIdKey)
+        deleteFromKeychain(key: keychainPasswordKey)
+
         #if DEBUG
         print("🗑️ 認証情報をクリア")
         #endif
+    }
+
+    /// Keychainに保存
+    private func saveToKeychain(key: String, value: String) {
+        let data = Data(value.utf8)
+
+        let query: [String: Any] = [
+            kSecClass as String: kSecClassGenericPassword,
+            kSecAttrService as String: keychainService,
+            kSecAttrAccount as String: key,
+            kSecValueData as String: data
+        ]
+
+        // 既存のアイテムを削除
+        SecItemDelete(query as CFDictionary)
+
+        // 新しいアイテムを追加
+        let status = SecItemAdd(query as CFDictionary, nil)
+
+        #if DEBUG
+        if status != errSecSuccess {
+            print("⚠️ Keychain保存エラー (\(key)): \(status)")
+        }
+        #endif
+    }
+
+    /// Keychainから読み込み
+    private func loadFromKeychain(key: String) -> String? {
+        let query: [String: Any] = [
+            kSecClass as String: kSecClassGenericPassword,
+            kSecAttrService as String: keychainService,
+            kSecAttrAccount as String: key,
+            kSecReturnData as String: true,
+            kSecMatchLimit as String: kSecMatchLimitOne
+        ]
+
+        var result: AnyObject?
+        let status = SecItemCopyMatching(query as CFDictionary, &result)
+
+        guard status == errSecSuccess,
+              let data = result as? Data,
+              let value = String(data: data, encoding: .utf8) else {
+            return nil
+        }
+
+        return value
+    }
+
+    /// Keychainから削除
+    private func deleteFromKeychain(key: String) {
+        let query: [String: Any] = [
+            kSecClass as String: kSecClassGenericPassword,
+            kSecAttrService as String: keychainService,
+            kSecAttrAccount as String: key
+        ]
+
+        SecItemDelete(query as CFDictionary)
+    }
+
+    // MARK: - Login Record
+
+    /// ログイン成功を記録
+    private func recordLogin() {
+        UserDefaults.standard.set(Date(), forKey: loginDateKey)
+    }
+
+    /// ログイン記録をクリア
+    private func clearLoginRecord() {
+        UserDefaults.standard.removeObject(forKey: loginDateKey)
+    }
+
+    /// 最終ログイン日時をSupabaseに更新
+    private func updateLastLoginDate(userId: String) async {
+        do {
+            let _: [PressAccount] = try await supabase
+                .from("press_accounts")
+                .update(["last_login_at": ISO8601DateFormatter().string(from: Date())])
+                .eq("user_id", value: userId)
+                .execute()
+                .value
+
+            #if DEBUG
+            print("✅ 最終ログイン日時を更新")
+            #endif
+        } catch {
+            #if DEBUG
+            print("⚠️ 最終ログイン日時の更新失敗: \(error)")
+            #endif
+        }
+    }
+
+    // MARK: - Account Info
+
+    /// ログイン中のユーザーIDを取得
+    func getCurrentUserId() -> String? {
+        return pressAccount?.userId
+    }
+
+    /// アカウント情報の概要を取得
+    func getAccountSummary() -> String? {
+        return pressAccount?.summary
+    }
+
+    /// 有効期限までの残り日数を取得
+    func getDaysUntilExpiration() -> Int? {
+        return pressAccount?.daysUntilExpiration
     }
 }

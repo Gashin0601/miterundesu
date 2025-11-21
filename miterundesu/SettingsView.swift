@@ -14,7 +14,7 @@ struct SettingsView: View {
     @FocusState private var isMessageFieldFocused: Bool
     @EnvironmentObject var pressModeManager: PressModeManager
     @ObservedObject private var onboardingManager = OnboardingManager.shared
-    @State private var showingPressModeAccess = false
+    @State private var showingPressModeLogin = false
     @State private var showingPressModeInfo = false
     @State private var showingPressModeStatus = false
     @State private var pressModeTargetState = false
@@ -146,33 +146,60 @@ struct SettingsView: View {
                     Section(header: Text(settingsManager.localizationManager.localizedString("press_mode_settings")).foregroundColor(.white)) {
                         VStack(alignment: .leading, spacing: 12) {
                             // プレスモード権限状態
-                            if let device = pressModeManager.pressDevice {
+                            if let account = pressModeManager.pressAccount {
                                 VStack(alignment: .leading, spacing: 8) {
                                     // 状態アイコンとタイトル
                                     HStack {
-                                        statusIcon(for: device.status)
-                                        statusText(for: device.status)
+                                        statusIcon(for: account.status)
+                                        statusText(for: account.status)
                                             .font(.headline)
                                             .foregroundColor(.white)
                                     }
                                     .accessibilityElement(children: .combine)
 
+                                    // 組織名を表示
+                                    Text("\(account.organizationName)")
+                                        .font(.subheadline)
+                                        .foregroundColor(.white.opacity(0.9))
+
+                                    // ユーザーIDを表示
+                                    Text("User ID: \(account.userId)")
+                                        .font(.caption)
+                                        .foregroundColor(.white.opacity(0.7))
+
                                     // 有効期間内の場合は期限を表示
-                                    if device.status == .active {
-                                        Text("\(settingsManager.localizationManager.localizedString("expiration_date")): \(device.expirationDisplayString)")
+                                    if account.status == .active {
+                                        Text("\(settingsManager.localizationManager.localizedString("expiration_date")): \(account.expirationDisplayString)")
                                             .font(.subheadline)
                                             .foregroundColor(.white.opacity(0.9))
 
-                                        if device.daysUntilExpiration < 30 {
-                                            Text(settingsManager.localizationManager.localizedString("press_mode_status_expires_soon").replacingOccurrences(of: "{days}", with: "\(device.daysUntilExpiration)"))
+                                        if account.daysUntilExpiration < 30 {
+                                            Text(settingsManager.localizationManager.localizedString("press_mode_status_expires_soon").replacingOccurrences(of: "{days}", with: "\(account.daysUntilExpiration)"))
                                                 .font(.caption)
                                                 .foregroundColor(.yellow)
                                         }
                                     } else {
-                                        // 期限切れ、未開始、無効化の場合は期間を表示
-                                        Text("\(settingsManager.localizationManager.localizedString("usage_period")): \(device.periodDisplayString)")
+                                        // 期限切れ・無効化の場合は期限を表示
+                                        Text("\(settingsManager.localizationManager.localizedString("expiration_date")): \(account.expirationDisplayString)")
                                             .font(.subheadline)
                                             .foregroundColor(.white.opacity(0.9))
+                                    }
+
+                                    // ログアウトボタン
+                                    Button(action: {
+                                        pressModeManager.logout()
+                                        settingsManager.isPressMode = false
+                                    }) {
+                                        HStack {
+                                            Image(systemName: "rectangle.portrait.and.arrow.right")
+                                            Text("ログアウト")
+                                                .font(.subheadline)
+                                        }
+                                        .foregroundColor(.white)
+                                        .padding(.vertical, 8)
+                                        .padding(.horizontal, 16)
+                                        .background(Color.white.opacity(0.2))
+                                        .cornerRadius(8)
                                     }
                                 }
                                 .padding(.vertical, 4)
@@ -181,7 +208,7 @@ struct SettingsView: View {
                                     Image(systemName: "xmark.circle")
                                         .foregroundColor(.white.opacity(0.7))
                                         .accessibilityHidden(true)
-                                    Text(settingsManager.localizationManager.localizedString("press_mode_status_not_registered"))
+                                    Text("ログインしていません")
                                         .font(.headline)
                                         .foregroundColor(.white)
                                 }
@@ -194,32 +221,25 @@ struct SettingsView: View {
 
                             // プレスモードトグル
                             Button(action: {
-                                if let device = pressModeManager.pressDevice {
-                                    // デバイスが登録されている場合
-                                    switch device.status {
+                                if let account = pressModeManager.pressAccount {
+                                    // ログイン済みの場合
+                                    switch account.status {
                                     case .active:
                                         // 有効期間内
                                         if settingsManager.isPressMode {
-                                            // オフにする場合：認証不要で直接オフ
+                                            // オフにする場合：直接オフ
                                             settingsManager.isPressMode = false
                                         } else {
-                                            // オンにする場合：認証チェック
-                                            if pressModeManager.isAuthenticated() {
-                                                // 認証済み：直接オン
-                                                settingsManager.isPressMode = true
-                                            } else {
-                                                // 未認証：アクセスコード画面を表示
-                                                pressModeTargetState = true
-                                                showingPressModeAccess = true
-                                            }
+                                            // オンにする場合：直接オン
+                                            settingsManager.isPressMode = true
                                         }
-                                    case .expired, .notStarted, .deactivated:
-                                        // 期限切れ、未開始、無効化：状態画面を表示
+                                    case .expired, .deactivated:
+                                        // 期限切れ・無効化：状態画面を表示
                                         showingPressModeStatus = true
                                     }
                                 } else {
-                                    // デバイスが未登録：案内画面を表示
-                                    showingPressModeInfo = true
+                                    // 未ログイン：ログイン画面を表示
+                                    showingPressModeLogin = true
                                 }
                             }) {
                                 HStack {
@@ -406,28 +426,30 @@ struct SettingsView: View {
         }
         .navigationViewStyle(.stack)
         .preferredColorScheme(.dark)
-        .sheet(isPresented: $showingPressModeAccess) {
-            PressModeAccessView(
-                settingsManager: settingsManager,
-                isPressMode: $settingsManager.isPressMode,
-                targetState: pressModeTargetState
-            )
-            .environmentObject(pressModeManager)
+        .sheet(isPresented: $showingPressModeLogin) {
+            PressModeLoginView()
+                .environmentObject(pressModeManager)
         }
         .sheet(isPresented: $showingPressModeInfo) {
             PressModeInfoView(settingsManager: settingsManager)
                 .environmentObject(pressModeManager)
         }
         .sheet(isPresented: $showingPressModeStatus) {
-            if let device = pressModeManager.pressDevice {
-                PressModeStatusView(settingsManager: settingsManager, device: device)
+            if let account = pressModeManager.pressAccount {
+                PressModeAccountStatusView(settingsManager: settingsManager, account: account)
+            }
+        }
+        .onChange(of: pressModeManager.isLoggedIn) { _, isLoggedIn in
+            // ログイン成功時に自動的にプレスモードをオンにする
+            if isLoggedIn && pressModeManager.pressAccount?.isValid == true {
+                settingsManager.isPressMode = true
             }
         }
     }
 
     // MARK: - Helper Functions
 
-    private func statusIcon(for status: PressDeviceStatus) -> some View {
+    private func statusIcon(for status: PressAccountStatus) -> some View {
         Group {
             switch status {
             case .active:
@@ -436,9 +458,6 @@ struct SettingsView: View {
             case .expired:
                 Image(systemName: "clock.badge.xmark")
                     .foregroundColor(.orange)
-            case .notStarted:
-                Image(systemName: "clock.badge.exclamationmark")
-                    .foregroundColor(.yellow)
             case .deactivated:
                 Image(systemName: "xmark.shield")
                     .foregroundColor(.red)
@@ -446,14 +465,12 @@ struct SettingsView: View {
         }
     }
 
-    private func statusText(for status: PressDeviceStatus) -> Text {
+    private func statusText(for status: PressAccountStatus) -> Text {
         switch status {
         case .active:
             return Text(settingsManager.localizationManager.localizedString("press_mode_status_active"))
         case .expired:
             return Text(settingsManager.localizationManager.localizedString("press_mode_status_expired"))
-        case .notStarted:
-            return Text(settingsManager.localizationManager.localizedString("press_mode_not_started"))
         case .deactivated:
             return Text(settingsManager.localizationManager.localizedString("press_mode_status_deactivated"))
         }
