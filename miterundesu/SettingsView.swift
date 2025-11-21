@@ -292,7 +292,7 @@ struct SettingsView: View {
                                     ZStack {
                                         RoundedRectangle(cornerRadius: 16)
                                             .fill(settingsManager.isPressMode
-                                                ? (isTheaterMode ? Color("TheaterOrange") : Color("MainGreen"))
+                                                ? Color.red.opacity(0.6)
                                                 : Color.white.opacity(0.3))
                                             .frame(width: 51, height: 31)
 
