@@ -87,6 +87,15 @@ struct ImageGalleryView: View {
                                         )
                                         .frame(width: geometry.size.width, height: geometry.size.height)
                                         .id(capturedImage.id)
+                                        .onAppear {
+                                            // 画像が表示された時にインデックスを更新
+                                            if currentIndex != index {
+                                                currentIndex = index
+                                                scrollPositionID = capturedImage.id
+                                                remainingTime = capturedImage.remainingTime
+                                                announcePhotoChange()
+                                            }
+                                        }
                                     }
                                 }
                                 .scrollTargetLayout()
