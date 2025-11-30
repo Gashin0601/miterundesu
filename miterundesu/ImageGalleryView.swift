@@ -744,58 +744,59 @@ struct ZoomableImageView: View {
                     )
                     .contextMenu { }
 
-                // ズーム時のドラッグ用オーバーレイ
-                if scale > 1.0 {
-                    let _ = print("[ZoomableImage] Drag overlay shown: photoIndex=\(photoIndex)")
-                    Color.clear
-                        .contentShape(Rectangle())
-                        .gesture(
-                            DragGesture(minimumDistance: 1)
-                                .onChanged { value in
-                                    isZooming = true
-                                    let newOffset = CGSize(
-                                        width: lastOffset.width + value.translation.width,
-                                        height: lastOffset.height + value.translation.height
-                                    )
-                                    offset = boundedOffset(newOffset, scale: scale, imageSize: capturedImage.image.size, viewSize: geometry.size)
-                                }
-                                .onEnded { _ in
-                                    lastOffset = offset
-                                }
-                        )
-                        .highPriorityGesture(
-                            MagnifyGesture(minimumScaleDelta: 0)
-                                .onChanged { value in
-                                    let delta = value.magnification / lastScale
-                                    lastScale = value.magnification
-                                    let newScale = min(max(scale * delta, 1), CGFloat(maxZoom))
+                // ズーム時のドラッグ・ピンチ用オーバーレイ（常に存在、scale > 1.0の時のみヒットテスト有効）
+                Color.clear
+                    .contentShape(Rectangle())
+                    .allowsHitTesting(scale > 1.0)
+                    .simultaneousGesture(
+                        DragGesture(minimumDistance: 1)
+                            .onChanged { value in
+                                guard scale > 1.0 else { return }
+                                isZooming = true
+                                let newOffset = CGSize(
+                                    width: lastOffset.width + value.translation.width,
+                                    height: lastOffset.height + value.translation.height
+                                )
+                                offset = boundedOffset(newOffset, scale: scale, imageSize: capturedImage.image.size, viewSize: geometry.size)
+                            }
+                            .onEnded { _ in
+                                guard scale > 1.0 else { return }
+                                lastOffset = offset
+                            }
+                    )
+                    .simultaneousGesture(
+                        MagnifyGesture(minimumScaleDelta: 0)
+                            .onChanged { value in
+                                guard scale > 1.0 else { return }
+                                let delta = value.magnification / lastScale
+                                lastScale = value.magnification
+                                let newScale = min(max(scale * delta, 1), CGFloat(maxZoom))
 
-                                    // ピンチ位置を基準にズーム
-                                    let anchor = value.startAnchor
-                                    let anchorPoint = CGPoint(
-                                        x: (anchor.x - 0.5) * geometry.size.width,
-                                        y: (anchor.y - 0.5) * geometry.size.height
-                                    )
+                                // ピンチ位置を基準にズーム
+                                let anchor = value.startAnchor
+                                let anchorPoint = CGPoint(
+                                    x: (anchor.x - 0.5) * geometry.size.width,
+                                    y: (anchor.y - 0.5) * geometry.size.height
+                                )
 
-                                    let scaleDiff = newScale / scale
-                                    var newOffset = CGSize(
-                                        width: offset.width * scaleDiff - anchorPoint.x * (scaleDiff - 1),
-                                        height: offset.height * scaleDiff - anchorPoint.y * (scaleDiff - 1)
-                                    )
+                                let scaleDiff = newScale / scale
+                                var newOffset = CGSize(
+                                    width: offset.width * scaleDiff - anchorPoint.x * (scaleDiff - 1),
+                                    height: offset.height * scaleDiff - anchorPoint.y * (scaleDiff - 1)
+                                )
 
-                                    scale = newScale
-                                    newOffset = boundedOffset(newOffset, scale: newScale, imageSize: capturedImage.image.size, viewSize: geometry.size)
-                                    offset = newOffset
-                                    lastOffset = offset
+                                scale = newScale
+                                newOffset = boundedOffset(newOffset, scale: newScale, imageSize: capturedImage.image.size, viewSize: geometry.size)
+                                offset = newOffset
+                                lastOffset = offset
+                            }
+                            .onEnded { _ in
+                                lastScale = 1.0
+                                if scale <= 1.0 {
+                                    isZooming = false
                                 }
-                                .onEnded { _ in
-                                    lastScale = 1.0
-                                    if scale <= 1.0 {
-                                        isZooming = false
-                                    }
-                                }
-                        )
-                }
+                            }
+                    )
             }
             .accessibilityElement()
             .accessibilityLabel(imageAccessibilityLabel)
