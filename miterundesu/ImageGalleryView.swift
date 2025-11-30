@@ -718,24 +718,22 @@ struct ZoomableImageView: View {
                             }
                         }
                 )
-                .simultaneousGesture(
-                    DragGesture(minimumDistance: scale > 1.0 ? 0 : 10)
+                .gesture(
+                    scale > 1.0 ?
+                    DragGesture(minimumDistance: 0)
                         .onChanged { value in
-                            if scale > 1.0 {
-                                isZooming = true
-                                let newOffset = CGSize(
-                                    width: lastOffset.width + value.translation.width,
-                                    height: lastOffset.height + value.translation.height
-                                )
-                                // ドラッグ時にオフセットを境界内に制限
-                                offset = boundedOffset(newOffset, scale: scale, imageSize: capturedImage.image.size, viewSize: geometry.size)
-                            }
+                            isZooming = true
+                            let newOffset = CGSize(
+                                width: lastOffset.width + value.translation.width,
+                                height: lastOffset.height + value.translation.height
+                            )
+                            // ドラッグ時にオフセットを境界内に制限
+                            offset = boundedOffset(newOffset, scale: scale, imageSize: capturedImage.image.size, viewSize: geometry.size)
                         }
                         .onEnded { _ in
-                            if scale > 1.0 {
-                                lastOffset = offset
-                            }
+                            lastOffset = offset
                         }
+                    : nil
                 )
                 .onTapGesture(count: 2) {
                     // ダブルタップでズームリセット
