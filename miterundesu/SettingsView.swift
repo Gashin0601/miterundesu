@@ -192,7 +192,11 @@ struct SettingsView: View {
 
                                     // ログアウトボタン
                                     Button(action: {
-                                        showingLogoutConfirmation = true
+                                        if networkMonitor.isConnected {
+                                            showingLogoutConfirmation = true
+                                        } else {
+                                            showingOfflineAlert = true
+                                        }
                                     }) {
                                         HStack {
                                             Image(systemName: "rectangle.portrait.and.arrow.right")
@@ -202,9 +206,10 @@ struct SettingsView: View {
                                         .foregroundColor(.white)
                                         .padding(.vertical, 8)
                                         .padding(.horizontal, 16)
-                                        .background(Color.red.opacity(0.3))
+                                        .background(Color.red.opacity(networkMonitor.isConnected ? 0.3 : 0.15))
                                         .cornerRadius(8)
                                     }
+                                    .opacity(networkMonitor.isConnected ? 1.0 : 0.5)
                                 }
                                 .padding(.vertical, 4)
                             } else {
