@@ -848,7 +848,8 @@ struct ThumbnailView: View {
             .clipped()
             .disabled(isTheaterMode)
             .opacity(isTheaterMode ? 0.3 : 1.0)
-            .accessibilityLabel(settingsManager.localizationManager.localizedString(isTheaterMode ? "viewing_disabled" : "latest_image"))
+            .accessibilityLabel(settingsManager.localizationManager.localizedString("latest_image"))
+            .accessibilityValue(isTheaterMode ? settingsManager.localizationManager.localizedString("viewing_disabled") : "")
             .onReceive(timer) { _ in
                 currentTime = Date()
                 imageManager.removeExpiredImages()

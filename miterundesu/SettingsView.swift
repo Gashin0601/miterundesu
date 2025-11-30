@@ -22,7 +22,6 @@ struct SettingsView: View {
     @State private var pressModeTargetState = false
     @State private var showingLogoutConfirmation = false
     @State private var showingResetConfirmation = false
-    @State private var showingOfflineAlert = false
 
     var body: some View {
         NavigationView {
@@ -192,11 +191,7 @@ struct SettingsView: View {
 
                                     // ログアウトボタン
                                     Button(action: {
-                                        if networkMonitor.isConnected {
-                                            showingLogoutConfirmation = true
-                                        } else {
-                                            showingOfflineAlert = true
-                                        }
+                                        showingLogoutConfirmation = true
                                     }) {
                                         HStack {
                                             Image(systemName: "rectangle.portrait.and.arrow.right")
@@ -209,7 +204,9 @@ struct SettingsView: View {
                                         .background(Color.red.opacity(networkMonitor.isConnected ? 0.3 : 0.15))
                                         .cornerRadius(8)
                                     }
+                                    .disabled(!networkMonitor.isConnected)
                                     .opacity(networkMonitor.isConnected ? 1.0 : 0.5)
+                                    .accessibilityHint(!networkMonitor.isConnected ? settingsManager.localizationManager.localizedString("offline_indicator") : "")
                                 }
                                 .padding(.vertical, 4)
                             } else {
@@ -267,12 +264,6 @@ struct SettingsView: View {
 
                             // プレスモードトグル
                             Button(action: {
-                                // オフライン時はアラートを表示
-                                guard networkMonitor.isConnected else {
-                                    showingOfflineAlert = true
-                                    return
-                                }
-
                                 if let account = pressModeManager.pressAccount {
                                     // ログイン済みの場合
                                     switch account.status {
@@ -318,8 +309,10 @@ struct SettingsView: View {
                                 }
                             }
                             .buttonStyle(.plain)
+                            .disabled(!networkMonitor.isConnected)
                             .accessibilityLabel(settingsManager.isPressMode ? settingsManager.localizationManager.localizedString("press_mode_turn_off") : settingsManager.localizationManager.localizedString("press_mode_turn_on"))
                             .accessibilityValue(settingsManager.isPressMode ? settingsManager.localizationManager.localizedString("on") : settingsManager.localizationManager.localizedString("off"))
+                            .accessibilityHint(!networkMonitor.isConnected ? settingsManager.localizationManager.localizedString("offline_indicator") : "")
                             .opacity(networkMonitor.isConnected ? 1.0 : 0.5)
 
                             Text(settingsManager.localizationManager.localizedString("press_mode_description"))
@@ -534,11 +527,6 @@ struct SettingsView: View {
             }
         } message: {
             Text(settingsManager.localizationManager.localizedString("reset_confirm_message"))
-        }
-        .alert(settingsManager.localizationManager.localizedString("offline_title"), isPresented: $showingOfflineAlert) {
-            Button("OK", role: .cancel) { }
-        } message: {
-            Text(settingsManager.localizationManager.localizedString("offline_message"))
         }
     }
 
