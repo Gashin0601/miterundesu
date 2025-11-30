@@ -385,21 +385,31 @@ struct SettingsView: View {
                                 onboardingManager.showTutorial()
                             }
                         }) {
-                            HStack {
-                                Text(settingsManager.localizationManager.localizedString("show_tutorial"))
-                                    .foregroundColor(.white)
-                                Spacer()
-                                Image(systemName: "questionmark.circle")
-                                    .foregroundColor(.white)
-                                    .accessibilityHidden(true)
+                            VStack(alignment: .leading, spacing: 4) {
+                                HStack {
+                                    Text(settingsManager.localizationManager.localizedString("show_tutorial"))
+                                        .foregroundColor(isTheaterMode ? .white.opacity(0.5) : .white)
+                                    Spacer()
+                                    Image(systemName: "questionmark.circle")
+                                        .foregroundColor(isTheaterMode ? .white.opacity(0.5) : .white)
+                                        .accessibilityHidden(true)
+                                }
+                                // シアターモード時の説明
+                                if isTheaterMode {
+                                    Text(settingsManager.localizationManager.localizedString("tutorial_unavailable_theater"))
+                                        .font(.caption)
+                                        .foregroundColor(.white.opacity(0.7))
+                                }
                             }
                         }
+                        .disabled(isTheaterMode)
                         .accessibilityLabel(settingsManager.localizationManager.localizedString("show_tutorial"))
+                        .accessibilityHint(isTheaterMode ? settingsManager.localizationManager.localizedString("tutorial_unavailable_theater") : "")
                         .listRowBackground(
-                        isTheaterMode
-                            ? Color(red: 0.95, green: 0.6, blue: 0.3, opacity: 0.35)
-                            : Color(red: 0.2, green: 0.6, blue: 0.4, opacity: 0.35)
-                    )
+                            isTheaterMode
+                                ? Color(red: 0.95, green: 0.6, blue: 0.3, opacity: 0.35)
+                                : Color(red: 0.2, green: 0.6, blue: 0.4, opacity: 0.35)
+                        )
 
                         Link(destination: URL(string: "https://miterundesu.jp/privacy")!) {
                             HStack {
