@@ -234,6 +234,7 @@ struct WatermarkOverlay: ViewModifier {
                 WatermarkView(isDarkBackground: isDarkBackground)
                     .padding(.leading, padding)
                     .padding(.bottom, padding)
+                    .accessibilityHidden(true)
             }
         }
     }

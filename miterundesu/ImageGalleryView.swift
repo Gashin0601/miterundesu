@@ -342,6 +342,7 @@ struct ImageGalleryView: View {
                                 WatermarkView(isDarkBackground: true)
                                     .padding(.leading, horizontalPadding * 0.6)
                                     .padding(.bottom, screenHeight * 0.06)
+                                    .accessibilityHidden(true)
 
                                 Spacer()
                             }

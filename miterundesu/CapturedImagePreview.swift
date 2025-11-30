@@ -158,6 +158,7 @@ struct CapturedImagePreview: View {
                     WatermarkView(isDarkBackground: true)
                         .padding(.leading, horizontalPadding * 0.6)
                         .padding(.bottom, verticalPadding * 1.2)
+                        .accessibilityHidden(true)
                     Spacer()
                 }
             }
