@@ -524,7 +524,7 @@ struct HeaderView: View {
                 .resizable()
                 .scaledToFit()
                 .frame(height: 28)
-                .accessibilityHidden(onboardingManager.showFeatureHighlights) // チュートリアル中は非表示
+                .accessibilityHidden(true) // ロゴは常にVoiceOverから非表示
         }
     }
 }
@@ -951,6 +951,7 @@ struct LoadingView: View {
                     .resizable()
                     .scaledToFit()
                     .frame(height: 32)
+                    .accessibilityHidden(true) // ロゴは常にVoiceOverから非表示
 
                 // ローディングインジケーター
                 ZStack {
