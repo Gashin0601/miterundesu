@@ -436,6 +436,17 @@ struct ImageGalleryView: View {
         .preferredColorScheme(.dark)
         .accessibilityElement(children: .contain)
         .accessibilityLabel(galleryAccessibilityLabel)
+        .accessibilityScrollAction { edge in
+            // ビュー全体で3本指スワイプによるページ切り替えを有効化
+            switch edge {
+            case .leading:
+                moveToNextPhoto()
+            case .trailing:
+                moveToPreviousPhoto()
+            default:
+                break
+            }
+        }
         .onAppear {
             // VoiceOver: ギャラリー開始時のアナウンス
             announceGalleryOpened()
