@@ -763,6 +763,38 @@ struct ZoomableImageView: View {
                                     lastOffset = offset
                                 }
                         )
+                        .highPriorityGesture(
+                            MagnifyGesture(minimumScaleDelta: 0)
+                                .onChanged { value in
+                                    let delta = value.magnification / lastScale
+                                    lastScale = value.magnification
+                                    let newScale = min(max(scale * delta, 1), CGFloat(maxZoom))
+
+                                    // ピンチ位置を基準にズーム
+                                    let anchor = value.startAnchor
+                                    let anchorPoint = CGPoint(
+                                        x: (anchor.x - 0.5) * geometry.size.width,
+                                        y: (anchor.y - 0.5) * geometry.size.height
+                                    )
+
+                                    let scaleDiff = newScale / scale
+                                    var newOffset = CGSize(
+                                        width: offset.width * scaleDiff - anchorPoint.x * (scaleDiff - 1),
+                                        height: offset.height * scaleDiff - anchorPoint.y * (scaleDiff - 1)
+                                    )
+
+                                    scale = newScale
+                                    newOffset = boundedOffset(newOffset, scale: newScale, imageSize: capturedImage.image.size, viewSize: geometry.size)
+                                    offset = newOffset
+                                    lastOffset = offset
+                                }
+                                .onEnded { _ in
+                                    lastScale = 1.0
+                                    if scale <= 1.0 {
+                                        isZooming = false
+                                    }
+                                }
+                        )
                 }
             }
             .accessibilityElement()
