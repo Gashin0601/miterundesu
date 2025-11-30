@@ -329,7 +329,7 @@ struct SettingsView: View {
                                     Text(settingsManager.localizationManager.localizedString("offline_indicator"))
                                         .font(.caption)
                                 }
-                                .foregroundColor(.orange)
+                                .foregroundColor(isTheaterMode ? .red : .orange)
                                 .padding(.top, 4)
                                 .accessibilityElement(children: .combine)
                             }
