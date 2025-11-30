@@ -244,6 +244,8 @@ class LocalizationManager: ObservableObject {
         "switch_to_theater_mode": "シアターモードに変更する",
         "switch_to_normal_hint": "タップすると通常モードに切り替わります",
         "switch_to_theater_hint": "タップするとシアターモードに切り替わります",
+        "show_ui": "操作パネルを表示",
+        "show_ui_hint": "タップすると操作パネルが表示されます",
 
         // Preview
         "close_preview_hint": "プレビューを閉じてカメラに戻ります",
@@ -493,6 +495,8 @@ class LocalizationManager: ObservableObject {
         "switch_to_theater_mode": "Switch to Theater Mode",
         "switch_to_normal_hint": "Tap to switch to Normal Mode",
         "switch_to_theater_hint": "Tap to switch to Theater Mode",
+        "show_ui": "Show controls",
+        "show_ui_hint": "Tap to show the control panel",
 
         // Preview
         "close_preview_hint": "Close preview and return to camera",

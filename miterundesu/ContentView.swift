@@ -120,6 +120,7 @@ struct ContentView: View {
                     .padding(.leading, horizontalPadding)
                     .spotlight(id: "theater_toggle")
                     .opacity(shouldShowUI ? 1 : 0)
+                    .accessibilityHidden(!shouldShowUI)
 
                     Spacer()
 
@@ -144,6 +145,7 @@ struct ContentView: View {
                     .accessibilityLabel(settingsManager.localizationManager.localizedString("explanation"))
                     .spotlight(id: "explanation_button")
                     .opacity(shouldShowUI ? 1 : 0)
+                    .accessibilityHidden(!shouldShowUI)
 
                     Spacer()
 
@@ -172,6 +174,7 @@ struct ContentView: View {
                     .accessibilityLabel(settingsManager.localizationManager.localizedString("settings"))
                     .spotlight(id: "settings_button")
                     .opacity(shouldShowUI ? 1 : 0)
+                    .accessibilityHidden(!shouldShowUI)
                 }
                 .padding(.top, topPadding)
                 .padding(.bottom, bottomPadding)
@@ -179,6 +182,7 @@ struct ContentView: View {
                 // ヘッダー部分（無限スクロールとロゴ）
                 HeaderView(settingsManager: settingsManager)
                     .opacity(shouldShowUI ? 1 : 0)
+                    .accessibilityHidden(!shouldShowUI)
                     .padding(.top, topPadding * 0.5)
 
                 // カメラプレビュー領域
@@ -243,6 +247,7 @@ struct ContentView: View {
                     screenHeight: screenHeight
                 )
                 .opacity(shouldShowUI ? 1 : 0)
+                .accessibilityHidden(!shouldShowUI)
                 }
 
 
@@ -253,6 +258,10 @@ struct ContentView: View {
                         .onTapGesture {
                             showUITemporarily()
                         }
+                        .accessibilityElement()
+                        .accessibilityLabel(settingsManager.localizationManager.localizedString("show_ui"))
+                        .accessibilityHint(settingsManager.localizationManager.localizedString("show_ui_hint"))
+                        .accessibilityAddTraits(.isButton)
                 }
 
                 // 画面録画警告（上部に常時表示）
