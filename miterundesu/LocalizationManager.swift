@@ -10,6 +10,8 @@ import Combine
 
 // MARK: - Localization Manager
 class LocalizationManager: ObservableObject {
+    static let shared = LocalizationManager()
+
     @Published var currentLanguage: String = "ja"
 
     init(language: String = "ja") {
@@ -176,7 +178,112 @@ class LocalizationManager: ObservableObject {
         "zoom_reset_announced": "ズームをリセットしました",
         "next_photo": "次の写真",
         "previous_photo": "前の写真",
-        "captured_photo": "撮影した写真"
+        "captured_photo": "撮影した写真",
+
+        // Offline
+        "offline_title": "オフライン",
+        "offline_message": "インターネットに接続されていません。\nプレスモードの操作にはインターネット接続が必要です。",
+        "offline_indicator": "オフライン - インターネット接続が必要です",
+
+        // Press Mode Login
+        "press_login_title": "プレスモードログイン",
+        "press_login_subtitle": "取材用アカウントでログインしてください",
+        "press_login_user_id": "ユーザーID",
+        "press_login_user_id_placeholder": "ユーザーIDを入力",
+        "press_login_password": "パスワード",
+        "press_login_password_placeholder": "パスワードを入力",
+        "press_login_button": "ログイン",
+        "press_login_info_title": "取材用アカウントについて",
+        "press_login_info_description": "プレスモードは、報道機関の方々が取材活動で本アプリを使用する際の専用機能です。",
+        "press_login_info_apply": "アカウントをお持ちでない場合は、公式ウェブサイトから申請してください。",
+
+        // Press Mode Settings
+        "press_logout": "ログアウト",
+        "press_not_logged_in": "ログインしていません",
+        "press_apply_description": "プレスモードを利用するには、公式ウェブサイトからアカウントを申請してください。",
+        "press_apply_button": "詳細と申請",
+
+        // Press Mode Account Status
+        "press_account_status_title": "アカウント状態",
+        "press_account_info": "アカウント情報",
+        "press_account_user_id": "ユーザーID",
+        "press_account_organization": "組織名",
+        "press_account_contact": "担当者",
+        "press_account_expiration": "有効期限",
+        "press_account_approved_at": "承認日",
+        "press_account_expired_message": "有効期限が切れています。継続して使用する場合は、公式ウェブサイトから再申請してください。",
+        "press_account_apply_page": "申請ページを開く",
+
+        // Alerts
+        "cancel": "キャンセル",
+        "logout_confirm_title": "ログアウトの確認",
+        "logout_confirm_message": "プレスモードからログアウトしますか？\n再度ログインするには、ユーザーIDとパスワードが必要です。",
+        "reset_confirm_title": "設定のリセット",
+        "reset_confirm_button": "リセット",
+        "reset_confirm_message": "すべての設定を初期値に戻しますか？\nこの操作は元に戻せません。",
+
+        // Zoom
+        "current_zoom_level": "現在の倍率 %.1f倍",
+
+        // Zoom Accessibility
+        "zoom_in_hint": "タップで1.5倍拡大、長押しで連続拡大します",
+        "zoom_out_hint": "タップで縮小、長押しで連続縮小します",
+        "zoom_reset_hint": "画像の拡大を元に戻します",
+        "current_zoom_accessibility": "現在の倍率: {zoom}倍",
+        "zoom_scale_value": "倍率: {zoom}倍",
+
+        // Time Remaining
+        "time_remaining_label": "残り時間: {time}",
+
+        // Image Gallery
+        "image_deleted": "画像が削除されました",
+        "scrolling_message_label": "スクロールメッセージ",
+
+        // Theater Mode Accessibility
+        "switch_to_normal_mode": "通常モードに変更する",
+        "switch_to_theater_mode": "シアターモードに変更する",
+        "switch_to_normal_hint": "タップすると通常モードに切り替わります",
+        "switch_to_theater_hint": "タップするとシアターモードに切り替わります",
+
+        // Preview
+        "close_preview_hint": "プレビューを閉じてカメラに戻ります",
+
+        // Camera Errors
+        "camera_error_unavailable": "カメラが利用できません",
+        "camera_error_input": "カメラ入力を追加できません",
+        "camera_error_capture": "写真をキャプチャできません",
+
+        // PressDevice Status Messages
+        "press_device_not_started_message": "プレスモードはまだ開始されていません。\n利用期間: {period}",
+        "press_device_active_message": "プレスモードは有効です。",
+        "press_device_expired_message": "プレスモードの有効期限が切れています。\n必要な場合は再申請してください。\n利用期間: {period}",
+        "press_device_deactivated_message": "このデバイスのプレスモードは無効化されています。",
+
+        // Press Mode Login Errors
+        "press_login_error_invalid_credentials": "ユーザーIDまたはパスワードが正しくありません",
+        "press_login_error_expired": "アカウントの有効期限が切れています",
+        "press_login_error_deactivated": "このアカウントは無効化されています",
+        "press_login_error_invalid": "アカウントが無効です",
+        "press_login_error_failed": "ログインに失敗しました: {error}",
+
+        // Camera Preview Accessibility
+        "zoom_reset_camera_hint": "カメラのズームを1倍に戻します",
+
+        // PressModeInfoView
+        "press_info_how_to_apply_title": "アカウント申請方法",
+        "press_info_how_to_apply_desc": "公式ウェブサイトからアカウントを申請してください。承認後、ログインしてご利用いただけます。",
+        "press_info_step1_title": "ウェブサイトで申請",
+        "press_info_step1_desc": "ユーザーIDとパスワードを設定",
+        "press_info_step2_title": "審査・承認",
+        "press_info_step2_desc": "2-3営業日以内にメールで通知",
+        "press_info_step3_title": "ログイン",
+        "press_info_step3_desc": "設定したIDとパスワードでログイン",
+
+        // Deprecated Views
+        "deprecated_view_title": "非推奨",
+        "deprecated_view_message": "この画面は非推奨です",
+        "deprecated_auth_message": "新しい認証システムではログイン画面を使用してください。",
+        "deprecated_status_message": "新しい認証システムではアカウント状態表示画面を使用してください。"
     ]
 
     // 英語の文字列
@@ -320,6 +427,111 @@ class LocalizationManager: ObservableObject {
         "zoom_reset_announced": "Zoom reset",
         "next_photo": "Next photo",
         "previous_photo": "Previous photo",
-        "captured_photo": "Captured photo"
+        "captured_photo": "Captured photo",
+
+        // Offline
+        "offline_title": "Offline",
+        "offline_message": "No internet connection.\nPress Mode requires an internet connection.",
+        "offline_indicator": "Offline - Internet connection required",
+
+        // Press Mode Login
+        "press_login_title": "Press Mode Login",
+        "press_login_subtitle": "Please log in with your press account",
+        "press_login_user_id": "User ID",
+        "press_login_user_id_placeholder": "Enter user ID",
+        "press_login_password": "Password",
+        "press_login_password_placeholder": "Enter password",
+        "press_login_button": "Login",
+        "press_login_info_title": "About Press Accounts",
+        "press_login_info_description": "Press Mode is a dedicated feature for media professionals using this app for news coverage.",
+        "press_login_info_apply": "If you don't have an account, please apply through the official website.",
+
+        // Press Mode Settings
+        "press_logout": "Logout",
+        "press_not_logged_in": "Not logged in",
+        "press_apply_description": "To use Press Mode, please apply for an account through the official website.",
+        "press_apply_button": "Details & Apply",
+
+        // Press Mode Account Status
+        "press_account_status_title": "Account Status",
+        "press_account_info": "Account Information",
+        "press_account_user_id": "User ID",
+        "press_account_organization": "Organization",
+        "press_account_contact": "Contact Person",
+        "press_account_expiration": "Expiration Date",
+        "press_account_approved_at": "Approved Date",
+        "press_account_expired_message": "Your account has expired. Please reapply through the official website to continue using.",
+        "press_account_apply_page": "Open Application Page",
+
+        // Alerts
+        "cancel": "Cancel",
+        "logout_confirm_title": "Confirm Logout",
+        "logout_confirm_message": "Log out from Press Mode?\nYou will need your User ID and password to log in again.",
+        "reset_confirm_title": "Reset Settings",
+        "reset_confirm_button": "Reset",
+        "reset_confirm_message": "Reset all settings to default?\nThis action cannot be undone.",
+
+        // Zoom
+        "current_zoom_level": "Current zoom: %.1fx",
+
+        // Zoom Accessibility
+        "zoom_in_hint": "Tap to zoom in 1.5x, long press for continuous zoom",
+        "zoom_out_hint": "Tap to zoom out, long press for continuous zoom out",
+        "zoom_reset_hint": "Reset image zoom",
+        "current_zoom_accessibility": "Current zoom: {zoom}x",
+        "zoom_scale_value": "Scale: {zoom}x",
+
+        // Time Remaining
+        "time_remaining_label": "Time remaining: {time}",
+
+        // Image Gallery
+        "image_deleted": "Image has been deleted",
+        "scrolling_message_label": "Scrolling message",
+
+        // Theater Mode Accessibility
+        "switch_to_normal_mode": "Switch to Normal Mode",
+        "switch_to_theater_mode": "Switch to Theater Mode",
+        "switch_to_normal_hint": "Tap to switch to Normal Mode",
+        "switch_to_theater_hint": "Tap to switch to Theater Mode",
+
+        // Preview
+        "close_preview_hint": "Close preview and return to camera",
+
+        // Camera Errors
+        "camera_error_unavailable": "Camera is unavailable",
+        "camera_error_input": "Cannot add camera input",
+        "camera_error_capture": "Cannot capture photo",
+
+        // PressDevice Status Messages
+        "press_device_not_started_message": "Press Mode has not started yet.\nUsage period: {period}",
+        "press_device_active_message": "Press Mode is active.",
+        "press_device_expired_message": "Press Mode has expired.\nPlease reapply if needed.\nUsage period: {period}",
+        "press_device_deactivated_message": "Press Mode has been deactivated for this device.",
+
+        // Press Mode Login Errors
+        "press_login_error_invalid_credentials": "Invalid user ID or password",
+        "press_login_error_expired": "Account has expired",
+        "press_login_error_deactivated": "This account has been deactivated",
+        "press_login_error_invalid": "Account is invalid",
+        "press_login_error_failed": "Login failed: {error}",
+
+        // Camera Preview Accessibility
+        "zoom_reset_camera_hint": "Reset camera zoom to 1x",
+
+        // PressModeInfoView
+        "press_info_how_to_apply_title": "How to Apply",
+        "press_info_how_to_apply_desc": "Please apply for an account through the official website. After approval, you can log in and use the service.",
+        "press_info_step1_title": "Apply on Website",
+        "press_info_step1_desc": "Set your User ID and Password",
+        "press_info_step2_title": "Review & Approval",
+        "press_info_step2_desc": "Notified by email within 2-3 business days",
+        "press_info_step3_title": "Login",
+        "press_info_step3_desc": "Log in with your set ID and password",
+
+        // Deprecated Views
+        "deprecated_view_title": "Deprecated",
+        "deprecated_view_message": "This screen is deprecated",
+        "deprecated_auth_message": "Please use the login screen for the new authentication system.",
+        "deprecated_status_message": "Please use the account status screen for the new authentication system."
     ]
 }

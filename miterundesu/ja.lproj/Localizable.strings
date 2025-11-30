@@ -41,3 +41,56 @@
 
 // 時間表示
 "time_remaining" = "残り%d:%02d";
+
+// オフライン
+"offline_title" = "オフライン";
+"offline_message" = "インターネットに接続されていません。\nプレスモードの操作にはインターネット接続が必要です。";
+"offline_indicator" = "オフライン - インターネット接続が必要です";
+
+// プレスモード - ログイン画面
+"press_login_title" = "プレスモードログイン";
+"press_login_subtitle" = "取材用アカウントでログインしてください";
+"press_login_user_id" = "ユーザーID";
+"press_login_user_id_placeholder" = "ユーザーIDを入力";
+"press_login_password" = "パスワード";
+"press_login_password_placeholder" = "パスワードを入力";
+"press_login_button" = "ログイン";
+"press_login_info_title" = "取材用アカウントについて";
+"press_login_info_description" = "プレスモードは、報道機関の方々が取材活動で本アプリを使用する際の専用機能です。";
+"press_login_info_apply" = "アカウントをお持ちでない場合は、公式ウェブサイトから申請してください。";
+
+// プレスモード - 設定画面
+"press_logout" = "ログアウト";
+"press_not_logged_in" = "ログインしていません";
+"press_apply_description" = "プレスモードを利用するには、公式ウェブサイトからアカウントを申請してください。";
+"press_apply_button" = "詳細と申請";
+
+// プレスモード - アカウント状態
+"press_account_status_title" = "アカウント状態";
+"press_account_info" = "アカウント情報";
+"press_account_user_id" = "ユーザーID";
+"press_account_organization" = "組織名";
+"press_account_contact" = "担当者";
+"press_account_expiration" = "有効期限";
+"press_account_approved_at" = "承認日";
+"press_account_expired_message" = "有効期限が切れています。継続して使用する場合は、公式ウェブサイトから再申請してください。";
+"press_account_apply_page" = "申請ページを開く";
+"press_account_status_active" = "アカウントは有効です";
+"press_account_status_expired" = "有効期限切れ";
+"press_account_status_deactivated" = "アカウントが無効化されています";
+
+// アラート - 共通
+"cancel" = "キャンセル";
+"close" = "閉じる";
+
+// アラート - ログアウト確認
+"logout_confirm_title" = "ログアウトの確認";
+"logout_confirm_message" = "プレスモードからログアウトしますか？\n再度ログインするには、ユーザーIDとパスワードが必要です。";
+
+// アラート - 設定リセット
+"reset_confirm_title" = "設定のリセット";
+"reset_confirm_button" = "リセット";
+"reset_confirm_message" = "すべての設定を初期値に戻しますか？\nこの操作は元に戻せません。";
+
+// ズーム
+"current_zoom_level" = "現在の倍率 %.1f倍";

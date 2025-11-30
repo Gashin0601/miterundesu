@@ -141,9 +141,9 @@ struct ContentView: View {
                                 .fill(Color.white)
                         )
                     }
+                    .accessibilityLabel(settingsManager.localizationManager.localizedString("explanation"))
                     .spotlight(id: "explanation_button")
                     .opacity(shouldShowUI ? 1 : 0)
-                    .accessibilityLabel(settingsManager.localizationManager.localizedString("explanation"))
 
                     Spacer()
 
@@ -169,9 +169,9 @@ struct ContentView: View {
                         )
                     }
                     .padding(.trailing, horizontalPadding)
+                    .accessibilityLabel(settingsManager.localizationManager.localizedString("settings"))
                     .spotlight(id: "settings_button")
                     .opacity(shouldShowUI ? 1 : 0)
-                    .accessibilityLabel(settingsManager.localizationManager.localizedString("settings"))
                 }
                 .padding(.top, topPadding)
                 .padding(.bottom, bottomPadding)
@@ -225,6 +225,7 @@ struct ContentView: View {
                 .padding(.horizontal, cameraHorizontalPadding)
                 .padding(.top, cameraTopPadding)
                 .padding(.bottom, cameraBottomPadding)
+                .accessibilityHidden(onboardingManager.showFeatureHighlights && !onboardingManager.currentHighlightedIDs.contains("zoom_buttons")) // zoom_buttonsステップ以外では非表示
 
                 // フッター部分
                 FooterView(
@@ -493,6 +494,7 @@ struct ContentView: View {
 // MARK: - Header View
 struct HeaderView: View {
     @ObservedObject var settingsManager: SettingsManager
+    @ObservedObject private var onboardingManager = OnboardingManager.shared
 
     var body: some View {
         VStack(spacing: 14) {
@@ -500,15 +502,16 @@ struct HeaderView: View {
             InfiniteScrollingText(text: settingsManager.scrollingMessage)
                 .frame(height: 32)
                 .clipped()
-                .spotlight(id: "scrolling_message")
                 .accessibilityElement(children: .ignore) // 内部の繰り返し要素を無視
                 .accessibilityLabel("スクロールメッセージ、\(settingsManager.scrollingMessage)") // 一度だけ読み上げ
+                .spotlight(id: "scrolling_message") // spotlightは最後に適用（accessibilityHiddenが有効になるように）
 
             // ロゴ
             Image("Logo")
                 .resizable()
                 .scaledToFit()
                 .frame(height: 28)
+                .accessibilityHidden(onboardingManager.showFeatureHighlights) // チュートリアル中は非表示
         }
     }
 }
@@ -588,8 +591,8 @@ struct TheaterModeToggle: View {
                     .fill(Color.white.opacity(0.25))
             )
         }
-        .accessibilityLabel(isTheaterMode ? "通常モードに変更する" : "シアターモードに変更する")
-        .accessibilityHint(isTheaterMode ? "タップすると通常モードに切り替わります" : "タップするとシアターモードに切り替わります")
+        .accessibilityLabel(settingsManager.localizationManager.localizedString(isTheaterMode ? "switch_to_normal_mode" : "switch_to_theater_mode"))
+        .accessibilityHint(settingsManager.localizationManager.localizedString(isTheaterMode ? "switch_to_normal_hint" : "switch_to_theater_hint"))
     }
 }
 
@@ -896,6 +899,7 @@ struct TimeRemainingBadge: View {
 // MARK: - Zoom Level View
 struct ZoomLevelView: View {
     let zoomLevel: CGFloat
+    private let localizationManager = LocalizationManager.shared
 
     var body: some View {
         Text("×\(String(format: "%.1f", zoomLevel))")
@@ -907,6 +911,7 @@ struct ZoomLevelView: View {
                 RoundedRectangle(cornerRadius: 10)
                     .fill(Color.white.opacity(0.2))
             )
+            .accessibilityLabel(localizationManager.localizedString("current_zoom_accessibility").replacingOccurrences(of: "{zoom}", with: String(format: "%.1f", zoomLevel)))
     }
 }
 

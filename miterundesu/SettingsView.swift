@@ -15,12 +15,14 @@ struct SettingsView: View {
     @FocusState private var isMessageFieldFocused: Bool
     @EnvironmentObject var pressModeManager: PressModeManager
     @ObservedObject private var onboardingManager = OnboardingManager.shared
+    @ObservedObject private var networkMonitor = NetworkMonitor.shared
     @State private var showingPressModeLogin = false
     @State private var showingPressModeInfo = false
     @State private var showingPressModeStatus = false
     @State private var pressModeTargetState = false
     @State private var showingLogoutConfirmation = false
     @State private var showingResetConfirmation = false
+    @State private var showingOfflineAlert = false
 
     var body: some View {
         NavigationView {
@@ -194,7 +196,7 @@ struct SettingsView: View {
                                     }) {
                                         HStack {
                                             Image(systemName: "rectangle.portrait.and.arrow.right")
-                                            Text("ログアウト")
+                                            Text(settingsManager.localizationManager.localizedString("press_logout"))
                                                 .font(.subheadline)
                                         }
                                         .foregroundColor(.white)
@@ -211,7 +213,7 @@ struct SettingsView: View {
                                         Image(systemName: "info.circle")
                                             .foregroundColor(.white.opacity(0.7))
                                             .accessibilityHidden(true)
-                                        Text("ログインしていません")
+                                        Text(settingsManager.localizationManager.localizedString("press_not_logged_in"))
                                             .font(.headline)
                                             .foregroundColor(.white)
                                     }
@@ -219,7 +221,7 @@ struct SettingsView: View {
 
                                     // ウェブサイト案内
                                     VStack(alignment: .leading, spacing: 8) {
-                                        Text("プレスモードを利用するには、公式ウェブサイトからアカウントを申請してください。")
+                                        Text(settingsManager.localizationManager.localizedString("press_apply_description"))
                                             .font(.subheadline)
                                             .foregroundColor(.white.opacity(0.9))
                                             .fixedSize(horizontal: false, vertical: true)
@@ -233,7 +235,7 @@ struct SettingsView: View {
                                                 Image(systemName: "globe")
                                                     .font(.caption)
                                                 VStack(alignment: .leading, spacing: 2) {
-                                                    Text("詳細と申請")
+                                                    Text(settingsManager.localizationManager.localizedString("press_apply_button"))
                                                         .font(.subheadline)
                                                         .fontWeight(.semibold)
                                                     Text("miterundesu.jp/press")
@@ -260,6 +262,12 @@ struct SettingsView: View {
 
                             // プレスモードトグル
                             Button(action: {
+                                // オフライン時はアラートを表示
+                                guard networkMonitor.isConnected else {
+                                    showingOfflineAlert = true
+                                    return
+                                }
+
                                 if let account = pressModeManager.pressAccount {
                                     // ログイン済みの場合
                                     switch account.status {
@@ -307,11 +315,24 @@ struct SettingsView: View {
                             .buttonStyle(.plain)
                             .accessibilityLabel(settingsManager.isPressMode ? settingsManager.localizationManager.localizedString("press_mode_turn_off") : settingsManager.localizationManager.localizedString("press_mode_turn_on"))
                             .accessibilityValue(settingsManager.isPressMode ? settingsManager.localizationManager.localizedString("on") : settingsManager.localizationManager.localizedString("off"))
+                            .opacity(networkMonitor.isConnected ? 1.0 : 0.5)
 
                             Text(settingsManager.localizationManager.localizedString("press_mode_description"))
                                 .font(.caption)
                                 .foregroundColor(.white.opacity(0.7))
                                 .fixedSize(horizontal: false, vertical: true)
+
+                            // オフライン時の警告表示
+                            if !networkMonitor.isConnected {
+                                HStack(spacing: 6) {
+                                    Image(systemName: "wifi.slash")
+                                        .font(.caption)
+                                    Text(settingsManager.localizationManager.localizedString("offline_indicator"))
+                                        .font(.caption)
+                                }
+                                .foregroundColor(.orange)
+                                .padding(.top, 4)
+                            }
                         }
                         .padding(.vertical, 8)
                     }
@@ -327,11 +348,11 @@ struct SettingsView: View {
                             Text(settingsManager.localizationManager.localizedString("version"))
                                 .foregroundColor(.white)
                             Spacer()
-                            Text("1.0.0")
+                            Text("1.0.1")
                                 .foregroundColor(.white.opacity(0.7))
                         }
                         .accessibilityElement(children: .combine)
-                        .accessibilityLabel("\(settingsManager.localizationManager.localizedString("version_info")) 1.0.0")
+                        .accessibilityLabel("\(settingsManager.localizationManager.localizedString("version_info")) 1.0.1")
                         .listRowBackground(
                         isTheaterMode
                             ? Color(red: 0.95, green: 0.6, blue: 0.3, opacity: 0.35)
@@ -490,22 +511,27 @@ struct SettingsView: View {
                 settingsManager.isPressMode = false
             }
         }
-        .alert("ログアウトの確認", isPresented: $showingLogoutConfirmation) {
-            Button("キャンセル", role: .cancel) { }
-            Button("ログアウト", role: .destructive) {
+        .alert(settingsManager.localizationManager.localizedString("logout_confirm_title"), isPresented: $showingLogoutConfirmation) {
+            Button(settingsManager.localizationManager.localizedString("cancel"), role: .cancel) { }
+            Button(settingsManager.localizationManager.localizedString("press_logout"), role: .destructive) {
                 pressModeManager.logout()
                 settingsManager.isPressMode = false
             }
         } message: {
-            Text("プレスモードからログアウトしますか？\n再度ログインするには、ユーザーIDとパスワードが必要です。")
+            Text(settingsManager.localizationManager.localizedString("logout_confirm_message"))
         }
-        .alert("設定のリセット", isPresented: $showingResetConfirmation) {
-            Button("キャンセル", role: .cancel) { }
-            Button("リセット", role: .destructive) {
+        .alert(settingsManager.localizationManager.localizedString("reset_confirm_title"), isPresented: $showingResetConfirmation) {
+            Button(settingsManager.localizationManager.localizedString("cancel"), role: .cancel) { }
+            Button(settingsManager.localizationManager.localizedString("reset_confirm_button"), role: .destructive) {
                 settingsManager.resetToDefaults()
             }
         } message: {
-            Text("すべての設定を初期値に戻しますか？\nこの操作は元に戻せません。")
+            Text(settingsManager.localizationManager.localizedString("reset_confirm_message"))
+        }
+        .alert(settingsManager.localizationManager.localizedString("offline_title"), isPresented: $showingOfflineAlert) {
+            Button("OK", role: .cancel) { }
+        } message: {
+            Text(settingsManager.localizationManager.localizedString("offline_message"))
         }
     }
 

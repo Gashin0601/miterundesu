@@ -41,3 +41,56 @@
 
 // Time display
 "time_remaining" = "%d:%02d left";
+
+// Offline
+"offline_title" = "Offline";
+"offline_message" = "No internet connection.\nPress Mode requires an internet connection.";
+"offline_indicator" = "Offline - Internet connection required";
+
+// Press Mode - Login screen
+"press_login_title" = "Press Mode Login";
+"press_login_subtitle" = "Please log in with your press account";
+"press_login_user_id" = "User ID";
+"press_login_user_id_placeholder" = "Enter user ID";
+"press_login_password" = "Password";
+"press_login_password_placeholder" = "Enter password";
+"press_login_button" = "Login";
+"press_login_info_title" = "About Press Accounts";
+"press_login_info_description" = "Press Mode is a dedicated feature for media professionals using this app for news coverage.";
+"press_login_info_apply" = "If you don't have an account, please apply through the official website.";
+
+// Press Mode - Settings screen
+"press_logout" = "Logout";
+"press_not_logged_in" = "Not logged in";
+"press_apply_description" = "To use Press Mode, please apply for an account through the official website.";
+"press_apply_button" = "Details & Apply";
+
+// Press Mode - Account status
+"press_account_status_title" = "Account Status";
+"press_account_info" = "Account Information";
+"press_account_user_id" = "User ID";
+"press_account_organization" = "Organization";
+"press_account_contact" = "Contact Person";
+"press_account_expiration" = "Expiration Date";
+"press_account_approved_at" = "Approved Date";
+"press_account_expired_message" = "Your account has expired. Please reapply through the official website to continue using.";
+"press_account_apply_page" = "Open Application Page";
+"press_account_status_active" = "Account is active";
+"press_account_status_expired" = "Expired";
+"press_account_status_deactivated" = "Account has been deactivated";
+
+// Alerts - Common
+"cancel" = "Cancel";
+"close" = "Close";
+
+// Alerts - Logout confirmation
+"logout_confirm_title" = "Confirm Logout";
+"logout_confirm_message" = "Log out from Press Mode?\nYou will need your User ID and password to log in again.";
+
+// Alerts - Settings reset
+"reset_confirm_title" = "Reset Settings";
+"reset_confirm_button" = "Reset";
+"reset_confirm_message" = "Reset all settings to default?\nThis action cannot be undone.";
+
+// Zoom
+"current_zoom_level" = "Current zoom: %.1fx";

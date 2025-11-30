@@ -56,7 +56,7 @@ class PressModeManager: ObservableObject {
 
             // 2. 認証失敗チェック（パスワードが間違っている場合は空配列が返る）
             guard let account = response.first else {
-                error = "ユーザーIDまたはパスワードが正しくありません"
+                error = LocalizationManager.shared.localizedString("press_login_error_invalid_credentials")
                 isLoading = false
                 #if DEBUG
                 print("❌ 認証失敗: ユーザーIDまたはパスワードが間違っています")
@@ -68,11 +68,11 @@ class PressModeManager: ObservableObject {
             guard account.isValid else {
                 switch account.status {
                 case .expired:
-                    error = "アカウントの有効期限が切れています"
+                    error = LocalizationManager.shared.localizedString("press_login_error_expired")
                 case .deactivated:
-                    error = "このアカウントは無効化されています"
+                    error = LocalizationManager.shared.localizedString("press_login_error_deactivated")
                 default:
-                    error = "アカウントが無効です"
+                    error = LocalizationManager.shared.localizedString("press_login_error_invalid")
                 }
                 isLoading = false
                 return false
@@ -100,7 +100,8 @@ class PressModeManager: ObservableObject {
             return true
 
         } catch {
-            self.error = "ログインに失敗しました: \(error.localizedDescription)"
+            self.error = LocalizationManager.shared.localizedString("press_login_error_failed")
+                .replacingOccurrences(of: "{error}", with: error.localizedDescription)
             isLoading = false
             #if DEBUG
             print("❌ ログインエラー: \(error)")

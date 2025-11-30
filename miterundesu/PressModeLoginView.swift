@@ -11,6 +11,7 @@ import SwiftUI
 struct PressModeLoginView: View {
     @StateObject private var pressModeManager = PressModeManager.shared
     @Environment(\.dismiss) private var dismiss
+    private let localizationManager = LocalizationManager.shared
 
     @State private var userId: String = ""
     @State private var password: String = ""
@@ -32,12 +33,12 @@ struct PressModeLoginView: View {
                                 .font(.system(size: 60))
                                 .foregroundColor(.white)
 
-                            Text("プレスモードログイン")
+                            Text(localizationManager.localizedString("press_login_title"))
                                 .font(.title2)
                                 .fontWeight(.bold)
                                 .foregroundColor(.white)
 
-                            Text("取材用アカウントでログインしてください")
+                            Text(localizationManager.localizedString("press_login_subtitle"))
                                 .font(.subheadline)
                                 .foregroundColor(.white.opacity(0.9))
                                 .multilineTextAlignment(.center)
@@ -48,7 +49,7 @@ struct PressModeLoginView: View {
                         VStack(spacing: 20) {
                             // User ID Field
                             VStack(alignment: .leading, spacing: 8) {
-                                Text("ユーザーID")
+                                Text(localizationManager.localizedString("press_login_user_id"))
                                     .font(.subheadline)
                                     .fontWeight(.medium)
                                     .foregroundColor(.white)
@@ -58,7 +59,7 @@ struct PressModeLoginView: View {
                                         .foregroundColor(.white.opacity(0.7))
                                         .frame(width: 20)
 
-                                    TextField("ユーザーIDを入力", text: $userId)
+                                    TextField(localizationManager.localizedString("press_login_user_id_placeholder"), text: $userId)
                                         .textContentType(.username)
                                         .autocapitalization(.none)
                                         .disableAutocorrection(true)
@@ -71,7 +72,7 @@ struct PressModeLoginView: View {
 
                             // Password Field
                             VStack(alignment: .leading, spacing: 8) {
-                                Text("パスワード")
+                                Text(localizationManager.localizedString("press_login_password"))
                                     .font(.subheadline)
                                     .fontWeight(.medium)
                                     .foregroundColor(.white)
@@ -82,13 +83,13 @@ struct PressModeLoginView: View {
                                         .frame(width: 20)
 
                                     if showPassword {
-                                        TextField("パスワードを入力", text: $password)
+                                        TextField(localizationManager.localizedString("press_login_password_placeholder"), text: $password)
                                             .textContentType(.password)
                                             .autocapitalization(.none)
                                             .disableAutocorrection(true)
                                             .foregroundColor(.white)
                                     } else {
-                                        SecureField("パスワードを入力", text: $password)
+                                        SecureField(localizationManager.localizedString("press_login_password_placeholder"), text: $password)
                                             .textContentType(.password)
                                             .autocapitalization(.none)
                                             .disableAutocorrection(true)
@@ -134,7 +135,7 @@ struct PressModeLoginView: View {
                                             .progressViewStyle(CircularProgressViewStyle(tint: .white))
                                     } else {
                                         Image(systemName: "person.badge.key.fill")
-                                        Text("ログイン")
+                                        Text(localizationManager.localizedString("press_login_button"))
                                             .fontWeight(.semibold)
                                     }
                                 }
@@ -154,15 +155,15 @@ struct PressModeLoginView: View {
                                 .background(.white.opacity(0.3))
 
                             VStack(alignment: .leading, spacing: 12) {
-                                Label("取材用アカウントについて", systemImage: "info.circle.fill")
+                                Label(localizationManager.localizedString("press_login_info_title"), systemImage: "info.circle.fill")
                                     .font(.headline)
                                     .foregroundColor(.white)
 
-                                Text("プレスモードは、報道機関の方々が取材活動で本アプリを使用する際の専用機能です。")
+                                Text(localizationManager.localizedString("press_login_info_description"))
                                     .font(.subheadline)
                                     .foregroundColor(.white.opacity(0.9))
 
-                                Text("アカウントをお持ちでない場合は、公式ウェブサイトから申請してください。")
+                                Text(localizationManager.localizedString("press_login_info_apply"))
                                     .font(.subheadline)
                                     .foregroundColor(.white.opacity(0.9))
                             }

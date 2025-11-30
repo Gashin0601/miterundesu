@@ -105,12 +105,12 @@ struct PressModeInfoView: View {
                                 HStack {
                                     Image(systemName: "envelope.badge.fill")
                                         .foregroundColor(.white)
-                                    Text("アカウント申請方法")
+                                    Text(settingsManager.localizationManager.localizedString("press_info_how_to_apply_title"))
                                         .font(.headline)
                                         .foregroundColor(.white)
                                 }
 
-                                Text("公式ウェブサイトからアカウントを申請してください。承認後、ログインしてご利用いただけます。")
+                                Text(settingsManager.localizationManager.localizedString("press_info_how_to_apply_desc"))
                                     .font(.body)
                                     .foregroundColor(.white.opacity(0.9))
                                     .fixedSize(horizontal: false, vertical: true)
@@ -124,11 +124,11 @@ struct PressModeInfoView: View {
                                             .background(Color.white.opacity(0.3))
                                             .clipShape(Circle())
                                         VStack(alignment: .leading, spacing: 4) {
-                                            Text("ウェブサイトで申請")
+                                            Text(settingsManager.localizationManager.localizedString("press_info_step1_title"))
                                                 .font(.subheadline)
                                                 .fontWeight(.semibold)
                                                 .foregroundColor(.white)
-                                            Text("ユーザーIDとパスワードを設定")
+                                            Text(settingsManager.localizationManager.localizedString("press_info_step1_desc"))
                                                 .font(.caption)
                                                 .foregroundColor(.white.opacity(0.8))
                                         }
@@ -142,11 +142,11 @@ struct PressModeInfoView: View {
                                             .background(Color.white.opacity(0.3))
                                             .clipShape(Circle())
                                         VStack(alignment: .leading, spacing: 4) {
-                                            Text("審査・承認")
+                                            Text(settingsManager.localizationManager.localizedString("press_info_step2_title"))
                                                 .font(.subheadline)
                                                 .fontWeight(.semibold)
                                                 .foregroundColor(.white)
-                                            Text("2-3営業日以内にメールで通知")
+                                            Text(settingsManager.localizationManager.localizedString("press_info_step2_desc"))
                                                 .font(.caption)
                                                 .foregroundColor(.white.opacity(0.8))
                                         }
@@ -160,11 +160,11 @@ struct PressModeInfoView: View {
                                             .background(Color.white.opacity(0.3))
                                             .clipShape(Circle())
                                         VStack(alignment: .leading, spacing: 4) {
-                                            Text("ログイン")
+                                            Text(settingsManager.localizationManager.localizedString("press_info_step3_title"))
                                                 .font(.subheadline)
                                                 .fontWeight(.semibold)
                                                 .foregroundColor(.white)
-                                            Text("設定したIDとパスワードでログイン")
+                                            Text(settingsManager.localizationManager.localizedString("press_info_step3_desc"))
                                                 .font(.caption)
                                                 .foregroundColor(.white.opacity(0.8))
                                         }
@@ -206,7 +206,7 @@ struct PressModeInfoView: View {
                                 .shadow(color: .black.opacity(0.1), radius: 4, x: 0, y: 2)
                             }
                             .accessibilityLabel(settingsManager.localizationManager.localizedString("press_mode_application_form") + ": miterundesu.jp/press")
-                            .accessibilityHint("リンクを開く")
+                            .accessibilityHint(settingsManager.localizationManager.localizedString("open_link"))
                             .padding(.horizontal, 24)
                         }
 
@@ -225,7 +225,7 @@ struct PressModeInfoView: View {
                             .font(.system(size: 24))
                             .foregroundColor(.white)
                     }
-                    .accessibilityLabel("閉じる")
+                    .accessibilityLabel(settingsManager.localizationManager.localizedString("close"))
                 }
             }
             .toolbarBackground(Color("MainGreen"), for: .navigationBar)

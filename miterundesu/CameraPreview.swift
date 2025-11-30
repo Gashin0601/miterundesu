@@ -126,8 +126,8 @@ struct CameraPreviewWithZoom: View {
                             stopContinuousZoom()
                         }
                     }, perform: {})
-                    .accessibilityLabel("ズームイン")
-                    .accessibilityHint("タップで1.5倍拡大、長押しで連続拡大します")
+                    .accessibilityLabel(LocalizationManager.shared.localizedString("zoom_in"))
+                    .accessibilityHint(LocalizationManager.shared.localizedString("zoom_in_hint"))
 
                     // ズームアウト
                     ZStack {
@@ -149,8 +149,8 @@ struct CameraPreviewWithZoom: View {
                             stopContinuousZoom()
                         }
                     }, perform: {})
-                    .accessibilityLabel("ズームアウト")
-                    .accessibilityHint("タップで縮小、長押しで連続縮小します")
+                    .accessibilityLabel(LocalizationManager.shared.localizedString("zoom_out"))
+                    .accessibilityHint(LocalizationManager.shared.localizedString("zoom_out_hint"))
 
                     // リセットボタン
                     Button(action: {
@@ -167,8 +167,8 @@ struct CameraPreviewWithZoom: View {
                                 .foregroundColor(.white)
                         }
                     }
-                    .accessibilityLabel("ズームリセット")
-                    .accessibilityHint("カメラのズームを1倍に戻します")
+                    .accessibilityLabel(LocalizationManager.shared.localizedString("zoom_reset"))
+                    .accessibilityHint(LocalizationManager.shared.localizedString("zoom_reset_camera_hint"))
                 }
                 .padding(.trailing, buttonPadding)
                 .padding(.bottom, buttonPadding)

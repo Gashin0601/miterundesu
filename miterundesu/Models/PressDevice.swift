@@ -106,13 +106,15 @@ struct PressDevice: Codable, Identifiable {
     var statusMessage: String {
         switch status {
         case .notStarted:
-            return "プレスモードはまだ開始されていません。\n利用期間: \(periodDisplayString)"
+            return LocalizationManager.shared.localizedString("press_device_not_started_message")
+                .replacingOccurrences(of: "{period}", with: periodDisplayString)
         case .active:
-            return "プレスモードは有効です。"
+            return LocalizationManager.shared.localizedString("press_device_active_message")
         case .expired:
-            return "プレスモードの有効期限が切れています。\n必要な場合は再申請してください。\n利用期間: \(periodDisplayString)"
+            return LocalizationManager.shared.localizedString("press_device_expired_message")
+                .replacingOccurrences(of: "{period}", with: periodDisplayString)
         case .deactivated:
-            return "このデバイスのプレスモードは無効化されています。"
+            return LocalizationManager.shared.localizedString("press_device_deactivated_message")
         }
     }
 }

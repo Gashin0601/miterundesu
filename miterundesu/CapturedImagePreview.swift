@@ -191,8 +191,8 @@ struct CapturedImagePreview: View {
                                 stopContinuousZoom()
                             }
                         }, perform: {})
-                        .accessibilityLabel("ズームイン")
-                        .accessibilityHint("タップで1.5倍拡大、長押しで連続拡大します")
+                        .accessibilityLabel(settingsManager.localizationManager.localizedString("zoom_in"))
+                        .accessibilityHint(settingsManager.localizationManager.localizedString("zoom_in_hint"))
 
                         // ズームアウト
                         ZStack {
@@ -214,8 +214,8 @@ struct CapturedImagePreview: View {
                                 stopContinuousZoom()
                             }
                         }, perform: {})
-                        .accessibilityLabel("ズームアウト")
-                        .accessibilityHint("タップで縮小、長押しで連続縮小します")
+                        .accessibilityLabel(settingsManager.localizationManager.localizedString("zoom_out"))
+                        .accessibilityHint(settingsManager.localizationManager.localizedString("zoom_out_hint"))
 
                         // リセットボタン（1.circleアイコン）
                         Button(action: {
@@ -236,8 +236,8 @@ struct CapturedImagePreview: View {
                                     .foregroundColor(.white)
                             }
                         }
-                        .accessibilityLabel("ズームリセット")
-                        .accessibilityHint("画像の拡大を元に戻します")
+                        .accessibilityLabel(settingsManager.localizationManager.localizedString("zoom_reset"))
+                        .accessibilityHint(settingsManager.localizationManager.localizedString("zoom_reset_hint"))
                     }
 
                     // 倍率表示
@@ -250,7 +250,7 @@ struct CapturedImagePreview: View {
                             RoundedRectangle(cornerRadius: 10)
                                 .fill(Color.white.opacity(0.2))
                         )
-                        .accessibilityLabel("現在の倍率: \(String(format: "%.1f", scale))倍")
+                        .accessibilityLabel(settingsManager.localizationManager.localizedString("current_zoom_accessibility").replacingOccurrences(of: "{zoom}", with: String(format: "%.1f", scale)))
                     }
                     .padding(.trailing, horizontalPadding * 0.6)
                     .padding(.bottom, verticalPadding * 1.2)
@@ -271,7 +271,7 @@ struct CapturedImagePreview: View {
                                     .fill(Color.red.opacity(0.7))
                             )
                             .padding(.leading, horizontalPadding)
-                            .accessibilityLabel("残り時間: \(formattedRemainingTime)")
+                            .accessibilityLabel(settingsManager.localizationManager.localizedString("time_remaining_label").replacingOccurrences(of: "{time}", with: formattedRemainingTime))
 
                         Spacer()
 
@@ -345,8 +345,8 @@ struct CapturedImagePreview: View {
                         }
                     }
                     .padding(.bottom, screenHeight * 0.025)
-                    .accessibilityLabel("閉じる")
-                    .accessibilityHint("プレビューを閉じてカメラに戻ります")
+                    .accessibilityLabel(settingsManager.localizationManager.localizedString("close"))
+                    .accessibilityHint(settingsManager.localizationManager.localizedString("close_preview_hint"))
                 }
 
             // 画面録画警告（上部に常時表示）

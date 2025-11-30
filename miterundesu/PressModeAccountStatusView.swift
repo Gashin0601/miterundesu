@@ -12,6 +12,7 @@ struct PressModeAccountStatusView: View {
     let settingsManager: SettingsManager
     let account: PressAccount
     @Environment(\.dismiss) private var dismiss
+    private let localizationManager = LocalizationManager.shared
 
     var body: some View {
         NavigationView {
@@ -46,21 +47,21 @@ struct PressModeAccountStatusView: View {
                             Divider()
 
                             VStack(alignment: .leading, spacing: 12) {
-                                Label("アカウント情報", systemImage: "info.circle.fill")
+                                Label(localizationManager.localizedString("press_account_info"), systemImage: "info.circle.fill")
                                     .font(.headline)
                                     .foregroundColor(.blue)
 
-                                infoRow(label: "ユーザーID", value: account.userId)
-                                infoRow(label: "組織名", value: account.organizationName)
+                                infoRow(label: localizationManager.localizedString("press_account_user_id"), value: account.userId)
+                                infoRow(label: localizationManager.localizedString("press_account_organization"), value: account.organizationName)
 
                                 if let contact = account.contactPerson {
-                                    infoRow(label: "担当者", value: contact)
+                                    infoRow(label: localizationManager.localizedString("press_account_contact"), value: contact)
                                 }
 
-                                infoRow(label: "有効期限", value: account.expirationDisplayString)
+                                infoRow(label: localizationManager.localizedString("press_account_expiration"), value: account.expirationDisplayString)
 
                                 if let approvedAt = account.approvalDisplayString {
-                                    infoRow(label: "承認日", value: approvedAt)
+                                    infoRow(label: localizationManager.localizedString("press_account_approved_at"), value: approvedAt)
                                 }
                             }
                             .padding()
@@ -73,7 +74,7 @@ struct PressModeAccountStatusView: View {
                         // Action Button
                         if account.status == .expired {
                             VStack(spacing: 12) {
-                                Text("有効期限が切れています。継続して使用する場合は、公式ウェブサイトから再申請してください。")
+                                Text(localizationManager.localizedString("press_account_expired_message"))
                                     .font(.subheadline)
                                     .foregroundColor(.secondary)
                                     .multilineTextAlignment(.center)
@@ -82,7 +83,7 @@ struct PressModeAccountStatusView: View {
                                 Link(destination: URL(string: "https://miterundesu.jp/press")!) {
                                     HStack {
                                         Image(systemName: "arrow.up.right.square")
-                                        Text("申請ページを開く")
+                                        Text(localizationManager.localizedString("press_account_apply_page"))
                                             .fontWeight(.semibold)
                                     }
                                     .frame(maxWidth: .infinity)
@@ -99,11 +100,11 @@ struct PressModeAccountStatusView: View {
                     }
                 }
             }
-            .navigationTitle("アカウント状態")
+            .navigationTitle(localizationManager.localizedString("press_account_status_title"))
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
-                    Button("閉じる") {
+                    Button(localizationManager.localizedString("close")) {
                         dismiss()
                     }
                 }
@@ -132,11 +133,11 @@ struct PressModeAccountStatusView: View {
     private var statusTitle: String {
         switch account.status {
         case .active:
-            return "アカウントは有効です"
+            return localizationManager.localizedString("press_account_status_active")
         case .expired:
-            return "有効期限切れ"
+            return localizationManager.localizedString("press_account_status_expired")
         case .deactivated:
-            return "アカウントが無効化されています"
+            return localizationManager.localizedString("press_account_status_deactivated")
         }
     }
 

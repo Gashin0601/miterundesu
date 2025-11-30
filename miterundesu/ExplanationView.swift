@@ -24,47 +24,49 @@ struct ExplanationView: View {
 
                 VStack(spacing: 0) {
                     // 上部固定ヘッダー
-                    ZStack {
-                        // 中央：ロゴ（完全に中央配置）
+                    HStack {
+                        // 左：シアターモードトグル
+                        TheaterModeToggle(
+                            isTheaterMode: $settingsManager.isTheaterMode,
+                            onToggle: {},
+                            settingsManager: settingsManager
+                        )
+                        .padding(.leading, horizontalPadding)
+                        .layoutPriority(1)
+
+                        Spacer(minLength: 8)
+
+                        // 中央：ロゴ（スペースに応じて縮小可能）
                         Image("Logo")
                             .resizable()
                             .scaledToFit()
-                            .frame(height: 20)
+                            .frame(maxHeight: 20)
+                            .layoutPriority(0)
 
-                        // 左右のボタンを絶対配置
-                        HStack {
-                            // 左：シアターモードトグル
-                            TheaterModeToggle(
-                                isTheaterMode: $settingsManager.isTheaterMode,
-                                onToggle: {},
-                                settingsManager: settingsManager
-                            )
-                            .padding(.leading, horizontalPadding)
+                        Spacer(minLength: 8)
 
-                            Spacer()
-
-                            // 右：閉じるボタン
-                            Button(action: {
-                                dismiss()
-                            }) {
-                                HStack(spacing: 6) {
-                                    Image(systemName: "xmark.circle.fill")
-                                        .font(.system(size: 16))
-                                        .accessibilityHidden(true)
-                                    Text(settingsManager.localizationManager.localizedString("close"))
-                                        .font(.system(size: 13, weight: .medium))
-                                }
-                                .foregroundColor(.white)
-                                .padding(.horizontal, horizontalPadding * 0.6)
-                                .padding(.vertical, 6)
-                                .background(
-                                    RoundedRectangle(cornerRadius: 8)
-                                        .fill(Color.white.opacity(0.25))
-                                )
+                        // 右：閉じるボタン
+                        Button(action: {
+                            dismiss()
+                        }) {
+                            HStack(spacing: 6) {
+                                Image(systemName: "xmark.circle.fill")
+                                    .font(.system(size: 16))
+                                    .accessibilityHidden(true)
+                                Text(settingsManager.localizationManager.localizedString("close"))
+                                    .font(.system(size: 13, weight: .medium))
                             }
-                            .accessibilityLabel(settingsManager.localizationManager.localizedString("close"))
-                            .padding(.trailing, horizontalPadding)
+                            .foregroundColor(.white)
+                            .padding(.horizontal, horizontalPadding * 0.6)
+                            .padding(.vertical, 6)
+                            .background(
+                                RoundedRectangle(cornerRadius: 8)
+                                    .fill(Color.white.opacity(0.25))
+                            )
                         }
+                        .accessibilityLabel(settingsManager.localizationManager.localizedString("close"))
+                        .padding(.trailing, horizontalPadding)
+                        .layoutPriority(1)
                     }
                     .padding(.top, 8)
                     .padding(.bottom, 8)

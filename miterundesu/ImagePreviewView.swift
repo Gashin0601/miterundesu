@@ -91,7 +91,7 @@ struct ImagePreviewView: View {
                                 .shadow(radius: 5)
                         }
                         .padding(buttonPadding)
-                        .accessibilityLabel("閉じる")
+                        .accessibilityLabel(LocalizationManager.shared.localizedString("close"))
 
                         Spacer()
 
@@ -106,7 +106,7 @@ struct ImagePreviewView: View {
                                     .fill(Color.red.opacity(0.7))
                             )
                             .padding(buttonPadding)
-                            .accessibilityLabel("残り時間: \(formattedRemainingTime)")
+                            .accessibilityLabel(LocalizationManager.shared.localizedString("time_remaining_label").replacingOccurrences(of: "{time}", with: formattedRemainingTime))
                     }
 
                     Spacer()
@@ -123,7 +123,7 @@ struct ImagePreviewView: View {
                                     .fill(Color.black.opacity(0.5))
                             )
                             .padding(.bottom, bottomPadding)
-                            .accessibilityLabel("現在の倍率: \(String(format: "%.1f", scale))倍")
+                            .accessibilityLabel(LocalizationManager.shared.localizedString("current_zoom_accessibility").replacingOccurrences(of: "{zoom}", with: String(format: "%.1f", scale)))
                     }
                 }
             }

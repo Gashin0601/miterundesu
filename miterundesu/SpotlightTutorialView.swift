@@ -8,18 +8,6 @@
 
 import SwiftUI
 
-// MARK: - Highlighted Spotlight IDs Environment Key
-private struct HighlightedSpotlightIDsKey: EnvironmentKey {
-    static let defaultValue: Set<String> = []
-}
-
-extension EnvironmentValues {
-    var highlightedSpotlightIDs: Set<String> {
-        get { self[HighlightedSpotlightIDsKey.self] }
-        set { self[HighlightedSpotlightIDsKey.self] = newValue }
-    }
-}
-
 // MARK: - Spotlight Tutorial Step
 struct SpotlightStep: Identifiable {
     let id: String
@@ -91,13 +79,12 @@ extension View {
 /// チュートリアル中、ハイライトされていない要素をVoiceOverから隠す
 struct SpotlightAccessibilityModifier: ViewModifier {
     let id: String
-    @Environment(\.highlightedSpotlightIDs) var highlightedIDs
     @ObservedObject private var onboardingManager = OnboardingManager.shared
 
     func body(content: Content) -> some View {
         content
             .accessibilityHidden(
-                onboardingManager.showFeatureHighlights && !highlightedIDs.contains(id)
+                onboardingManager.showFeatureHighlights && !onboardingManager.currentHighlightedIDs.contains(id)
             )
     }
 }
@@ -236,12 +223,17 @@ struct SpotlightTutorialView: View {
             )
         }
         .onAppear {
+            // 現在のステップのハイライトIDを設定
+            onboardingManager.currentHighlightedIDs = Set(currentStep.targetViewIds)
             // VoiceOver: チュートリアル開始時に最初のステップを読み上げ
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
                 announceCurrentStep()
             }
         }
-        .environment(\.highlightedSpotlightIDs, Set(currentStep.targetViewIds))
+        .onChange(of: currentStepIndex) { _, _ in
+            // ステップ変更時にハイライトIDを更新
+            onboardingManager.currentHighlightedIDs = Set(currentStep.targetViewIds)
+        }
     }
 
     private func calculateCardCenter(geometry: GeometryProxy, targetFrame: CGRect, position: SpotlightStep.SpotlightPosition) -> CGPoint {
@@ -286,6 +278,7 @@ struct SpotlightTutorialView: View {
     }
 
     private func completeTutorial() {
+        onboardingManager.currentHighlightedIDs = []
         onboardingManager.completeFeatureHighlights()
     }
 }

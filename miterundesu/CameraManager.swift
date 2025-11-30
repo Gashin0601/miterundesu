@@ -433,11 +433,11 @@ enum CameraError: Error, LocalizedError {
     var errorDescription: String? {
         switch self {
         case .cameraUnavailable:
-            return "カメラが利用できません"
+            return LocalizationManager.shared.localizedString("camera_error_unavailable")
         case .cannotAddInput:
-            return "カメラ入力を追加できません"
+            return LocalizationManager.shared.localizedString("camera_error_input")
         case .cannotCapturePhoto:
-            return "写真をキャプチャできません"
+            return LocalizationManager.shared.localizedString("camera_error_capture")
         }
     }
 }

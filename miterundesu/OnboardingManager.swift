@@ -21,6 +21,7 @@ class OnboardingManager: ObservableObject {
     @Published var showWelcomeScreen: Bool = false
     @Published var showFeatureHighlights: Bool = false
     @Published var showCompletionScreen: Bool = false
+    @Published var currentHighlightedIDs: Set<String> = []
 
     private init() {
         self.hasCompletedOnboarding = UserDefaults.standard.bool(forKey: "hasCompletedOnboarding")
