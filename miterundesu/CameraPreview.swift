@@ -62,6 +62,7 @@ struct CameraPreviewWithZoom: View {
     @ObservedObject var cameraManager: CameraManager
     @Binding var isTheaterMode: Bool
     let onCapture: () -> Void
+    @ObservedObject private var onboardingManager = OnboardingManager.shared
 
     @State private var lastZoomFactor: CGFloat = 1.0
     @State private var zoomTimer: Timer?
@@ -88,7 +89,9 @@ struct CameraPreviewWithZoom: View {
                             .padding(.leading, screenWidth * 0.04)
                             .padding(.bottom, screenWidth * 0.04)
                             .allowsHitTesting(false)
+                            .accessibilityHidden(true) // ウォーターマークは常にVoiceOverから隠す
                     }
+                    .accessibilityHidden(onboardingManager.showFeatureHighlights) // チュートリアル中はカメラプレビューを隠す
                     .gesture(
                         MagnificationGesture()
                             .onChanged { value in

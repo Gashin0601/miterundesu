@@ -104,6 +104,11 @@ struct ImageGalleryView: View {
                                     remainingTime = imageManager.capturedImages[newIndex].remainingTime
                                     // VoiceOver: 写真移動をアナウンス
                                     announcePhotoChange()
+
+                                    // VoiceOverにレイアウト変更を通知（要素ナビゲーションを更新）
+                                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                                        UIAccessibility.post(notification: .layoutChanged, argument: nil)
+                                    }
                                 }
                             }
                             .onAppear {
@@ -151,7 +156,7 @@ struct ImageGalleryView: View {
                                             .fill(Color.red.opacity(0.7))
                                     )
                                     .padding(.leading, horizontalPadding)
-                                    .accessibilityLabel(settingsManager.localizationManager.localizedString("time_remaining_label").replacingOccurrences(of: "{time}", with: formattedRemainingTime))
+                                    .accessibilityLabel(spokenRemainingTime)
                             }
 
                             Spacer()
@@ -441,6 +446,14 @@ struct ImageGalleryView: View {
         let minutes = Int(remainingTime) / 60
         let seconds = Int(remainingTime) % 60
         return String(format: "%d:%02d", minutes, seconds)
+    }
+
+    private var spokenRemainingTime: String {
+        let minutes = Int(remainingTime) / 60
+        let seconds = Int(remainingTime) % 60
+        return settingsManager.localizationManager.localizedString("time_remaining_spoken")
+            .replacingOccurrences(of: "{minutes}", with: String(minutes))
+            .replacingOccurrences(of: "{seconds}", with: String(seconds))
     }
 
     private var currentImageID: UUID? {

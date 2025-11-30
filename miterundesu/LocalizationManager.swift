@@ -234,10 +234,13 @@ class LocalizationManager: ObservableObject {
 
         // Time Remaining
         "time_remaining_label": "残り時間: {time}",
+        "time_remaining_spoken": "残り時間: {minutes}分{seconds}秒",
+        "time_spoken_format": "{minutes}分{seconds}秒",
 
         // Image Gallery
         "image_deleted": "画像が削除されました",
         "scrolling_message_label": "スクロールメッセージ",
+        "no_images": "画像なし",
 
         // Theater Mode Accessibility
         "switch_to_normal_mode": "通常モードに変更する",
@@ -485,10 +488,13 @@ class LocalizationManager: ObservableObject {
 
         // Time Remaining
         "time_remaining_label": "Time remaining: {time}",
+        "time_remaining_spoken": "Time remaining: {minutes} minutes {seconds} seconds",
+        "time_spoken_format": "{minutes} minutes {seconds} seconds",
 
         // Image Gallery
         "image_deleted": "Image has been deleted",
         "scrolling_message_label": "Scrolling message",
+        "no_images": "No images",
 
         // Theater Mode Accessibility
         "switch_to_normal_mode": "Switch to Normal Mode",

@@ -219,6 +219,7 @@ struct ContentView: View {
                                     RoundedRectangle(cornerRadius: 12)
                                         .fill(Color.black.opacity(0.7))
                                 )
+                                .accessibilityHidden(onboardingManager.showFeatureHighlights) // チュートリアル中は非表示
                             }
                         }
                         .preventScreenCapture()  // カメラプレビューだけを保護
@@ -272,6 +273,7 @@ struct ContentView: View {
                     }
                     .transition(.move(edge: .top).combined(with: .opacity))
                     .animation(.easeInOut, value: securityManager.showRecordingWarning)
+                    .accessibilityHidden(onboardingManager.showFeatureHighlights) // チュートリアル中は非表示
                 }
 
                 // スクリーンショット警告（中央にモーダル表示）
@@ -281,10 +283,12 @@ struct ContentView: View {
                         .onTapGesture {
                             securityManager.showScreenshotWarning = false
                         }
+                        .accessibilityHidden(onboardingManager.showFeatureHighlights) // チュートリアル中は非表示
 
                     ScreenshotWarningView(settingsManager: settingsManager)
                         .transition(.scale.combined(with: .opacity))
                         .animation(.spring(), value: securityManager.showScreenshotWarning)
+                        .accessibilityHidden(onboardingManager.showFeatureHighlights) // チュートリアル中は非表示
                 }
 
                 // スポットライトチュートリアル（オーバーレイ）
@@ -785,6 +789,7 @@ struct ThumbnailView: View {
     let isTheaterMode: Bool
     @ObservedObject var settingsManager: SettingsManager
     let thumbnailSize: CGFloat
+    @ObservedObject private var onboardingManager = OnboardingManager.shared
 
     @State private var currentTime = Date()
     let timer = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
@@ -871,7 +876,12 @@ struct ThumbnailView: View {
                     Image(systemName: "photo")
                         .font(.system(size: iconSize))
                         .foregroundColor(.white.opacity(0.5))
+                        .accessibilityHidden(true)
                 )
+                .accessibilityElement()
+                .accessibilityLabel(settingsManager.localizationManager.localizedString("no_images"))
+                // チュートリアル中でphoto_buttonがハイライトされていない時は非表示
+                .accessibilityHidden(onboardingManager.showFeatureHighlights && !onboardingManager.currentHighlightedIDs.contains("photo_button"))
         }
     }
 

@@ -106,7 +106,7 @@ struct ImagePreviewView: View {
                                     .fill(Color.red.opacity(0.7))
                             )
                             .padding(buttonPadding)
-                            .accessibilityLabel(LocalizationManager.shared.localizedString("time_remaining_label").replacingOccurrences(of: "{time}", with: formattedRemainingTime))
+                            .accessibilityLabel(spokenRemainingTime)
                     }
 
                     Spacer()
@@ -140,5 +140,13 @@ struct ImagePreviewView: View {
         let minutes = Int(remainingTime) / 60
         let seconds = Int(remainingTime) % 60
         return String(format: "%d:%02d", minutes, seconds)
+    }
+
+    private var spokenRemainingTime: String {
+        let minutes = Int(remainingTime) / 60
+        let seconds = Int(remainingTime) % 60
+        return LocalizationManager.shared.localizedString("time_remaining_spoken")
+            .replacingOccurrences(of: "{minutes}", with: String(minutes))
+            .replacingOccurrences(of: "{seconds}", with: String(seconds))
     }
 }
