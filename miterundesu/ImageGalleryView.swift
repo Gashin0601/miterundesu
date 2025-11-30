@@ -681,7 +681,7 @@ struct ZoomableImageView: View {
                     .scaleEffect(scale)
                     .offset(offset)
                     .clipped()
-                .gesture(
+                .highPriorityGesture(
                     MagnificationGesture(minimumScaleDelta: 0)
                         .onChanged { value in
                             isZooming = true
@@ -702,25 +702,24 @@ struct ZoomableImageView: View {
                             }
                         }
                 )
-                .gesture(
-                    scale > 1.0 ? DragGesture(minimumDistance: 0)
+                .simultaneousGesture(
+                    DragGesture(minimumDistance: scale > 1.0 ? 0 : 10)
                         .onChanged { value in
-                            isZooming = true
-                            let newOffset = CGSize(
-                                width: lastOffset.width + value.translation.width,
-                                height: lastOffset.height + value.translation.height
-                            )
-                            // ドラッグ時にオフセットを境界内に制限
-                            offset = boundedOffset(newOffset, scale: scale, imageSize: capturedImage.image.size, viewSize: geometry.size)
+                            if scale > 1.0 {
+                                isZooming = true
+                                let newOffset = CGSize(
+                                    width: lastOffset.width + value.translation.width,
+                                    height: lastOffset.height + value.translation.height
+                                )
+                                // ドラッグ時にオフセットを境界内に制限
+                                offset = boundedOffset(newOffset, scale: scale, imageSize: capturedImage.image.size, viewSize: geometry.size)
+                            }
                         }
                         .onEnded { _ in
-                            lastOffset = offset
-                            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-                                if scale <= 1.0 {
-                                    isZooming = false
-                                }
+                            if scale > 1.0 {
+                                lastOffset = offset
                             }
-                        } : nil
+                        }
                 )
                 .onTapGesture(count: 2) {
                     // ダブルタップでズームリセット
