@@ -90,13 +90,7 @@ struct ImageGalleryView: View {
                                         .id(capturedImage.id)
                                         .onAppear {
                                             print("[Gallery] Image onAppear: index=\(index), currentIndex=\(currentIndex)")
-                                            // 画像が表示された時にインデックスを更新
-                                            if currentIndex != index {
-                                                currentIndex = index
-                                                scrollPositionID = capturedImage.id
-                                                remainingTime = capturedImage.remainingTime
-                                                announcePhotoChange()
-                                            }
+                                            // onAppearでは状態更新しない（onChange(of: scrollPositionID)で処理）
                                         }
                                     }
                                 }
@@ -112,16 +106,18 @@ struct ImageGalleryView: View {
                                 print("[Gallery] scrollPositionID changed: \(String(describing: oldValue)) -> \(String(describing: newValue))")
                                 // スクロール位置からインデックスを更新
                                 if let newID = newValue,
-                                   let newIndex = imageManager.capturedImages.firstIndex(where: { $0.id == newID }) {
+                                   let newIndex = imageManager.capturedImages.firstIndex(where: { $0.id == newID }),
+                                   newIndex != currentIndex {
                                     print("[Gallery] Updating currentIndex: \(currentIndex) -> \(newIndex)")
                                     currentIndex = newIndex
                                     remainingTime = imageManager.capturedImages[newIndex].remainingTime
-                                    // VoiceOver: 写真移動をアナウンス
-                                    announcePhotoChange()
 
-                                    // VoiceOverにレイアウト変更を通知（要素ナビゲーションを更新）
-                                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-                                        UIAccessibility.post(notification: .layoutChanged, argument: nil)
+                                    // VoiceOver: 実行中の時のみアナウンス
+                                    if UIAccessibility.isVoiceOverRunning {
+                                        announcePhotoChange()
+                                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                                            UIAccessibility.post(notification: .layoutChanged, argument: nil)
+                                        }
                                     }
                                 }
                             }
