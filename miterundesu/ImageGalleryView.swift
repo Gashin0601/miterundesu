@@ -133,6 +133,7 @@ struct ImageGalleryView: View {
                         .accessibilityElement()
                         .accessibilityLabel(currentImageAccessibilityLabel)
                         .accessibilityValue(settingsManager.localizationManager.localizedString("zoom_scale_value").replacingOccurrences(of: "{zoom}", with: String(format: "%.1f", currentScale)))
+                        .accessibilityHint(imageManager.capturedImages.count > 1 ? settingsManager.localizationManager.localizedString("three_finger_swipe_hint") : "")
                         .accessibilityScrollAction { edge in
                             // 3本指スワイプでページ切り替え
                             switch edge {
@@ -145,12 +146,6 @@ struct ImageGalleryView: View {
                             default:
                                 break
                             }
-                        }
-                        .accessibilityAction(named: Text(settingsManager.localizationManager.localizedString("next_photo"))) {
-                            moveToNextPhoto()
-                        }
-                        .accessibilityAction(named: Text(settingsManager.localizationManager.localizedString("previous_photo"))) {
-                            moveToPreviousPhoto()
                         }
                         .allowsHitTesting(false)
 
@@ -441,12 +436,6 @@ struct ImageGalleryView: View {
         .preferredColorScheme(.dark)
         .accessibilityElement(children: .contain)
         .accessibilityLabel(galleryAccessibilityLabel)
-        .accessibilityAction(named: Text(settingsManager.localizationManager.localizedString("next_photo"))) {
-            moveToNextPhoto()
-        }
-        .accessibilityAction(named: Text(settingsManager.localizationManager.localizedString("previous_photo"))) {
-            moveToPreviousPhoto()
-        }
         .onAppear {
             // VoiceOver: ギャラリー開始時のアナウンス
             announceGalleryOpened()

@@ -242,6 +242,7 @@ class LocalizationManager: ObservableObject {
         "image_deleted": "画像が削除されました",
         "scrolling_message_label": "スクロールメッセージ",
         "no_images": "画像なし",
+        "three_finger_swipe_hint": "3本指で左右にスワイプして写真を切り替えられます",
 
         // Theater Mode Accessibility
         "switch_to_normal_mode": "通常モードに変更する",
@@ -497,6 +498,7 @@ class LocalizationManager: ObservableObject {
         "image_deleted": "Image has been deleted",
         "scrolling_message_label": "Scrolling message",
         "no_images": "No images",
+        "three_finger_swipe_hint": "Swipe left or right with three fingers to switch photos",
 
         // Theater Mode Accessibility
         "switch_to_normal_mode": "Switch to Normal Mode",
