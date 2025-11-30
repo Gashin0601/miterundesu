@@ -332,11 +332,13 @@ struct SettingsView: View {
                                 HStack(spacing: 6) {
                                     Image(systemName: "wifi.slash")
                                         .font(.caption)
+                                        .accessibilityHidden(true)
                                     Text(settingsManager.localizationManager.localizedString("offline_indicator"))
                                         .font(.caption)
                                 }
                                 .foregroundColor(.orange)
                                 .padding(.top, 4)
+                                .accessibilityElement(children: .combine)
                             }
                         }
                         .padding(.vertical, 8)
