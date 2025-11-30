@@ -96,41 +96,35 @@ struct ImageGalleryView: View {
                             .scrollDisabled(isZooming)
                             .accessibilityScrollAction { edge in
                                 // VoiceOverの3本指スワイプで写真を切り替え
-                                // leading = 3本指右スワイプ = 前の写真へ
-                                // trailing = 3本指左スワイプ = 次の写真へ
-                                switch edge {
-                                case .trailing:
-                                    // 3本指左スワイプ = 次の写真
-                                    if currentIndex < imageManager.capturedImages.count - 1 {
-                                        withAnimation {
-                                            currentIndex += 1
-                                            scrollPositionID = imageManager.capturedImages[safe: currentIndex]?.id
+                                DispatchQueue.main.async {
+                                    switch edge {
+                                    case .trailing:
+                                        // 3本指左スワイプ = 次の写真
+                                        if currentIndex < imageManager.capturedImages.count - 1 {
+                                            withAnimation {
+                                                currentIndex += 1
+                                                scrollPositionID = imageManager.capturedImages[safe: currentIndex]?.id
+                                            }
+                                            if currentIndex < imageManager.capturedImages.count {
+                                                remainingTime = imageManager.capturedImages[currentIndex].remainingTime
+                                            }
+                                            announcePhotoChange()
                                         }
-                                        if currentIndex < imageManager.capturedImages.count {
-                                            remainingTime = imageManager.capturedImages[currentIndex].remainingTime
+                                    case .leading:
+                                        // 3本指右スワイプ = 前の写真
+                                        if currentIndex > 0 {
+                                            withAnimation {
+                                                currentIndex -= 1
+                                                scrollPositionID = imageManager.capturedImages[safe: currentIndex]?.id
+                                            }
+                                            if currentIndex < imageManager.capturedImages.count {
+                                                remainingTime = imageManager.capturedImages[currentIndex].remainingTime
+                                            }
+                                            announcePhotoChange()
                                         }
-                                        announcePhotoChange()
-                                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-                                            UIAccessibility.post(notification: .layoutChanged, argument: nil)
-                                        }
+                                    default:
+                                        break
                                     }
-                                case .leading:
-                                    // 3本指右スワイプ = 前の写真
-                                    if currentIndex > 0 {
-                                        withAnimation {
-                                            currentIndex -= 1
-                                            scrollPositionID = imageManager.capturedImages[safe: currentIndex]?.id
-                                        }
-                                        if currentIndex < imageManager.capturedImages.count {
-                                            remainingTime = imageManager.capturedImages[currentIndex].remainingTime
-                                        }
-                                        announcePhotoChange()
-                                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-                                            UIAccessibility.post(notification: .layoutChanged, argument: nil)
-                                        }
-                                    }
-                                default:
-                                    break
                                 }
                             }
                             .blur(radius: securityManager.isScreenRecording ? 50 : 0)
@@ -254,12 +248,13 @@ struct ImageGalleryView: View {
                             Spacer()
 
                             HStack(spacing: indicatorSize * 0.4) {
-                                ForEach(0..<imageManager.capturedImages.count, id: \.self) { index in
+                                ForEach(Array(imageManager.capturedImages.enumerated()), id: \.element.id) { index, _ in
                                     Circle()
                                         .fill(index == currentIndex ? Color.white : Color.white.opacity(0.4))
                                         .frame(width: indicatorSize, height: indicatorSize)
                                 }
                             }
+                            .id(currentIndex) // currentIndexが変わったら再描画
                             .padding(.bottom, verticalPadding * 1.6)
                             .accessibilityHidden(true)
                         }
