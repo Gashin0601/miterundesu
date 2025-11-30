@@ -678,8 +678,10 @@ struct ZoomableImageView: View {
                     .resizable()
                     .aspectRatio(contentMode: .fit)
                     .frame(width: geometry.size.width, height: geometry.size.height)
-                    .scaleEffect(scale)
+                    .scaleEffect(scale, anchor: .center)
                     .offset(offset)
+                    .animation(.none, value: scale)
+                    .animation(.none, value: offset)
                     .clipped()
                 .highPriorityGesture(
                     MagnifyGesture(minimumScaleDelta: 0)
@@ -720,7 +722,7 @@ struct ZoomableImageView: View {
                 )
                 .gesture(
                     scale > 1.0 ?
-                    DragGesture(minimumDistance: 0)
+                    DragGesture(minimumDistance: 1)
                         .onChanged { value in
                             isZooming = true
                             let newOffset = CGSize(
