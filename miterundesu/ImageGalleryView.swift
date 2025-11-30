@@ -94,6 +94,10 @@ struct ImageGalleryView: View {
                             .scrollTargetBehavior(.paging)
                             .scrollPosition(id: $scrollPositionID)
                             .scrollDisabled(isZooming)
+                            .accessibilityScrollAction { edge in
+                                // VoiceOverの1本指スワイプによるスクロールを無効化
+                                // 3本指スワイプは引き続き動作する
+                            }
                             .blur(radius: securityManager.isScreenRecording ? 50 : 0)
                             .modifier(ConditionalPreventCapture(isEnabled: !settingsManager.isPressMode))
                             .onChange(of: scrollPositionID) { oldValue, newValue in
