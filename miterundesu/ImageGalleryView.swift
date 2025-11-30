@@ -40,7 +40,6 @@ struct ImageGalleryView: View {
     }
 
     var body: some View {
-        let _ = print("[Gallery] body computed: currentIndex=\(currentIndex), isZooming=\(isZooming), imageCount=\(imageManager.capturedImages.count)")
         GeometryReader { mainGeometry in
             let screenWidth = mainGeometry.size.width
             let screenHeight = mainGeometry.size.height
@@ -89,7 +88,6 @@ struct ImageGalleryView: View {
                                         .frame(width: geometry.size.width, height: geometry.size.height)
                                         .id(capturedImage.id)
                                         .onAppear {
-                                            print("[Gallery] Image onAppear: index=\(index), currentIndex=\(currentIndex)")
                                             // onAppearでは状態更新しない（onChange(of: scrollPositionID)で処理）
                                         }
                                     }
@@ -103,12 +101,10 @@ struct ImageGalleryView: View {
                             .blur(radius: securityManager.isScreenRecording ? 50 : 0)
                             .modifier(ConditionalPreventCapture(isEnabled: !settingsManager.isPressMode))
                             .onChange(of: scrollPositionID) { oldValue, newValue in
-                                print("[Gallery] scrollPositionID changed: \(String(describing: oldValue)) -> \(String(describing: newValue))")
                                 // スクロール位置からインデックスを更新
                                 if let newID = newValue,
                                    let newIndex = imageManager.capturedImages.firstIndex(where: { $0.id == newID }),
                                    newIndex != currentIndex {
-                                    print("[Gallery] Updating currentIndex: \(currentIndex) -> \(newIndex)")
                                     currentIndex = newIndex
                                     remainingTime = imageManager.capturedImages[newIndex].remainingTime
 
@@ -673,7 +669,6 @@ struct ZoomableImageView: View {
     }
 
     var body: some View {
-        let _ = print("[ZoomableImage] body computed: photoIndex=\(photoIndex), scale=\(scale), isZooming=\(isZooming)")
         GeometryReader { geometry in
             ZStack {
                 // 画像
@@ -798,7 +793,6 @@ struct ZoomableImageView: View {
             .accessibilityLabel(imageAccessibilityLabel)
             .accessibilityValue(settingsManager.localizationManager.localizedString("zoom_scale_value").replacingOccurrences(of: "{zoom}", with: String(format: "%.1f", scale)))
             .onChange(of: scale) { oldValue, newValue in
-                print("[ZoomableImage] scale changed: \(oldValue) -> \(newValue), photoIndex=\(photoIndex)")
                 if newValue > 1.0 {
                     isZooming = true
                 } else if newValue <= 1.0 {
