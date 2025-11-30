@@ -103,6 +103,7 @@ struct ImageGalleryView: View {
                             .scrollTargetBehavior(.paging)
                             .scrollPosition(id: $scrollPositionID)
                             .scrollDisabled(isZooming)
+                            .accessibilityHidden(true) // VoiceOverからスクロールを隠す
                             .blur(radius: securityManager.isScreenRecording ? 50 : 0)
                             .modifier(ConditionalPreventCapture(isEnabled: !settingsManager.isPressMode))
                             .onChange(of: scrollPositionID) { oldValue, newValue in
@@ -125,6 +126,20 @@ struct ImageGalleryView: View {
                                 scrollPositionID = imageManager.capturedImages[safe: currentIndex]?.id
                             }
                     }
+
+                    // VoiceOver用の現在画像情報（スクロールビューの代わり）
+                    Color.clear
+                        .frame(maxWidth: .infinity, maxHeight: .infinity)
+                        .accessibilityElement()
+                        .accessibilityLabel(currentImageAccessibilityLabel)
+                        .accessibilityValue(settingsManager.localizationManager.localizedString("zoom_scale_value").replacingOccurrences(of: "{zoom}", with: String(format: "%.1f", currentScale)))
+                        .accessibilityAction(named: Text(settingsManager.localizationManager.localizedString("next_photo"))) {
+                            moveToNextPhoto()
+                        }
+                        .accessibilityAction(named: Text(settingsManager.localizationManager.localizedString("previous_photo"))) {
+                            moveToPreviousPhoto()
+                        }
+                        .allowsHitTesting(false)
 
                     // 画面録画中の警告オーバーレイ
                     if securityManager.isScreenRecording {
@@ -430,6 +445,27 @@ struct ImageGalleryView: View {
         let photoCount = settingsManager.localizationManager.localizedString("photo_count")
             .replacingOccurrences(of: "{count}", with: "\(imageManager.capturedImages.count)")
         return "\(photoGallery)、\(photoCount)"
+    }
+
+    private var currentImageAccessibilityLabel: String {
+        guard currentIndex < imageManager.capturedImages.count else {
+            return settingsManager.localizationManager.localizedString("no_images")
+        }
+        let capturedImage = imageManager.capturedImages[currentIndex]
+        let capturedPhoto = settingsManager.localizationManager.localizedString("captured_photo")
+        let photoNumber = settingsManager.localizationManager.localizedString("photo_number")
+            .replacingOccurrences(of: "{current}", with: "\(currentIndex + 1)")
+            .replacingOccurrences(of: "{total}", with: "\(imageManager.capturedImages.count)")
+
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateStyle = .short
+        dateFormatter.timeStyle = .short
+        let timeString = dateFormatter.string(from: capturedImage.capturedAt)
+
+        let capturedAt = settingsManager.localizationManager.localizedString("captured_at")
+            .replacingOccurrences(of: "{time}", with: timeString)
+
+        return "\(capturedPhoto)、\(photoNumber)、\(capturedAt)"
     }
 
     private func announceGalleryOpened() {
