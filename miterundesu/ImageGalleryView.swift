@@ -100,18 +100,28 @@ struct ImageGalleryView: View {
                                 case .leading:
                                     // 左にスクロール = 前の写真
                                     if currentIndex > 0 {
-                                        currentIndex -= 1
-                                        scrollPositionID = imageManager.capturedImages[safe: currentIndex]?.id
-                                        remainingTime = imageManager.capturedImages[currentIndex].remainingTime
+                                        withAnimation {
+                                            currentIndex -= 1
+                                            scrollPositionID = imageManager.capturedImages[safe: currentIndex]?.id
+                                        }
+                                        if currentIndex < imageManager.capturedImages.count {
+                                            remainingTime = imageManager.capturedImages[currentIndex].remainingTime
+                                        }
                                         announcePhotoChange()
+                                        UIAccessibility.post(notification: .layoutChanged, argument: nil)
                                     }
                                 case .trailing:
                                     // 右にスクロール = 次の写真
                                     if currentIndex < imageManager.capturedImages.count - 1 {
-                                        currentIndex += 1
-                                        scrollPositionID = imageManager.capturedImages[safe: currentIndex]?.id
-                                        remainingTime = imageManager.capturedImages[currentIndex].remainingTime
+                                        withAnimation {
+                                            currentIndex += 1
+                                            scrollPositionID = imageManager.capturedImages[safe: currentIndex]?.id
+                                        }
+                                        if currentIndex < imageManager.capturedImages.count {
+                                            remainingTime = imageManager.capturedImages[currentIndex].remainingTime
+                                        }
                                         announcePhotoChange()
+                                        UIAccessibility.post(notification: .layoutChanged, argument: nil)
                                     }
                                 default:
                                     break
