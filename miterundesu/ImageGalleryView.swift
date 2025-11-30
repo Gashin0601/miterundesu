@@ -94,39 +94,6 @@ struct ImageGalleryView: View {
                             .scrollTargetBehavior(.paging)
                             .scrollPosition(id: $scrollPositionID)
                             .scrollDisabled(isZooming)
-                            .accessibilityScrollAction { edge in
-                                // VoiceOverの3本指スワイプで写真を切り替え
-                                DispatchQueue.main.async {
-                                    switch edge {
-                                    case .trailing:
-                                        // 3本指左スワイプ = 次の写真
-                                        if currentIndex < imageManager.capturedImages.count - 1 {
-                                            withAnimation {
-                                                currentIndex += 1
-                                                scrollPositionID = imageManager.capturedImages[safe: currentIndex]?.id
-                                            }
-                                            if currentIndex < imageManager.capturedImages.count {
-                                                remainingTime = imageManager.capturedImages[currentIndex].remainingTime
-                                            }
-                                            announcePhotoChange()
-                                        }
-                                    case .leading:
-                                        // 3本指右スワイプ = 前の写真
-                                        if currentIndex > 0 {
-                                            withAnimation {
-                                                currentIndex -= 1
-                                                scrollPositionID = imageManager.capturedImages[safe: currentIndex]?.id
-                                            }
-                                            if currentIndex < imageManager.capturedImages.count {
-                                                remainingTime = imageManager.capturedImages[currentIndex].remainingTime
-                                            }
-                                            announcePhotoChange()
-                                        }
-                                    default:
-                                        break
-                                    }
-                                }
-                            }
                             .blur(radius: securityManager.isScreenRecording ? 50 : 0)
                             .modifier(ConditionalPreventCapture(isEnabled: !settingsManager.isPressMode))
                             .onChange(of: scrollPositionID) { oldValue, newValue in
