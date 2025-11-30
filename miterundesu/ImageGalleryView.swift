@@ -241,50 +241,62 @@ struct ImageGalleryView: View {
                                 // ズームコントロールボタン
                                 VStack(spacing: buttonSize * 0.27) {
                                     // ズームイン
-                                    ZStack {
-                                        Circle()
-                                            .fill(Color.black.opacity(0.6))
-                                            .frame(width: buttonSize, height: buttonSize)
-
-                                        Image(systemName: "plus")
-                                            .font(.system(size: buttonSize * 0.45, weight: .medium))
-                                            .foregroundColor(.white)
-                                    }
-                                    .onTapGesture {
+                                    Button(action: {
                                         zoomIn()
+                                    }) {
+                                        ZStack {
+                                            Circle()
+                                                .fill(Color.black.opacity(0.6))
+                                                .frame(width: buttonSize, height: buttonSize)
+
+                                            Image(systemName: "plus")
+                                                .font(.system(size: buttonSize * 0.45, weight: .medium))
+                                                .foregroundColor(.white)
+                                        }
                                     }
+                                    .simultaneousGesture(
+                                        LongPressGesture(minimumDuration: 0.5)
+                                            .onChanged { _ in
+                                                startContinuousZoom(direction: .in)
+                                            }
+                                    )
                                     .onLongPressGesture(minimumDuration: 0.5, pressing: { pressing in
-                                        if pressing {
-                                            startContinuousZoom(direction: .in)
-                                        } else {
+                                        if !pressing {
                                             stopContinuousZoom()
                                         }
                                     }, perform: {})
                                     .accessibilityLabel(settingsManager.localizationManager.localizedString("zoom_in"))
                                     .accessibilityHint(settingsManager.localizationManager.localizedString("zoom_in_hint"))
+                                    .accessibilityAddTraits(.isButton)
 
                                     // ズームアウト
-                                    ZStack {
-                                        Circle()
-                                            .fill(Color.black.opacity(0.6))
-                                            .frame(width: buttonSize, height: buttonSize)
-
-                                        Image(systemName: "minus")
-                                            .font(.system(size: buttonSize * 0.45, weight: .medium))
-                                            .foregroundColor(.white)
-                                    }
-                                    .onTapGesture {
+                                    Button(action: {
                                         zoomOut()
+                                    }) {
+                                        ZStack {
+                                            Circle()
+                                                .fill(Color.black.opacity(0.6))
+                                                .frame(width: buttonSize, height: buttonSize)
+
+                                            Image(systemName: "minus")
+                                                .font(.system(size: buttonSize * 0.45, weight: .medium))
+                                                .foregroundColor(.white)
+                                        }
                                     }
+                                    .simultaneousGesture(
+                                        LongPressGesture(minimumDuration: 0.5)
+                                            .onChanged { _ in
+                                                startContinuousZoom(direction: .out)
+                                            }
+                                    )
                                     .onLongPressGesture(minimumDuration: 0.5, pressing: { pressing in
-                                        if pressing {
-                                            startContinuousZoom(direction: .out)
-                                        } else {
+                                        if !pressing {
                                             stopContinuousZoom()
                                         }
                                     }, perform: {})
                                     .accessibilityLabel(settingsManager.localizationManager.localizedString("zoom_out"))
                                     .accessibilityHint(settingsManager.localizationManager.localizedString("zoom_out_hint"))
+                                    .accessibilityAddTraits(.isButton)
 
                                     // リセットボタン（1.circleアイコン）
                                     Button(action: {
@@ -302,6 +314,7 @@ struct ImageGalleryView: View {
                                     }
                                     .accessibilityLabel(settingsManager.localizationManager.localizedString("zoom_reset"))
                                     .accessibilityHint(settingsManager.localizationManager.localizedString("zoom_reset_hint"))
+                                    .accessibilityAddTraits(.isButton)
                                 }
 
                                 // 倍率表示
