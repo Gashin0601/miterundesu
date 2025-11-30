@@ -96,22 +96,11 @@ struct ImageGalleryView: View {
                             .scrollDisabled(isZooming)
                             .accessibilityScrollAction { edge in
                                 // VoiceOverの3本指スワイプで写真を切り替え
+                                // leading = 3本指右スワイプ = 前の写真へ
+                                // trailing = 3本指左スワイプ = 次の写真へ
                                 switch edge {
-                                case .leading:
-                                    // 左にスクロール = 前の写真
-                                    if currentIndex > 0 {
-                                        withAnimation {
-                                            currentIndex -= 1
-                                            scrollPositionID = imageManager.capturedImages[safe: currentIndex]?.id
-                                        }
-                                        if currentIndex < imageManager.capturedImages.count {
-                                            remainingTime = imageManager.capturedImages[currentIndex].remainingTime
-                                        }
-                                        announcePhotoChange()
-                                        UIAccessibility.post(notification: .layoutChanged, argument: nil)
-                                    }
                                 case .trailing:
-                                    // 右にスクロール = 次の写真
+                                    // 3本指左スワイプ = 次の写真
                                     if currentIndex < imageManager.capturedImages.count - 1 {
                                         withAnimation {
                                             currentIndex += 1
@@ -121,7 +110,24 @@ struct ImageGalleryView: View {
                                             remainingTime = imageManager.capturedImages[currentIndex].remainingTime
                                         }
                                         announcePhotoChange()
-                                        UIAccessibility.post(notification: .layoutChanged, argument: nil)
+                                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                                            UIAccessibility.post(notification: .layoutChanged, argument: nil)
+                                        }
+                                    }
+                                case .leading:
+                                    // 3本指右スワイプ = 前の写真
+                                    if currentIndex > 0 {
+                                        withAnimation {
+                                            currentIndex -= 1
+                                            scrollPositionID = imageManager.capturedImages[safe: currentIndex]?.id
+                                        }
+                                        if currentIndex < imageManager.capturedImages.count {
+                                            remainingTime = imageManager.capturedImages[currentIndex].remainingTime
+                                        }
+                                        announcePhotoChange()
+                                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                                            UIAccessibility.post(notification: .layoutChanged, argument: nil)
+                                        }
                                     }
                                 default:
                                     break
