@@ -682,15 +682,31 @@ struct ZoomableImageView: View {
                     .offset(offset)
                     .clipped()
                 .highPriorityGesture(
-                    MagnificationGesture(minimumScaleDelta: 0)
+                    MagnifyGesture(minimumScaleDelta: 0)
                         .onChanged { value in
                             isZooming = true
-                            let delta = value / lastScale
-                            lastScale = value
+                            let delta = value.magnification / lastScale
+                            lastScale = value.magnification
                             let newScale = min(max(scale * delta, 1), CGFloat(maxZoom))
+
+                            // ピンチ位置を基準にズーム（アンカーポイント計算）
+                            let anchor = value.startAnchor
+                            let anchorPoint = CGPoint(
+                                x: (anchor.x - 0.5) * geometry.size.width,
+                                y: (anchor.y - 0.5) * geometry.size.height
+                            )
+
+                            // アンカーポイントを固定するようにオフセットを調整
+                            let scaleDiff = newScale / scale
+                            var newOffset = CGSize(
+                                width: offset.width * scaleDiff - anchorPoint.x * (scaleDiff - 1),
+                                height: offset.height * scaleDiff - anchorPoint.y * (scaleDiff - 1)
+                            )
+
                             scale = newScale
                             // スケール変更時にオフセットを境界内に制限
-                            offset = boundedOffset(offset, scale: newScale, imageSize: capturedImage.image.size, viewSize: geometry.size)
+                            newOffset = boundedOffset(newOffset, scale: newScale, imageSize: capturedImage.image.size, viewSize: geometry.size)
+                            offset = newOffset
                             lastOffset = offset
                         }
                         .onEnded { _ in
