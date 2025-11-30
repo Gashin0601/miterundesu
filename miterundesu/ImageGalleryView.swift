@@ -95,8 +95,27 @@ struct ImageGalleryView: View {
                             .scrollPosition(id: $scrollPositionID)
                             .scrollDisabled(isZooming)
                             .accessibilityScrollAction { edge in
-                                // VoiceOverの1本指スワイプによるスクロールを無効化
-                                // 3本指スワイプは引き続き動作する
+                                // VoiceOverの3本指スワイプで写真を切り替え
+                                switch edge {
+                                case .leading:
+                                    // 左にスクロール = 前の写真
+                                    if currentIndex > 0 {
+                                        currentIndex -= 1
+                                        scrollPositionID = imageManager.capturedImages[safe: currentIndex]?.id
+                                        remainingTime = imageManager.capturedImages[currentIndex].remainingTime
+                                        announcePhotoChange()
+                                    }
+                                case .trailing:
+                                    // 右にスクロール = 次の写真
+                                    if currentIndex < imageManager.capturedImages.count - 1 {
+                                        currentIndex += 1
+                                        scrollPositionID = imageManager.capturedImages[safe: currentIndex]?.id
+                                        remainingTime = imageManager.capturedImages[currentIndex].remainingTime
+                                        announcePhotoChange()
+                                    }
+                                default:
+                                    break
+                                }
                             }
                             .blur(radius: securityManager.isScreenRecording ? 50 : 0)
                             .modifier(ConditionalPreventCapture(isEnabled: !settingsManager.isPressMode))
