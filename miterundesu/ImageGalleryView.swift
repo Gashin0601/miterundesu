@@ -133,6 +133,19 @@ struct ImageGalleryView: View {
                         .accessibilityElement()
                         .accessibilityLabel(currentImageAccessibilityLabel)
                         .accessibilityValue(settingsManager.localizationManager.localizedString("zoom_scale_value").replacingOccurrences(of: "{zoom}", with: String(format: "%.1f", currentScale)))
+                        .accessibilityScrollAction { edge in
+                            // 3本指スワイプでページ切り替え
+                            switch edge {
+                            case .leading:
+                                // 右から左へスワイプ = 次の写真
+                                moveToNextPhoto()
+                            case .trailing:
+                                // 左から右へスワイプ = 前の写真
+                                moveToPreviousPhoto()
+                            default:
+                                break
+                            }
+                        }
                         .accessibilityAction(named: Text(settingsManager.localizationManager.localizedString("next_photo"))) {
                             moveToNextPhoto()
                         }
