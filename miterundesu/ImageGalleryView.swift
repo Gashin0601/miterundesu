@@ -40,6 +40,7 @@ struct ImageGalleryView: View {
     }
 
     var body: some View {
+        let _ = print("[Gallery] body computed: currentIndex=\(currentIndex), isZooming=\(isZooming), imageCount=\(imageManager.capturedImages.count)")
         GeometryReader { mainGeometry in
             let screenWidth = mainGeometry.size.width
             let screenHeight = mainGeometry.size.height
@@ -88,6 +89,7 @@ struct ImageGalleryView: View {
                                         .frame(width: geometry.size.width, height: geometry.size.height)
                                         .id(capturedImage.id)
                                         .onAppear {
+                                            print("[Gallery] Image onAppear: index=\(index), currentIndex=\(currentIndex)")
                                             // 画像が表示された時にインデックスを更新
                                             if currentIndex != index {
                                                 currentIndex = index
@@ -107,9 +109,11 @@ struct ImageGalleryView: View {
                             .blur(radius: securityManager.isScreenRecording ? 50 : 0)
                             .modifier(ConditionalPreventCapture(isEnabled: !settingsManager.isPressMode))
                             .onChange(of: scrollPositionID) { oldValue, newValue in
+                                print("[Gallery] scrollPositionID changed: \(String(describing: oldValue)) -> \(String(describing: newValue))")
                                 // スクロール位置からインデックスを更新
                                 if let newID = newValue,
                                    let newIndex = imageManager.capturedImages.firstIndex(where: { $0.id == newID }) {
+                                    print("[Gallery] Updating currentIndex: \(currentIndex) -> \(newIndex)")
                                     currentIndex = newIndex
                                     remainingTime = imageManager.capturedImages[newIndex].remainingTime
                                     // VoiceOver: 写真移動をアナウンス
@@ -673,6 +677,7 @@ struct ZoomableImageView: View {
     }
 
     var body: some View {
+        let _ = print("[ZoomableImage] body computed: photoIndex=\(photoIndex), scale=\(scale), isZooming=\(isZooming)")
         GeometryReader { geometry in
             ZStack {
                 // 画像
@@ -741,6 +746,7 @@ struct ZoomableImageView: View {
 
                 // ズーム時のドラッグ用オーバーレイ
                 if scale > 1.0 {
+                    let _ = print("[ZoomableImage] Drag overlay shown: photoIndex=\(photoIndex)")
                     Color.clear
                         .contentShape(Rectangle())
                         .gesture(
@@ -763,6 +769,7 @@ struct ZoomableImageView: View {
             .accessibilityLabel(imageAccessibilityLabel)
             .accessibilityValue(settingsManager.localizationManager.localizedString("zoom_scale_value").replacingOccurrences(of: "{zoom}", with: String(format: "%.1f", scale)))
             .onChange(of: scale) { oldValue, newValue in
+                print("[ZoomableImage] scale changed: \(oldValue) -> \(newValue), photoIndex=\(photoIndex)")
                 if newValue > 1.0 {
                     isZooming = true
                 } else if newValue <= 1.0 {
