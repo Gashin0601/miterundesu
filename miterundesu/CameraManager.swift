@@ -212,6 +212,16 @@ class CameraManager: NSObject, ObservableObject, AVCaptureSessionControlsDelegat
                 // ズーム倍率を制限
                 let clampedZoom = min(max(factor, 1.0), min(device.activeFormat.videoMaxZoomFactor, self.maxZoomFactor))
 
+                // duration 0の場合は即座にズーム
+                if duration <= 0 {
+                    device.videoZoomFactor = clampedZoom
+                    device.unlockForConfiguration()
+                    DispatchQueue.main.async {
+                        self.currentZoom = clampedZoom
+                    }
+                    return
+                }
+
                 // レート（ズーム速度）を計算: 距離 / 時間
                 let currentZoom = device.videoZoomFactor
                 let distance = abs(clampedZoom - currentZoom)
