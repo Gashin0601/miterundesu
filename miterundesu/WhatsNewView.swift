@@ -32,6 +32,7 @@ struct WhatsNewView: View {
                         .font(.system(size: 18, weight: .medium))
                         .foregroundColor(.white.opacity(0.8))
                 }
+                .accessibilityElement(children: .combine)
 
                 Spacer()
 
@@ -61,6 +62,7 @@ struct WhatsNewView: View {
                         .background(Color.white)
                         .cornerRadius(12)
                 }
+                .accessibilityLabel(settingsManager.localizationManager.localizedString("whats_new_close"))
                 .padding(.horizontal, 30)
                 .padding(.bottom, 50)
             }
@@ -80,6 +82,7 @@ struct FeatureRow: View {
                 .font(.system(size: 32))
                 .foregroundColor(.white)
                 .frame(width: 50)
+                .accessibilityHidden(true)
 
             VStack(alignment: .leading, spacing: 6) {
                 Text(title)
@@ -95,6 +98,8 @@ struct FeatureRow: View {
         .padding(20)
         .background(Color.white.opacity(0.15))
         .cornerRadius(16)
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel("\(title)。\(description)")
     }
 }
 

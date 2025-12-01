@@ -51,6 +51,7 @@ struct TutorialCompletionView: View {
                         .lineSpacing(6)
                         .padding(.horizontal, 40)
                 }
+                .accessibilityElement(children: .combine)
 
                 Spacer()
 

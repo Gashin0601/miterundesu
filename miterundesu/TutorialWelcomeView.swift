@@ -28,6 +28,7 @@ struct TutorialWelcomeView: View {
                         .resizable()
                         .scaledToFit()
                         .frame(width: 200, height: 200)
+                        .accessibilityLabel(settingsManager.localizationManager.localizedString("app_name"))
 
                     // ようこそメッセージ
                     VStack(spacing: 16) {
@@ -42,6 +43,7 @@ struct TutorialWelcomeView: View {
                             .lineSpacing(6)
                             .padding(.horizontal, 40)
                     }
+                    .accessibilityElement(children: .combine)
                 }
 
                 Spacer()
@@ -78,6 +80,7 @@ struct TutorialWelcomeView: View {
                             .foregroundColor(.white.opacity(0.7))
                             .padding(.vertical, 10)
                     }
+                    .accessibilityLabel(settingsManager.localizationManager.localizedString("skip"))
                 }
                 .padding(.horizontal, 32)
                 .padding(.bottom, 40)
