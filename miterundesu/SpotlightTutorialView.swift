@@ -76,16 +76,23 @@ extension View {
 }
 
 // MARK: - Spotlight Accessibility Modifier
-/// チュートリアル中、ハイライトされていない要素をVoiceOverから隠す
+/// チュートリアル中、ハイライトされていない要素をVoiceOverから隠し、
+/// ハイライトされている要素には「ハイライト」というラベルを追加
 struct SpotlightAccessibilityModifier: ViewModifier {
     let id: String
     @ObservedObject private var onboardingManager = OnboardingManager.shared
+
+    private var isHighlighted: Bool {
+        onboardingManager.showFeatureHighlights && onboardingManager.currentHighlightedIDs.contains(id)
+    }
 
     func body(content: Content) -> some View {
         content
             .accessibilityHidden(
                 onboardingManager.showFeatureHighlights && !onboardingManager.currentHighlightedIDs.contains(id)
             )
+            .accessibilityLabel(isHighlighted ? LocalizationManager.shared.localizedString("highlighted") : "")
+            .accessibilitySortPriority(isHighlighted ? 1 : 0)
     }
 }
 
@@ -94,6 +101,7 @@ struct SpotlightTutorialView: View {
     @ObservedObject var settingsManager: SettingsManager
     @ObservedObject var onboardingManager = OnboardingManager.shared
     @State private var currentStepIndex: Int = 0
+    @AccessibilityFocusState private var isCardFocused: Bool
     let spotlightFrames: [String: CGRect]
 
     let steps: [SpotlightStep]
@@ -219,20 +227,25 @@ struct SpotlightTutorialView: View {
                 onNext: nextStep,
                 onPrevious: previousStep,
                 onComplete: completeTutorial,
-                settingsManager: settingsManager
+                settingsManager: settingsManager,
+                isCardFocused: $isCardFocused
             )
         }
         .onAppear {
             // 現在のステップのハイライトIDを設定
             onboardingManager.currentHighlightedIDs = Set(currentStep.targetViewIds)
-            // VoiceOver: チュートリアル開始時に最初のステップを読み上げ
+            // VoiceOver: チュートリアル開始時にカードにフォーカスを移動
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                announceCurrentStep()
+                isCardFocused = true
             }
         }
         .onChange(of: currentStepIndex) { _, _ in
             // ステップ変更時にハイライトIDを更新
             onboardingManager.currentHighlightedIDs = Set(currentStep.targetViewIds)
+            // VoiceOver: ステップ変更時にカードにフォーカスを移動
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                isCardFocused = true
+            }
         }
     }
 
@@ -412,6 +425,7 @@ struct TutorialDescriptionCard: View {
     let onPrevious: () -> Void
     let onComplete: () -> Void
     let settingsManager: SettingsManager
+    @AccessibilityFocusState.Binding var isCardFocused: Bool
 
     // カードのサイズ定数
     private let cardWidth: CGFloat = 300
@@ -473,22 +487,27 @@ struct TutorialDescriptionCard: View {
 
     var body: some View {
         VStack(spacing: 16) {
-            // タイトル
-            Text(step.title)
-                .font(.system(size: 20, weight: .bold))
-                .foregroundColor(.white)
-                .multilineTextAlignment(.center)
-                .id(step.id + "_title")  // コンテンツ変更を識別
-                .transition(.opacity)
+            // タイトルと説明をまとめたアクセシビリティ要素
+            VStack(spacing: 16) {
+                // タイトル
+                Text(step.title)
+                    .font(.system(size: 20, weight: .bold))
+                    .foregroundColor(.white)
+                    .multilineTextAlignment(.center)
+                    .id(step.id + "_title")  // コンテンツ変更を識別
+                    .transition(.opacity)
 
-            // 説明
-            Text(step.description)
-                .font(.system(size: 15))
-                .foregroundColor(.white.opacity(0.9))
-                .multilineTextAlignment(.center)
-                .lineSpacing(4)
-                .id(step.id + "_desc")  // コンテンツ変更を識別
-                .transition(.opacity)
+                // 説明
+                Text(step.description)
+                    .font(.system(size: 15))
+                    .foregroundColor(.white.opacity(0.9))
+                    .multilineTextAlignment(.center)
+                    .lineSpacing(4)
+                    .id(step.id + "_desc")  // コンテンツ変更を識別
+                    .transition(.opacity)
+            }
+            .accessibilityElement(children: .combine)
+            .accessibilityFocused($isCardFocused)
 
             // ステップインジケーター
             HStack(spacing: 8) {
