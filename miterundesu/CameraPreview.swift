@@ -177,7 +177,7 @@ struct CameraPreviewWithZoom: View {
                                     // 長押し開始: 現在の倍率を保存して1倍に
                                     if cameraManager.currentZoom > 1.0 && savedZoomBeforeReset == nil {
                                         savedZoomBeforeReset = cameraManager.currentZoom
-                                        cameraManager.smoothZoom(to: 1.0, duration: 0.15)
+                                        cameraManager.smoothZoom(to: 1.0, duration: 0.08)
                                     }
                                 default:
                                     break
@@ -186,7 +186,7 @@ struct CameraPreviewWithZoom: View {
                             .onEnded { _ in
                                 // 長押し終了: 保存した倍率に戻す
                                 if let savedZoom = savedZoomBeforeReset {
-                                    cameraManager.smoothZoom(to: savedZoom, duration: 0.15)
+                                    cameraManager.smoothZoom(to: savedZoom, duration: 0.08)
                                     savedZoomBeforeReset = nil
                                 }
                             }
