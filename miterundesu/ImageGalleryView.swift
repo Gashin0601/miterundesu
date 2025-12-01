@@ -349,7 +349,7 @@ struct ImageGalleryView: View {
                                             if currentScale > 1.0 {
                                                 savedScaleBeforeReset = currentScale
                                                 savedOffsetBeforeReset = currentOffset
-                                                withAnimation(.easeOut(duration: 0.15)) {
+                                                withAnimation(.easeOut(duration: 0.08)) {
                                                     if let id = currentImageID {
                                                         imageScales[id] = 1.0
                                                         imageOffsets[id] = .zero
@@ -361,7 +361,7 @@ struct ImageGalleryView: View {
                                             if let savedScale = savedScaleBeforeReset,
                                                let savedOffset = savedOffsetBeforeReset,
                                                let id = currentImageID {
-                                                withAnimation(.easeOut(duration: 0.15)) {
+                                                withAnimation(.easeOut(duration: 0.08)) {
                                                     imageScales[id] = savedScale
                                                     imageOffsets[id] = savedOffset
                                                 }
@@ -566,6 +566,11 @@ struct ImageGalleryView: View {
     private var currentScale: CGFloat {
         guard let id = currentImageID else { return 1.0 }
         return imageScales[id] ?? 1.0
+    }
+
+    private var currentOffset: CGSize {
+        guard let id = currentImageID else { return .zero }
+        return imageOffsets[id] ?? .zero
     }
 
     private func zoomIn() {

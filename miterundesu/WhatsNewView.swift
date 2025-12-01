@@ -97,3 +97,8 @@ struct FeatureRow: View {
         .cornerRadius(16)
     }
 }
+
+// MARK: - Preview
+#Preview {
+    WhatsNewView(settingsManager: SettingsManager())
+}
