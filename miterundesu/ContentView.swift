@@ -111,18 +111,19 @@ struct ContentView: View {
                         .ignoresSafeArea()
 
                     VStack(spacing: 0) {
-                // 上部コントロール（シアター、説明ボタン、設定）
+                // 上部コントロール（設定、説明ボタン、シアター）
                 HStack(alignment: .center, spacing: 0) {
-                    // 左：シアターモードトグル
-                    TheaterModeToggle(
-                        isTheaterMode: $settingsManager.isTheaterMode,
-                        onToggle: {
-                            handleTheaterModeChange()
-                        },
-                        settingsManager: settingsManager
-                    )
+                    // 左：設定アイコン
+                    Button(action: {
+                        showSettings = true
+                    }) {
+                        Image(systemName: "gearshape.fill")
+                            .font(.system(size: 22))
+                            .foregroundColor(.white)
+                    }
                     .padding(.leading, horizontalPadding)
-                    .spotlight(id: "theater_toggle")
+                    .accessibilityLabel(settingsManager.localizationManager.localizedString("settings"))
+                    .spotlight(id: "settings_button")
                     .opacity(shouldShowUI ? 1 : 0)
                     .accessibilityHidden(!shouldShowUI)
 
@@ -153,30 +154,16 @@ struct ContentView: View {
 
                     Spacer()
 
-                    // 右：設定ボタン
-                    Button(action: {
-                        showSettings = true
-                    }) {
-                        HStack(spacing: 6) {
-                            Image(systemName: "gearshape.fill")
-                                .font(.system(size: 16))
-                                .foregroundColor(.white)
-
-                            Text(settingsManager.localizationManager.localizedString("settings"))
-                                .font(.system(size: 13, weight: .medium))
-                                .foregroundColor(.white)
-                                .lineLimit(1)
-                        }
-                        .padding(.horizontal, 12)
-                        .padding(.vertical, 6)
-                        .background(
-                            RoundedRectangle(cornerRadius: 8)
-                                .fill(Color.white.opacity(0.25))
-                        )
-                    }
+                    // 右：シアターモードトグル
+                    TheaterModeToggle(
+                        isTheaterMode: $settingsManager.isTheaterMode,
+                        onToggle: {
+                            handleTheaterModeChange()
+                        },
+                        settingsManager: settingsManager
+                    )
                     .padding(.trailing, horizontalPadding)
-                    .accessibilityLabel(settingsManager.localizationManager.localizedString("settings"))
-                    .spotlight(id: "settings_button")
+                    .spotlight(id: "theater_toggle")
                     .opacity(shouldShowUI ? 1 : 0)
                     .accessibilityHidden(!shouldShowUI)
                 }
