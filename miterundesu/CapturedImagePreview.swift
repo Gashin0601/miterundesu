@@ -26,6 +26,8 @@ struct CapturedImagePreview: View {
     @State private var continuousZoomCount: Int = 0
     @State private var showSettings = false
     @State private var showExplanation = false
+    @State private var savedScaleBeforeReset: CGFloat? = nil
+    @State private var savedOffsetBeforeReset: CGSize? = nil
 
     let timer = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
 
@@ -235,24 +237,54 @@ struct CapturedImagePreview: View {
                         .accessibilityHint(settingsManager.localizationManager.localizedString("zoom_out_hint"))
 
                         // リセットボタン（1.circleアイコン）
-                        Button(action: {
+                        // タップ: 1倍にリセット
+                        // 長押し: 押している間だけ1倍、離すと元の倍率に戻る
+                        ZStack {
+                            Circle()
+                                .fill(Color.black.opacity(0.6))
+                                .frame(width: buttonSize, height: buttonSize)
+
+                            Image(systemName: "1.circle")
+                                .font(.system(size: buttonSize * 0.45, weight: .medium))
+                                .foregroundColor(.white)
+                        }
+                        .onTapGesture {
+                            // タップ: 完全にリセット
                             stopContinuousZoom()
-                            withAnimation {
+                            savedScaleBeforeReset = nil
+                            savedOffsetBeforeReset = nil
+                            withAnimation(.easeOut(duration: 0.2)) {
                                 scale = 1.0
                                 offset = .zero
                                 lastOffset = .zero
                             }
-                        }) {
-                            ZStack {
-                                Circle()
-                                    .fill(Color.black.opacity(0.6))
-                                    .frame(width: buttonSize, height: buttonSize)
-
-                                Image(systemName: "1.circle")
-                                    .font(.system(size: buttonSize * 0.45, weight: .medium))
-                                    .foregroundColor(.white)
-                            }
                         }
+                        .onLongPressGesture(minimumDuration: 0.2, pressing: { pressing in
+                            if pressing {
+                                // 長押し開始: 現在の倍率を保存して1倍に
+                                if scale > 1.0 {
+                                    savedScaleBeforeReset = scale
+                                    savedOffsetBeforeReset = offset
+                                    withAnimation(.easeOut(duration: 0.15)) {
+                                        scale = 1.0
+                                        offset = .zero
+                                        lastOffset = .zero
+                                    }
+                                }
+                            } else {
+                                // 長押し終了: 保存した倍率に戻す
+                                if let savedScale = savedScaleBeforeReset,
+                                   let savedOffset = savedOffsetBeforeReset {
+                                    withAnimation(.easeOut(duration: 0.15)) {
+                                        scale = savedScale
+                                        offset = savedOffset
+                                        lastOffset = savedOffset
+                                    }
+                                    savedScaleBeforeReset = nil
+                                    savedOffsetBeforeReset = nil
+                                }
+                            }
+                        }, perform: {})
                         .accessibilityLabel(settingsManager.localizationManager.localizedString("zoom_reset"))
                         .accessibilityHint(settingsManager.localizationManager.localizedString("zoom_reset_hint"))
                     }

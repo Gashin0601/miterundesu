@@ -24,6 +24,8 @@ struct ImageGalleryView: View {
     @State private var imageOffsets: [UUID: CGSize] = [:]
     @State private var zoomTimer: Timer?
     @State private var zoomStartTime: Date?
+    @State private var savedScaleBeforeReset: CGFloat? = nil
+    @State private var savedOffsetBeforeReset: CGSize? = nil
 
     let timer = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
 
@@ -324,19 +326,50 @@ struct ImageGalleryView: View {
                                     .accessibilityAddTraits(.isButton)
 
                                     // リセットボタン（1.circleアイコン）
-                                    Button(action: {
-                                        resetZoom()
-                                    }) {
-                                        ZStack {
-                                            Circle()
-                                                .fill(Color.black.opacity(0.6))
-                                                .frame(width: buttonSize, height: buttonSize)
+                                    // タップ: 1倍にリセット
+                                    // 長押し: 押している間だけ1倍、離すと元の倍率に戻る
+                                    ZStack {
+                                        Circle()
+                                            .fill(Color.black.opacity(0.6))
+                                            .frame(width: buttonSize, height: buttonSize)
 
-                                            Image(systemName: "1.circle")
-                                                .font(.system(size: buttonSize * 0.45, weight: .medium))
-                                                .foregroundColor(.white)
-                                        }
+                                        Image(systemName: "1.circle")
+                                            .font(.system(size: buttonSize * 0.45, weight: .medium))
+                                            .foregroundColor(.white)
                                     }
+                                    .onTapGesture {
+                                        // タップ: 完全にリセット
+                                        savedScaleBeforeReset = nil
+                                        savedOffsetBeforeReset = nil
+                                        resetZoom()
+                                    }
+                                    .onLongPressGesture(minimumDuration: 0.2, pressing: { pressing in
+                                        if pressing {
+                                            // 長押し開始: 現在の倍率を保存して1倍に
+                                            if currentScale > 1.0 {
+                                                savedScaleBeforeReset = currentScale
+                                                savedOffsetBeforeReset = currentOffset
+                                                withAnimation(.easeOut(duration: 0.15)) {
+                                                    if let id = currentImageID {
+                                                        imageScales[id] = 1.0
+                                                        imageOffsets[id] = .zero
+                                                    }
+                                                }
+                                            }
+                                        } else {
+                                            // 長押し終了: 保存した倍率に戻す
+                                            if let savedScale = savedScaleBeforeReset,
+                                               let savedOffset = savedOffsetBeforeReset,
+                                               let id = currentImageID {
+                                                withAnimation(.easeOut(duration: 0.15)) {
+                                                    imageScales[id] = savedScale
+                                                    imageOffsets[id] = savedOffset
+                                                }
+                                                savedScaleBeforeReset = nil
+                                                savedOffsetBeforeReset = nil
+                                            }
+                                        }
+                                    }, perform: {})
                                     .accessibilityLabel(settingsManager.localizationManager.localizedString("zoom_reset"))
                                     .accessibilityHint(settingsManager.localizationManager.localizedString("zoom_reset_hint"))
                                     .accessibilityAddTraits(.isButton)
