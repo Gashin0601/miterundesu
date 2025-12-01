@@ -248,43 +248,54 @@ struct CapturedImagePreview: View {
                                 .font(.system(size: buttonSize * 0.45, weight: .medium))
                                 .foregroundColor(.white)
                         }
-                        .onTapGesture {
-                            // タップ: 完全にリセット
-                            stopContinuousZoom()
-                            savedScaleBeforeReset = nil
-                            savedOffsetBeforeReset = nil
-                            withAnimation(.easeOut(duration: 0.2)) {
-                                scale = 1.0
-                                offset = .zero
-                                lastOffset = .zero
-                            }
-                        }
-                        .onLongPressGesture(minimumDuration: 0.1, pressing: { pressing in
-                            if pressing {
-                                // 長押し開始: 現在の倍率を保存して1倍に
-                                if scale > 1.0 {
-                                    savedScaleBeforeReset = scale
-                                    savedOffsetBeforeReset = offset
-                                    withAnimation(.easeOut(duration: 0.15)) {
-                                        scale = 1.0
-                                        offset = .zero
-                                        lastOffset = .zero
+                        .gesture(
+                            LongPressGesture(minimumDuration: 0.1)
+                                .sequenced(before: DragGesture(minimumDistance: 0))
+                                .onChanged { value in
+                                    switch value {
+                                    case .first(true):
+                                        // 長押し開始: 現在の倍率を保存して1倍に
+                                        if scale > 1.0 && savedScaleBeforeReset == nil {
+                                            savedScaleBeforeReset = scale
+                                            savedOffsetBeforeReset = offset
+                                            withAnimation(.easeOut(duration: 0.15)) {
+                                                scale = 1.0
+                                                offset = .zero
+                                                lastOffset = .zero
+                                            }
+                                        }
+                                    default:
+                                        break
                                     }
                                 }
-                            } else {
-                                // 長押し終了: 保存した倍率に戻す
-                                if let savedScale = savedScaleBeforeReset,
-                                   let savedOffset = savedOffsetBeforeReset {
-                                    withAnimation(.easeOut(duration: 0.15)) {
-                                        scale = savedScale
-                                        offset = savedOffset
-                                        lastOffset = savedOffset
+                                .onEnded { _ in
+                                    // 長押し終了: 保存した倍率に戻す
+                                    if let savedScale = savedScaleBeforeReset,
+                                       let savedOffset = savedOffsetBeforeReset {
+                                        withAnimation(.easeOut(duration: 0.15)) {
+                                            scale = savedScale
+                                            offset = savedOffset
+                                            lastOffset = savedOffset
+                                        }
+                                        savedScaleBeforeReset = nil
+                                        savedOffsetBeforeReset = nil
                                     }
-                                    savedScaleBeforeReset = nil
-                                    savedOffsetBeforeReset = nil
                                 }
-                            }
-                        }, perform: {})
+                        )
+                        .simultaneousGesture(
+                            TapGesture()
+                                .onEnded {
+                                    // タップ: 完全にリセット（長押し中でなければ）
+                                    if savedScaleBeforeReset == nil {
+                                        stopContinuousZoom()
+                                        withAnimation(.easeOut(duration: 0.2)) {
+                                            scale = 1.0
+                                            offset = .zero
+                                            lastOffset = .zero
+                                        }
+                                    }
+                                }
+                        )
                         .accessibilityLabel(settingsManager.localizationManager.localizedString("zoom_reset"))
                         .accessibilityHint(settingsManager.localizationManager.localizedString("zoom_reset_hint"))
                     }

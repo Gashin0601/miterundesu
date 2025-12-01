@@ -168,27 +168,39 @@ struct CameraPreviewWithZoom: View {
                             .font(.system(size: iconSize, weight: .medium))
                             .foregroundColor(.white)
                     }
-                    .onTapGesture {
-                        // タップ: 完全にリセット
-                        stopContinuousZoom()
-                        savedZoomBeforeReset = nil
-                        cameraManager.smoothZoom(to: 1.0, duration: 0.2)
-                    }
-                    .onLongPressGesture(minimumDuration: 0.1, pressing: { pressing in
-                        if pressing {
-                            // 長押し開始: 現在の倍率を保存して1倍に
-                            if cameraManager.currentZoom > 1.0 {
-                                savedZoomBeforeReset = cameraManager.currentZoom
-                                cameraManager.smoothZoom(to: 1.0, duration: 0.15)
+                    .gesture(
+                        LongPressGesture(minimumDuration: 0.1)
+                            .sequenced(before: DragGesture(minimumDistance: 0))
+                            .onChanged { value in
+                                switch value {
+                                case .first(true):
+                                    // 長押し開始: 現在の倍率を保存して1倍に
+                                    if cameraManager.currentZoom > 1.0 && savedZoomBeforeReset == nil {
+                                        savedZoomBeforeReset = cameraManager.currentZoom
+                                        cameraManager.smoothZoom(to: 1.0, duration: 0.15)
+                                    }
+                                default:
+                                    break
+                                }
                             }
-                        } else {
-                            // 長押し終了: 保存した倍率に戻す
-                            if let savedZoom = savedZoomBeforeReset {
-                                cameraManager.smoothZoom(to: savedZoom, duration: 0.15)
-                                savedZoomBeforeReset = nil
+                            .onEnded { _ in
+                                // 長押し終了: 保存した倍率に戻す
+                                if let savedZoom = savedZoomBeforeReset {
+                                    cameraManager.smoothZoom(to: savedZoom, duration: 0.15)
+                                    savedZoomBeforeReset = nil
+                                }
                             }
-                        }
-                    }, perform: {})
+                    )
+                    .simultaneousGesture(
+                        TapGesture()
+                            .onEnded {
+                                // タップ: 完全にリセット（長押し中でなければ）
+                                if savedZoomBeforeReset == nil {
+                                    stopContinuousZoom()
+                                    cameraManager.smoothZoom(to: 1.0, duration: 0.2)
+                                }
+                            }
+                    )
                     .accessibilityLabel(LocalizationManager.shared.localizedString("zoom_reset"))
                     .accessibilityHint(LocalizationManager.shared.localizedString("zoom_reset_camera_hint"))
                 }
