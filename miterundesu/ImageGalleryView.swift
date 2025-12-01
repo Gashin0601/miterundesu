@@ -343,7 +343,7 @@ struct ImageGalleryView: View {
                                         savedOffsetBeforeReset = nil
                                         resetZoom()
                                     }
-                                    .onLongPressGesture(minimumDuration: 0.2, pressing: { pressing in
+                                    .onLongPressGesture(minimumDuration: 0.1, pressing: { pressing in
                                         if pressing {
                                             // 長押し開始: 現在の倍率を保存して1倍に
                                             if currentScale > 1.0 {

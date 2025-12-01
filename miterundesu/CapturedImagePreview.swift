@@ -259,7 +259,7 @@ struct CapturedImagePreview: View {
                                 lastOffset = .zero
                             }
                         }
-                        .onLongPressGesture(minimumDuration: 0.2, pressing: { pressing in
+                        .onLongPressGesture(minimumDuration: 0.1, pressing: { pressing in
                             if pressing {
                                 // 長押し開始: 現在の倍率を保存して1倍に
                                 if scale > 1.0 {

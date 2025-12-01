@@ -174,7 +174,7 @@ struct CameraPreviewWithZoom: View {
                         savedZoomBeforeReset = nil
                         cameraManager.smoothZoom(to: 1.0, duration: 0.2)
                     }
-                    .onLongPressGesture(minimumDuration: 0.2, pressing: { pressing in
+                    .onLongPressGesture(minimumDuration: 0.1, pressing: { pressing in
                         if pressing {
                             // 長押し開始: 現在の倍率を保存して1倍に
                             if cameraManager.currentZoom > 1.0 {
