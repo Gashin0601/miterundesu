@@ -10,12 +10,23 @@ import SwiftUI
 import MapKit
 import CoreLocation
 
+// MARK: - Equatable Location Wrapper
+/// CLLocationCoordinate2DをEquatableにするためのラッパー
+struct EquatableLocation: Equatable {
+    let coordinate: CLLocationCoordinate2D
+
+    static func == (lhs: EquatableLocation, rhs: EquatableLocation) -> Bool {
+        lhs.coordinate.latitude == rhs.coordinate.latitude &&
+        lhs.coordinate.longitude == rhs.coordinate.longitude
+    }
+}
+
 // MARK: - Location Manager
 class LocationManager: NSObject, ObservableObject, CLLocationManagerDelegate {
     static let shared = LocationManager()
 
     private let locationManager = CLLocationManager()
-    @Published var currentLocation: CLLocationCoordinate2D?
+    @Published var currentLocation: EquatableLocation?
     @Published var authorizationStatus: CLAuthorizationStatus = .notDetermined
 
     override init() {
@@ -38,7 +49,7 @@ class LocationManager: NSObject, ObservableObject, CLLocationManagerDelegate {
 
     func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
         guard let location = locations.last else { return }
-        currentLocation = location.coordinate
+        currentLocation = EquatableLocation(coordinate: location.coordinate)
     }
 
     func locationManagerDidChangeAuthorization(_ manager: CLLocationManager) {
@@ -65,7 +76,7 @@ struct BackgroundMapView: View {
         Map(position: $cameraPosition) {
             // 現在地マーカー
             if let location = locationManager.currentLocation {
-                Marker("", coordinate: location)
+                Marker("", coordinate: location.coordinate)
                     .tint(.blue)
             }
         }
@@ -79,7 +90,7 @@ struct BackgroundMapView: View {
             if let location = newLocation {
                 withAnimation(.easeInOut(duration: 1.0)) {
                     cameraPosition = .region(MKCoordinateRegion(
-                        center: location,
+                        center: location.coordinate,
                         span: MKCoordinateSpan(latitudeDelta: 0.01, longitudeDelta: 0.01)
                     ))
                 }
