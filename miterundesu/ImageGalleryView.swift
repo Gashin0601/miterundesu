@@ -349,7 +349,7 @@ struct ImageGalleryView: View {
                                             if currentScale > 1.0 {
                                                 savedScaleBeforeReset = currentScale
                                                 savedOffsetBeforeReset = currentOffset
-                                                withAnimation(.easeOut(duration: 0.03)) {
+                                                withAnimation(.easeOut(duration: 0)) {
                                                     if let id = currentImageID {
                                                         imageScales[id] = 1.0
                                                         imageOffsets[id] = .zero
@@ -361,7 +361,7 @@ struct ImageGalleryView: View {
                                             if let savedScale = savedScaleBeforeReset,
                                                let savedOffset = savedOffsetBeforeReset,
                                                let id = currentImageID {
-                                                withAnimation(.easeOut(duration: 0.03)) {
+                                                withAnimation(.easeOut(duration: 0)) {
                                                     imageScales[id] = savedScale
                                                     imageOffsets[id] = savedOffset
                                                 }

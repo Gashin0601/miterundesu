@@ -265,7 +265,7 @@ struct CapturedImagePreview: View {
                                 if scale > 1.0 {
                                     savedScaleBeforeReset = scale
                                     savedOffsetBeforeReset = offset
-                                    withAnimation(.easeOut(duration: 0.03)) {
+                                    withAnimation(.easeOut(duration: 0)) {
                                         scale = 1.0
                                         offset = .zero
                                         lastOffset = .zero
@@ -275,7 +275,7 @@ struct CapturedImagePreview: View {
                                 // 長押し終了: 保存した倍率に戻す
                                 if let savedScale = savedScaleBeforeReset,
                                    let savedOffset = savedOffsetBeforeReset {
-                                    withAnimation(.easeOut(duration: 0.03)) {
+                                    withAnimation(.easeOut(duration: 0)) {
                                         scale = savedScale
                                         offset = savedOffset
                                         lastOffset = savedOffset
