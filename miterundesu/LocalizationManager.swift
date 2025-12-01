@@ -102,6 +102,12 @@ class LocalizationManager: ObservableObject {
         "privacy_policy": "プライバシーポリシー",
         "terms_of_service": "利用規約",
 
+        // What's New
+        "whats_new_title": "新機能",
+        "whats_new_close": "はじめる",
+        "whats_new_feature1_title": "1倍ボタンの長押し機能",
+        "whats_new_feature1_desc": "拡大中に1倍ボタンを長押しすると、一時的に1倍表示になります。ボタンを離すと元の倍率に戻ります。",
+
         // Press Mode
         "press_mode_about": "プレスモードについて",
         "press_mode_what_is": "プレスモードとは",
@@ -357,6 +363,12 @@ class LocalizationManager: ObservableObject {
         "start_using": "Start Using",
         "privacy_policy": "Privacy Policy",
         "terms_of_service": "Terms of Service",
+
+        // What's New
+        "whats_new_title": "What's New",
+        "whats_new_close": "Get Started",
+        "whats_new_feature1_title": "Long-Press 1x Button",
+        "whats_new_feature1_desc": "While zoomed in, long-press the 1x button to temporarily view at 1x. Release to return to your previous zoom level.",
 
         // Press Mode
         "press_mode_about": "About Press Mode",

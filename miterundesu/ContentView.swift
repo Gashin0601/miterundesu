@@ -14,6 +14,7 @@ struct ContentView: View {
     @ObservedObject private var securityManager = SecurityManager.shared
     @StateObject private var settingsManager = SettingsManager()
     @ObservedObject private var onboardingManager = OnboardingManager.shared
+    @ObservedObject private var whatsNewManager = WhatsNewManager.shared
 
     @State private var showSettings = false
     @State private var showExplanation = false
@@ -73,6 +74,9 @@ struct ContentView: View {
             if onboardingManager.showCompletionScreen {
                 transaction.disablesAnimations = true
             }
+        }
+        .fullScreenCover(isPresented: $whatsNewManager.shouldShowWhatsNew) {
+            WhatsNewView(settingsManager: settingsManager)
         }
         .onAppear {
             AppDelegate.orientationLock = .portrait
