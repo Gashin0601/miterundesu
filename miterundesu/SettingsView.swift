@@ -348,11 +348,11 @@ struct SettingsView: View {
                             Text(settingsManager.localizationManager.localizedString("version"))
                                 .foregroundColor(.white)
                             Spacer()
-                            Text("1.0.1")
+                            Text("1.1.0")
                                 .foregroundColor(.white.opacity(0.7))
                         }
                         .accessibilityElement(children: .combine)
-                        .accessibilityLabel("\(settingsManager.localizationManager.localizedString("version_info")) 1.0.1")
+                        .accessibilityLabel("\(settingsManager.localizationManager.localizedString("version_info")) 1.1.0")
                         .listRowBackground(
                         isTheaterMode
                             ? Color(red: 0.95, green: 0.6, blue: 0.3, opacity: 0.35)
