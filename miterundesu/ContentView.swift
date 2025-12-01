@@ -7,6 +7,7 @@
 
 import SwiftUI
 import UIKit
+import MapKit
 
 struct ContentView: View {
     @StateObject private var cameraManager = CameraManager()
@@ -185,6 +186,12 @@ struct ContentView: View {
                     } else {
                         // 保護されたカメラプレビュー
                         ZStack {
+                            // 通常モード時のみ背景にマップを表示
+                            if !settingsManager.isTheaterMode {
+                                BackgroundMapView()
+                                    .clipShape(RoundedRectangle(cornerRadius: 12))
+                            }
+
                             CameraPreviewWithZoom(
                                 cameraManager: cameraManager,
                                 isTheaterMode: $settingsManager.isTheaterMode,
