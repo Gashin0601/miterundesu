@@ -119,6 +119,7 @@ struct CameraPreviewWithZoom: View {
                         Image(systemName: "plus")
                             .font(.system(size: iconSize, weight: .medium))
                             .foregroundColor(.white)
+                            .accessibilityHidden(true)
                     }
                     .onTapGesture {
                         zoomIn()
@@ -130,8 +131,10 @@ struct CameraPreviewWithZoom: View {
                             stopContinuousZoom()
                         }
                     }, perform: {})
+                    .accessibilityElement()
                     .accessibilityLabel(LocalizationManager.shared.localizedString("zoom_in"))
                     .accessibilityHint(LocalizationManager.shared.localizedString("zoom_in_hint"))
+                    .accessibilityAddTraits(.isButton)
 
                     // ズームアウト
                     ZStack {
@@ -142,6 +145,7 @@ struct CameraPreviewWithZoom: View {
                         Image(systemName: "minus")
                             .font(.system(size: iconSize, weight: .medium))
                             .foregroundColor(.white)
+                            .accessibilityHidden(true)
                     }
                     .onTapGesture {
                         zoomOut()
@@ -153,8 +157,10 @@ struct CameraPreviewWithZoom: View {
                             stopContinuousZoom()
                         }
                     }, perform: {})
+                    .accessibilityElement()
                     .accessibilityLabel(LocalizationManager.shared.localizedString("zoom_out"))
                     .accessibilityHint(LocalizationManager.shared.localizedString("zoom_out_hint"))
+                    .accessibilityAddTraits(.isButton)
 
                     // リセットボタン
                     // タップ: 1倍にリセット
@@ -167,6 +173,7 @@ struct CameraPreviewWithZoom: View {
                         Image(systemName: "1.circle")
                             .font(.system(size: iconSize, weight: .medium))
                             .foregroundColor(.white)
+                            .accessibilityHidden(true)
                     }
                     .gesture(
                         LongPressGesture(minimumDuration: 0.1)
@@ -201,8 +208,10 @@ struct CameraPreviewWithZoom: View {
                                 }
                             }
                     )
+                    .accessibilityElement()
                     .accessibilityLabel(LocalizationManager.shared.localizedString("zoom_reset"))
                     .accessibilityHint(LocalizationManager.shared.localizedString("zoom_reset_camera_hint"))
+                    .accessibilityAddTraits(.isButton)
                 }
                 .padding(.trailing, buttonPadding)
                 .padding(.bottom, buttonPadding)
