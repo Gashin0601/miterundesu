@@ -158,11 +158,13 @@ struct WatermarkView: View {
                 .scaledToFit()
                 .frame(height: 10)
                 .opacity(0.4)
+                .accessibilityHidden(true)
 
             // 下段: 日付時間とデバイスID
             Text(viewModel.watermarkInfo)
                 .font(.system(size: 8, weight: .medium, design: .monospaced))
                 .foregroundColor(.white.opacity(0.35))
+                .accessibilityHidden(true)
         }
         .shadow(color: .black.opacity(0.6), radius: 1, x: 0, y: 0.5)
         .accessibilityHidden(true)
