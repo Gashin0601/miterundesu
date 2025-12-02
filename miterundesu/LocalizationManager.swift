@@ -296,10 +296,7 @@ class LocalizationManager: ObservableObject {
         "deprecated_view_title": "非推奨",
         "deprecated_view_message": "この画面は非推奨です",
         "deprecated_auth_message": "新しい認証システムではログイン画面を使用してください。",
-        "deprecated_status_message": "新しい認証システムではアカウント状態表示画面を使用してください。",
-
-        // Tutorial Accessibility
-        "highlighted": "ハイライト"
+        "deprecated_status_message": "新しい認証システムではアカウント状態表示画面を使用してください。"
     ]
 
     // 英語の文字列
@@ -561,9 +558,6 @@ class LocalizationManager: ObservableObject {
         "deprecated_view_title": "Deprecated",
         "deprecated_view_message": "This screen is deprecated",
         "deprecated_auth_message": "Please use the login screen for the new authentication system.",
-        "deprecated_status_message": "Please use the account status screen for the new authentication system.",
-
-        // Tutorial Accessibility
-        "highlighted": "Highlighted"
+        "deprecated_status_message": "Please use the account status screen for the new authentication system."
     ]
 }

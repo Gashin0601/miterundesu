@@ -76,23 +76,15 @@ extension View {
 }
 
 // MARK: - Spotlight Accessibility Modifier
-/// チュートリアル中、ハイライトされていない要素をVoiceOverから隠し、
-/// ハイライトされている要素には「ハイライト」というラベルを追加
+/// チュートリアル中はすべてのスポットライト対象要素をVoiceOverから隠す
+/// （説明カードのみを読み上げるため）
 struct SpotlightAccessibilityModifier: ViewModifier {
     let id: String
     @ObservedObject private var onboardingManager = OnboardingManager.shared
 
-    private var isHighlighted: Bool {
-        onboardingManager.showFeatureHighlights && onboardingManager.currentHighlightedIDs.contains(id)
-    }
-
     func body(content: Content) -> some View {
         content
-            .accessibilityHidden(
-                onboardingManager.showFeatureHighlights && !onboardingManager.currentHighlightedIDs.contains(id)
-            )
-            .accessibilityLabel(isHighlighted ? LocalizationManager.shared.localizedString("highlighted") : "")
-            .accessibilitySortPriority(isHighlighted ? 1 : 0)
+            .accessibilityHidden(onboardingManager.showFeatureHighlights)
     }
 }
 
