@@ -92,7 +92,7 @@ struct CameraPreviewWithZoom: View {
                             .allowsHitTesting(false)
                             .accessibilityHidden(true) // ウォーターマークは常にVoiceOverから隠す
                     }
-                    .accessibilityHidden(onboardingManager.showFeatureHighlights) // チュートリアル中はカメラプレビューを隠す
+                    .accessibilityHidden(true) // カメラプレビューはVoiceOverから隠す
                     .gesture(
                         MagnificationGesture()
                             .onChanged { value in
