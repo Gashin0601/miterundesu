@@ -150,6 +150,7 @@ struct CapturedImagePreview: View {
                         Image(systemName: "eye.slash.fill")
                             .font(.system(size: 80))
                             .foregroundColor(.white)
+                            .accessibilityHidden(true)
 
                         Text(settingsManager.localizationManager.localizedString("screen_recording_warning"))
                             .font(.title)
@@ -199,6 +200,7 @@ struct CapturedImagePreview: View {
                             Image(systemName: "plus")
                                 .font(.system(size: buttonSize * 0.45, weight: .medium))
                                 .foregroundColor(.white)
+                                .accessibilityHidden(true)
                         }
                         .onTapGesture {
                             zoomIn()
@@ -210,8 +212,10 @@ struct CapturedImagePreview: View {
                                 stopContinuousZoom()
                             }
                         }, perform: {})
+                        .accessibilityElement()
                         .accessibilityLabel(settingsManager.localizationManager.localizedString("zoom_in"))
                         .accessibilityHint(settingsManager.localizationManager.localizedString("zoom_in_hint"))
+                        .accessibilityAddTraits(.isButton)
 
                         // ズームアウト
                         ZStack {
@@ -222,6 +226,7 @@ struct CapturedImagePreview: View {
                             Image(systemName: "minus")
                                 .font(.system(size: buttonSize * 0.45, weight: .medium))
                                 .foregroundColor(.white)
+                                .accessibilityHidden(true)
                         }
                         .onTapGesture {
                             zoomOut()
@@ -233,8 +238,10 @@ struct CapturedImagePreview: View {
                                 stopContinuousZoom()
                             }
                         }, perform: {})
+                        .accessibilityElement()
                         .accessibilityLabel(settingsManager.localizationManager.localizedString("zoom_out"))
                         .accessibilityHint(settingsManager.localizationManager.localizedString("zoom_out_hint"))
+                        .accessibilityAddTraits(.isButton)
 
                         // リセットボタン（1.circleアイコン）
                         // タップ: 1倍にリセット
@@ -247,57 +254,50 @@ struct CapturedImagePreview: View {
                             Image(systemName: "1.circle")
                                 .font(.system(size: buttonSize * 0.45, weight: .medium))
                                 .foregroundColor(.white)
+                                .accessibilityHidden(true)
                         }
-                        .gesture(
-                            LongPressGesture(minimumDuration: 0.1)
-                                .sequenced(before: DragGesture(minimumDistance: 0))
-                                .onChanged { value in
-                                    switch value {
-                                    case .first(true):
-                                        // 長押し開始: 現在の倍率を保存して1倍に
-                                        if scale > 1.0 && savedScaleBeforeReset == nil {
-                                            savedScaleBeforeReset = scale
-                                            savedOffsetBeforeReset = offset
-                                            withAnimation(.easeOut(duration: 0.08)) {
-                                                scale = 1.0
-                                                offset = .zero
-                                                lastOffset = .zero
-                                            }
-                                        }
-                                    default:
-                                        break
+                        .onTapGesture {
+                            // タップ: 完全にリセット
+                            // 長押し中の場合はsavedScaleBeforeResetをクリアしてリセット
+                            savedScaleBeforeReset = nil
+                            savedOffsetBeforeReset = nil
+                            stopContinuousZoom()
+                            withAnimation(.easeOut(duration: 0.2)) {
+                                scale = 1.0
+                                offset = .zero
+                                lastOffset = .zero
+                            }
+                        }
+                        .onLongPressGesture(minimumDuration: 0.3, pressing: { pressing in
+                            if pressing {
+                                // 長押し開始: 現在の倍率を保存して1倍に
+                                if scale > 1.0 {
+                                    savedScaleBeforeReset = scale
+                                    savedOffsetBeforeReset = offset
+                                    withAnimation(.easeOut(duration: 0.08)) {
+                                        scale = 1.0
+                                        offset = .zero
+                                        lastOffset = .zero
                                     }
                                 }
-                                .onEnded { _ in
-                                    // 長押し終了: 保存した倍率に戻す
-                                    if let savedScale = savedScaleBeforeReset,
-                                       let savedOffset = savedOffsetBeforeReset {
-                                        withAnimation(.easeOut(duration: 0.08)) {
-                                            scale = savedScale
-                                            offset = savedOffset
-                                            lastOffset = savedOffset
-                                        }
-                                        savedScaleBeforeReset = nil
-                                        savedOffsetBeforeReset = nil
+                            } else {
+                                // 長押し終了: 保存した倍率に戻す
+                                if let savedScale = savedScaleBeforeReset,
+                                   let savedOffset = savedOffsetBeforeReset {
+                                    withAnimation(.easeOut(duration: 0.08)) {
+                                        scale = savedScale
+                                        offset = savedOffset
+                                        lastOffset = savedOffset
                                     }
+                                    savedScaleBeforeReset = nil
+                                    savedOffsetBeforeReset = nil
                                 }
-                        )
-                        .simultaneousGesture(
-                            TapGesture()
-                                .onEnded {
-                                    // タップ: 完全にリセット（長押し中でなければ）
-                                    if savedScaleBeforeReset == nil {
-                                        stopContinuousZoom()
-                                        withAnimation(.easeOut(duration: 0.2)) {
-                                            scale = 1.0
-                                            offset = .zero
-                                            lastOffset = .zero
-                                        }
-                                    }
-                                }
-                        )
+                            }
+                        }, perform: {})
+                        .accessibilityElement()
                         .accessibilityLabel(settingsManager.localizationManager.localizedString("zoom_reset"))
                         .accessibilityHint(settingsManager.localizationManager.localizedString("zoom_reset_hint"))
+                        .accessibilityAddTraits(.isButton)
                     }
 
                     // 倍率表示

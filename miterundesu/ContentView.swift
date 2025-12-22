@@ -213,6 +213,7 @@ struct ContentView: View {
                                     Image(systemName: "eye.slash.fill")
                                         .font(.system(size: 40))
                                         .foregroundColor(.white)
+                                        .accessibilityHidden(true)
 
                                     Text(settingsManager.localizationManager.localizedString("screen_recording_warning"))
                                         .font(.headline)
@@ -223,6 +224,7 @@ struct ContentView: View {
                                     RoundedRectangle(cornerRadius: 12)
                                         .fill(Color.black.opacity(0.7))
                                 )
+                                .accessibilityElement(children: .combine)
                                 .accessibilityHidden(onboardingManager.showFeatureHighlights) // チュートリアル中は非表示
                             }
                         }
@@ -679,6 +681,7 @@ struct TheaterModeIcon: View {
                     .font(.system(size: 8, weight: .bold))
                     .foregroundColor(isTheaterMode ? Color("TheaterOrange") : Color("MainGreen"))
             }
+            .accessibilityHidden(true)
 
             // 円全体に薄い枠線
             Circle()
