@@ -14,6 +14,7 @@ struct CapturedImagePreview: View {
     let capturedImage: CapturedImage
     @Environment(\.dismiss) var dismiss
     @Environment(\.isPressMode) var isPressMode
+    @Environment(\.scenePhase) var scenePhase
     @ObservedObject private var securityManager = SecurityManager.shared
 
     @State private var scale: CGFloat = 1.0
@@ -29,6 +30,7 @@ struct CapturedImagePreview: View {
     @State private var savedScaleBeforeReset: CGFloat? = nil
     @State private var savedOffsetBeforeReset: CGSize? = nil
     @State private var isImageDeleted = false
+    @State private var wasInBackground = false
 
     let timer = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
 
@@ -443,9 +445,27 @@ struct CapturedImagePreview: View {
             remainingTime = capturedImage.remainingTime
             imageManager.removeExpiredImages()
 
-            // 画像が削除された場合は削除画面を表示
+            // 画像が削除された場合
             if imageManager.capturedImages.firstIndex(where: { $0.id == capturedImage.id }) == nil {
-                isImageDeleted = true
+                if wasInBackground {
+                    // バックグラウンドから復帰時は即座に閉じる
+                    dismiss()
+                } else {
+                    // フォアグラウンドで削除された場合は削除画面を表示
+                    isImageDeleted = true
+                }
+            }
+        }
+        .onChange(of: scenePhase) { oldPhase, newPhase in
+            if newPhase == .background {
+                wasInBackground = true
+            } else if newPhase == .active && wasInBackground {
+                // バックグラウンドから復帰時、既に画像が削除されていたら即座に閉じる
+                if imageManager.capturedImages.firstIndex(where: { $0.id == capturedImage.id }) == nil {
+                    dismiss()
+                }
+                // フラグをリセット（復帰後はフォアグラウンド扱い）
+                wasInBackground = false
             }
         }
         .preferredColorScheme(.dark)

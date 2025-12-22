@@ -6,11 +6,15 @@
 //
 
 import SwiftUI
+import UIKit
 
 /// 画像が自動削除された時に表示するビュー
 struct ImageDeletedView: View {
     @ObservedObject var settingsManager: SettingsManager
     let onClose: () -> Void
+
+    /// 自動消去までの時間（秒）
+    private let autoDismissDelay: TimeInterval = 2.5
 
     var body: some View {
         GeometryReader { geometry in
@@ -51,20 +55,22 @@ struct ImageDeletedView: View {
                     Spacer()
                         .frame(height: screenWidth * 0.03)
 
-                    // 閉じるボタン
-                    Button(action: onClose) {
-                        Text(settingsManager.localizationManager.localizedString("close"))
-                            .font(.system(size: subtitleSize, weight: .semibold))
-                            .foregroundColor(Color("MainGreen"))
-                            .padding(.horizontal, buttonPaddingH)
-                            .padding(.vertical, buttonPaddingV)
-                            .background(
-                                RoundedRectangle(cornerRadius: cornerRadius * 0.6)
-                                    .fill(Color.white)
-                            )
+                    // 閉じるボタン（VoiceOver有効時のみ表示）
+                    if UIAccessibility.isVoiceOverRunning {
+                        Button(action: onClose) {
+                            Text(settingsManager.localizationManager.localizedString("close"))
+                                .font(.system(size: subtitleSize, weight: .semibold))
+                                .foregroundColor(Color("MainGreen"))
+                                .padding(.horizontal, buttonPaddingH)
+                                .padding(.vertical, buttonPaddingV)
+                                .background(
+                                    RoundedRectangle(cornerRadius: cornerRadius * 0.6)
+                                        .fill(Color.white)
+                                )
+                        }
+                        .accessibilityLabel(settingsManager.localizationManager.localizedString("close"))
+                        .accessibilityHint(settingsManager.localizationManager.localizedString("close_deleted_image_hint"))
                     }
-                    .accessibilityLabel(settingsManager.localizationManager.localizedString("close"))
-                    .accessibilityHint(settingsManager.localizationManager.localizedString("close_deleted_image_hint"))
                 }
                 .padding(cardPadding)
                 .background(
@@ -74,6 +80,14 @@ struct ImageDeletedView: View {
                 .padding(.horizontal, screenWidth * 0.1)
             }
             .accessibilityElement(children: .combine)
+        }
+        .onAppear {
+            // VoiceOverが無効の場合のみ自動消去
+            if !UIAccessibility.isVoiceOverRunning {
+                DispatchQueue.main.asyncAfter(deadline: .now() + autoDismissDelay) {
+                    onClose()
+                }
+            }
         }
     }
 }

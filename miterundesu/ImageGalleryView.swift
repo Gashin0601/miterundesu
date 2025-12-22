@@ -13,6 +13,7 @@ struct ImageGalleryView: View {
     let initialImage: CapturedImage
     @Environment(\.dismiss) var dismiss
     @Environment(\.isPressMode) var isPressMode
+    @Environment(\.scenePhase) var scenePhase
     @ObservedObject private var securityManager = SecurityManager.shared
 
     @State private var currentIndex: Int = 0
@@ -26,6 +27,9 @@ struct ImageGalleryView: View {
     @State private var zoomStartTime: Date?
     @State private var savedScaleBeforeReset: CGFloat? = nil
     @State private var savedOffsetBeforeReset: CGSize? = nil
+    @State private var wasInBackground = false
+    @State private var showDeletedView = false
+    @State private var shouldDismissAfterDeletedView = false
 
     let timer = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
 
@@ -411,10 +415,22 @@ struct ImageGalleryView: View {
                     }
                 }
                 } else {
-                // 画像が削除された場合
+                // 画像がすべて削除された場合（バックグラウンドから復帰時など）
+                Color("MainGreen")
+                    .ignoresSafeArea()
+            }
+
+            // 画像削除時の表示（オーバーレイ）
+            if showDeletedView {
                 ImageDeletedView(settingsManager: settingsManager) {
-                    dismiss()
+                    showDeletedView = false
+                    if shouldDismissAfterDeletedView {
+                        dismiss()
+                    }
+                    // 他の画像がある場合は自動的に次の画像へ（currentIndexは既に調整済み）
                 }
+                .transition(.opacity)
+                .animation(.easeInOut(duration: 0.3), value: showDeletedView)
             }
 
             // 画面録画警告（上部に常時表示）
@@ -445,16 +461,62 @@ struct ImageGalleryView: View {
             ExplanationView(settingsManager: settingsManager)
         }
         .onReceive(timer) { _ in
+            // 削除画面表示中はスキップ
+            guard !showDeletedView else { return }
+
             if currentIndex < imageManager.capturedImages.count {
+                // 現在の画像IDを保存
+                let currentImageID = imageManager.capturedImages[currentIndex].id
+
                 remainingTime = imageManager.capturedImages[currentIndex].remainingTime
                 imageManager.removeExpiredImages()
 
-                // 現在の画像が削除された場合
+                // 現在の画像が削除されたかチェック
+                let currentImageStillExists = imageManager.capturedImages.contains { $0.id == currentImageID }
+
+                if !currentImageStillExists {
+                    // 現在の画像が削除された
+                    if imageManager.capturedImages.isEmpty {
+                        // 全画像が削除された
+                        if wasInBackground {
+                            dismiss()
+                        } else {
+                            shouldDismissAfterDeletedView = true
+                            showDeletedView = true
+                        }
+                    } else {
+                        // 他の画像がまだある
+                        currentIndex = min(currentIndex, imageManager.capturedImages.count - 1)
+                        if wasInBackground {
+                            // バックグラウンドからの復帰時は静かに次へ
+                            // currentIndex は既に調整済み
+                        } else {
+                            // フォアグラウンドで削除 → 削除画面を表示
+                            shouldDismissAfterDeletedView = false
+                            showDeletedView = true
+                        }
+                    }
+                }
+            } else if imageManager.capturedImages.isEmpty {
+                // 画像がない状態
+                if wasInBackground {
+                    dismiss()
+                } else {
+                    shouldDismissAfterDeletedView = true
+                    showDeletedView = true
+                }
+            }
+        }
+        .onChange(of: scenePhase) { oldPhase, newPhase in
+            if newPhase == .background {
+                wasInBackground = true
+            } else if newPhase == .active && wasInBackground {
+                // バックグラウンドから復帰時、画像が空なら即座に閉じる
                 if imageManager.capturedImages.isEmpty {
                     dismiss()
-                } else if currentIndex >= imageManager.capturedImages.count {
-                    currentIndex = max(0, imageManager.capturedImages.count - 1)
                 }
+                // フラグをリセット
+                wasInBackground = false
             }
         }
         .preferredColorScheme(.dark)
