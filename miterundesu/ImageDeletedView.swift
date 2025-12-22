@@ -17,70 +17,75 @@ struct ImageDeletedView: View {
     private let autoDismissDelay: TimeInterval = 2.5
 
     var body: some View {
-        GeometryReader { geometry in
-            let screenWidth = geometry.size.width
-            let iconSize = screenWidth * 0.15
-            let titleSize = screenWidth * 0.055
-            let subtitleSize = screenWidth * 0.04
-            let buttonPaddingH = screenWidth * 0.08
-            let buttonPaddingV = screenWidth * 0.035
-            let cardPadding = screenWidth * 0.08
-            let cornerRadius = screenWidth * 0.05
+        ZStack {
+            // 背景色
+            Color("MainGreen")
+                .ignoresSafeArea()
 
-            ZStack {
-                // 背景
-                Color("MainGreen")
-                    .ignoresSafeArea()
+            VStack(spacing: 50) {
+                Spacer()
 
-                // コンテンツカード
-                VStack(spacing: screenWidth * 0.05) {
-                    // タイマーアイコン
+                // タイマーアイコン（チュートリアル完了画面と同じスタイル）
+                ZStack {
+                    Circle()
+                        .fill(.white.opacity(0.2))
+                        .frame(width: 140, height: 140)
+
+                    Circle()
+                        .fill(.white)
+                        .frame(width: 120, height: 120)
+
                     Image(systemName: "timer")
-                        .font(.system(size: iconSize, weight: .medium))
-                        .foregroundColor(.white)
-                        .accessibilityHidden(true)
+                        .font(.system(size: 50, weight: .medium))
+                        .foregroundColor(Color("MainGreen"))
+                }
+                .accessibilityHidden(true)
 
-                    // メインメッセージ
+                // メッセージ
+                VStack(spacing: 20) {
                     Text(settingsManager.localizationManager.localizedString("image_deleted_title"))
-                        .font(.system(size: titleSize, weight: .bold))
+                        .font(.system(size: 28, weight: .bold, design: .rounded))
                         .foregroundColor(.white)
                         .multilineTextAlignment(.center)
 
-                    // サブメッセージ
                     Text(settingsManager.localizationManager.localizedString("image_deleted_reason"))
-                        .font(.system(size: subtitleSize, weight: .regular))
+                        .font(.system(size: 16, weight: .medium))
                         .foregroundColor(.white.opacity(0.9))
                         .multilineTextAlignment(.center)
-
-                    Spacer()
-                        .frame(height: screenWidth * 0.03)
-
-                    // 閉じるボタン（VoiceOver有効時のみ表示）
-                    if UIAccessibility.isVoiceOverRunning {
-                        Button(action: onClose) {
-                            Text(settingsManager.localizationManager.localizedString("close"))
-                                .font(.system(size: subtitleSize, weight: .semibold))
-                                .foregroundColor(Color("MainGreen"))
-                                .padding(.horizontal, buttonPaddingH)
-                                .padding(.vertical, buttonPaddingV)
-                                .background(
-                                    RoundedRectangle(cornerRadius: cornerRadius * 0.6)
-                                        .fill(Color.white)
-                                )
-                        }
-                        .accessibilityLabel(settingsManager.localizationManager.localizedString("close"))
-                        .accessibilityHint(settingsManager.localizationManager.localizedString("close_deleted_image_hint"))
-                    }
+                        .lineSpacing(6)
+                        .padding(.horizontal, 40)
                 }
-                .padding(cardPadding)
-                .background(
-                    RoundedRectangle(cornerRadius: cornerRadius)
-                        .fill(Color.black.opacity(0.3))
-                )
-                .padding(.horizontal, screenWidth * 0.1)
+                .accessibilityElement(children: .combine)
+
+                Spacer()
+
+                // 閉じるボタン（VoiceOver有効時のみ表示）
+                if UIAccessibility.isVoiceOverRunning {
+                    Button(action: onClose) {
+                        HStack(spacing: 12) {
+                            Text(settingsManager.localizationManager.localizedString("close"))
+                                .font(.system(size: 20, weight: .bold))
+                            Image(systemName: "xmark.circle.fill")
+                                .font(.system(size: 24))
+                                .accessibilityHidden(true)
+                        }
+                        .foregroundColor(Color("MainGreen"))
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 18)
+                        .background(
+                            RoundedRectangle(cornerRadius: 16)
+                                .fill(.white)
+                                .shadow(color: .black.opacity(0.15), radius: 8, x: 0, y: 4)
+                        )
+                    }
+                    .accessibilityLabel(settingsManager.localizationManager.localizedString("close"))
+                    .accessibilityHint(settingsManager.localizationManager.localizedString("close_deleted_image_hint"))
+                    .padding(.horizontal, 32)
+                    .padding(.bottom, 40)
+                }
             }
-            .accessibilityElement(children: .combine)
         }
+        .preferredColorScheme(.dark)
         .onAppear {
             // VoiceOverが無効の場合のみ自動消去
             if !UIAccessibility.isVoiceOverRunning {
