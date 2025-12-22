@@ -412,16 +412,8 @@ struct ImageGalleryView: View {
                 }
                 } else {
                 // 画像が削除された場合
-                VStack {
-                    Text(settingsManager.localizationManager.localizedString("image_deleted"))
-                        .font(.headline)
-                        .foregroundColor(.white)
-
-                    Button(settingsManager.localizationManager.localizedString("close")) {
-                        dismiss()
-                    }
-                    .foregroundColor(.white)
-                    .padding()
+                ImageDeletedView(settingsManager: settingsManager) {
+                    dismiss()
                 }
             }
 

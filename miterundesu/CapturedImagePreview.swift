@@ -28,6 +28,7 @@ struct CapturedImagePreview: View {
     @State private var showExplanation = false
     @State private var savedScaleBeforeReset: CGFloat? = nil
     @State private var savedOffsetBeforeReset: CGSize? = nil
+    @State private var isImageDeleted = false
 
     let timer = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
 
@@ -421,6 +422,15 @@ struct CapturedImagePreview: View {
                     .transition(.scale.combined(with: .opacity))
                     .animation(.spring(), value: securityManager.showScreenshotWarning)
             }
+
+            // 画像削除時の表示
+            if isImageDeleted {
+                ImageDeletedView(settingsManager: settingsManager) {
+                    dismiss()
+                }
+                .transition(.opacity)
+                .animation(.easeInOut(duration: 0.3), value: isImageDeleted)
+            }
             }
         }
         .fullScreenCover(isPresented: $showSettings) {
@@ -433,9 +443,9 @@ struct CapturedImagePreview: View {
             remainingTime = capturedImage.remainingTime
             imageManager.removeExpiredImages()
 
-            // 画像が削除された場合は自動的に閉じる
+            // 画像が削除された場合は削除画面を表示
             if imageManager.capturedImages.firstIndex(where: { $0.id == capturedImage.id }) == nil {
-                dismiss()
+                isImageDeleted = true
             }
         }
         .preferredColorScheme(.dark)

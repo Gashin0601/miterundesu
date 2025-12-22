@@ -246,6 +246,9 @@ class LocalizationManager: ObservableObject {
 
         // Image Gallery
         "image_deleted": "画像が削除されました",
+        "image_deleted_title": "画像は削除されました",
+        "image_deleted_reason": "撮影から10分が経過したため削除されました",
+        "close_deleted_image_hint": "この画面を閉じてカメラに戻ります",
         "scrolling_message_label": "スクロールメッセージ",
         "no_images": "画像なし",
         "three_finger_swipe_hint": "3本指で左右にスワイプして写真を切り替えられます",
@@ -508,6 +511,9 @@ class LocalizationManager: ObservableObject {
 
         // Image Gallery
         "image_deleted": "Image has been deleted",
+        "image_deleted_title": "Image has been deleted",
+        "image_deleted_reason": "Automatically deleted after 10 minutes from capture",
+        "close_deleted_image_hint": "Close this screen and return to camera",
         "scrolling_message_label": "Scrolling message",
         "no_images": "No images",
         "three_finger_swipe_hint": "Swipe left or right with three fingers to switch photos",
