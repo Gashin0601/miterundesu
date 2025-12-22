@@ -30,6 +30,8 @@ struct ImageGalleryView: View {
     @State private var wasInBackground = false
     @State private var showDeletedView = false
     @State private var shouldDismissAfterDeletedView = false
+    @State private var resetButtonTimer: Timer? = nil
+    @State private var isLongPressingResetButton = false
 
     let timer = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
 
@@ -345,35 +347,53 @@ struct ImageGalleryView: View {
                                     }
                                     .onTapGesture {
                                         // タップ: 完全にリセット
-                                        // 長押し中の場合はsavedScaleBeforeResetをクリアしてリセット
+                                        resetButtonTimer?.invalidate()
+                                        resetButtonTimer = nil
+
+                                        if isLongPressingResetButton {
+                                            isLongPressingResetButton = false
+                                        }
+
                                         savedScaleBeforeReset = nil
                                         savedOffsetBeforeReset = nil
                                         resetZoom()
                                     }
                                     .onLongPressGesture(minimumDuration: 0.3, pressing: { pressing in
                                         if pressing {
-                                            // 長押し開始: 現在の倍率を保存して1倍に
-                                            if currentScale > 1.0 {
-                                                savedScaleBeforeReset = currentScale
-                                                savedOffsetBeforeReset = currentOffset
-                                                withAnimation(.easeOut(duration: 0.08)) {
-                                                    if let id = currentImageID {
-                                                        imageScales[id] = 1.0
-                                                        imageOffsets[id] = .zero
+                                            // 押し始め: タイマーを開始して長押し判定
+                                            resetButtonTimer?.invalidate()
+                                            resetButtonTimer = Timer.scheduledTimer(withTimeInterval: 0.3, repeats: false) { _ in
+                                                // 長押し確定: 現在の倍率を保存して1倍に
+                                                isLongPressingResetButton = true
+                                                if currentScale > 1.0 {
+                                                    savedScaleBeforeReset = currentScale
+                                                    savedOffsetBeforeReset = currentOffset
+                                                    withAnimation(.easeOut(duration: 0.15)) {
+                                                        if let id = currentImageID {
+                                                            imageScales[id] = 1.0
+                                                            imageOffsets[id] = .zero
+                                                        }
                                                     }
                                                 }
                                             }
                                         } else {
-                                            // 長押し終了: 保存した倍率に戻す
-                                            if let savedScale = savedScaleBeforeReset,
-                                               let savedOffset = savedOffsetBeforeReset,
-                                               let id = currentImageID {
-                                                withAnimation(.easeOut(duration: 0.08)) {
-                                                    imageScales[id] = savedScale
-                                                    imageOffsets[id] = savedOffset
+                                            // 離した時
+                                            resetButtonTimer?.invalidate()
+                                            resetButtonTimer = nil
+
+                                            if isLongPressingResetButton {
+                                                // 長押し終了: 保存した倍率に戻す
+                                                if let savedScale = savedScaleBeforeReset,
+                                                   let savedOffset = savedOffsetBeforeReset,
+                                                   let id = currentImageID {
+                                                    withAnimation(.easeOut(duration: 0.15)) {
+                                                        imageScales[id] = savedScale
+                                                        imageOffsets[id] = savedOffset
+                                                    }
+                                                    savedScaleBeforeReset = nil
+                                                    savedOffsetBeforeReset = nil
                                                 }
-                                                savedScaleBeforeReset = nil
-                                                savedOffsetBeforeReset = nil
+                                                isLongPressingResetButton = false
                                             }
                                         }
                                     }, perform: {})
