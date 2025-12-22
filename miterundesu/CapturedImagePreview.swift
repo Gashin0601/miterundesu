@@ -93,19 +93,26 @@ struct CapturedImagePreview: View {
 
                                         // アンカーポイントを固定するようにオフセットを調整
                                         let scaleDiff = newScale / scale
-                                        var newOffset = CGSize(
+                                        let newOffset = CGSize(
                                             width: offset.width * scaleDiff - anchorPoint.x * (scaleDiff - 1),
                                             height: offset.height * scaleDiff - anchorPoint.y * (scaleDiff - 1)
                                         )
 
                                         scale = newScale
-                                        // スケール変更時にオフセットを境界内に制限
-                                        newOffset = boundedOffset(newOffset, scale: newScale, imageSize: capturedImage.image.size, viewSize: geometry.size)
+                                        // 操作中は境界制限なしでオフセットを適用（はみ出しを許可）
                                         offset = newOffset
                                         lastOffset = offset
                                     }
                                     .onEnded { _ in
                                         lastScale = 1.0
+                                        // 操作終了時に境界内にアニメーションで戻す
+                                        let bounded = boundedOffset(offset, scale: scale, imageSize: capturedImage.image.size, viewSize: geometry.size)
+                                        if bounded != offset {
+                                            withAnimation(.easeOut(duration: 0.2)) {
+                                                offset = bounded
+                                                lastOffset = bounded
+                                            }
+                                        }
                                     }
                             )
                             .simultaneousGesture(
@@ -116,13 +123,22 @@ struct CapturedImagePreview: View {
                                                 width: lastOffset.width + value.translation.width,
                                                 height: lastOffset.height + value.translation.height
                                             )
-                                            // ドラッグ時にオフセットを境界内に制限
-                                            offset = boundedOffset(newOffset, scale: scale, imageSize: capturedImage.image.size, viewSize: geometry.size)
+                                            // ドラッグ中は境界制限なし（はみ出しを許可）
+                                            offset = newOffset
                                         }
                                     }
                                     .onEnded { _ in
                                         if scale > 1.0 {
-                                            lastOffset = offset
+                                            // 操作終了時に境界内にアニメーションで戻す
+                                            let bounded = boundedOffset(offset, scale: scale, imageSize: capturedImage.image.size, viewSize: geometry.size)
+                                            if bounded != offset {
+                                                withAnimation(.easeOut(duration: 0.2)) {
+                                                    offset = bounded
+                                                    lastOffset = bounded
+                                                }
+                                            } else {
+                                                lastOffset = offset
+                                            }
                                         }
                                     }
                             )

@@ -848,19 +848,26 @@ struct ZoomableImageView: View {
 
                                 // アンカーポイントを固定するようにオフセットを調整
                                 let scaleDiff = newScale / scale
-                                var newOffset = CGSize(
+                                let newOffset = CGSize(
                                     width: offset.width * scaleDiff - anchorPoint.x * (scaleDiff - 1),
                                     height: offset.height * scaleDiff - anchorPoint.y * (scaleDiff - 1)
                                 )
 
                                 scale = newScale
-                                // スケール変更時にオフセットを境界内に制限
-                                newOffset = boundedOffset(newOffset, scale: newScale, imageSize: capturedImage.image.size, viewSize: geometry.size)
+                                // 操作中は境界制限なし（はみ出しを許可）
                                 offset = newOffset
                                 lastOffset = offset
                             }
                             .onEnded { _ in
                                 lastScale = 1.0
+                                // 操作終了時に境界内にアニメーションで戻す
+                                let bounded = boundedOffset(offset, scale: scale, imageSize: capturedImage.image.size, viewSize: geometry.size)
+                                if bounded != offset {
+                                    withAnimation(.easeOut(duration: 0.2)) {
+                                        offset = bounded
+                                        lastOffset = bounded
+                                    }
+                                }
                                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
                                     if scale <= 1.0 {
                                         isZooming = false
@@ -900,11 +907,21 @@ struct ZoomableImageView: View {
                                     width: lastOffset.width + value.translation.width,
                                     height: lastOffset.height + value.translation.height
                                 )
-                                offset = boundedOffset(newOffset, scale: scale, imageSize: capturedImage.image.size, viewSize: geometry.size)
+                                // ドラッグ中は境界制限なし（はみ出しを許可）
+                                offset = newOffset
                             }
                             .onEnded { _ in
                                 guard scale > 1.0 else { return }
-                                lastOffset = offset
+                                // 操作終了時に境界内にアニメーションで戻す
+                                let bounded = boundedOffset(offset, scale: scale, imageSize: capturedImage.image.size, viewSize: geometry.size)
+                                if bounded != offset {
+                                    withAnimation(.easeOut(duration: 0.2)) {
+                                        offset = bounded
+                                        lastOffset = bounded
+                                    }
+                                } else {
+                                    lastOffset = offset
+                                }
                             }
                     )
                     .simultaneousGesture(
@@ -923,18 +940,26 @@ struct ZoomableImageView: View {
                                 )
 
                                 let scaleDiff = newScale / scale
-                                var newOffset = CGSize(
+                                let newOffset = CGSize(
                                     width: offset.width * scaleDiff - anchorPoint.x * (scaleDiff - 1),
                                     height: offset.height * scaleDiff - anchorPoint.y * (scaleDiff - 1)
                                 )
 
                                 scale = newScale
-                                newOffset = boundedOffset(newOffset, scale: newScale, imageSize: capturedImage.image.size, viewSize: geometry.size)
+                                // 操作中は境界制限なし（はみ出しを許可）
                                 offset = newOffset
                                 lastOffset = offset
                             }
                             .onEnded { _ in
                                 lastScale = 1.0
+                                // 操作終了時に境界内にアニメーションで戻す
+                                let bounded = boundedOffset(offset, scale: scale, imageSize: capturedImage.image.size, viewSize: geometry.size)
+                                if bounded != offset {
+                                    withAnimation(.easeOut(duration: 0.2)) {
+                                        offset = bounded
+                                        lastOffset = bounded
+                                    }
+                                }
                                 if scale <= 1.0 {
                                     isZooming = false
                                 }
@@ -947,14 +972,10 @@ struct ZoomableImageView: View {
             .onChange(of: scale) { oldValue, newValue in
                 if newValue > 1.0 {
                     isZooming = true
-                } else if newValue <= 1.0 {
+                } else {
                     isZooming = false
                     offset = .zero
                     lastOffset = .zero
-                } else {
-                    // スケール変更時にオフセットを境界内に調整
-                    offset = boundedOffset(offset, scale: newValue, imageSize: capturedImage.image.size, viewSize: geometry.size)
-                    lastOffset = offset
                 }
             }
         }
