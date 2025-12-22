@@ -101,7 +101,6 @@ class PressModeManager: ObservableObject {
 
         } catch {
             self.error = LocalizationManager.shared.localizedString("press_login_error_failed")
-                .replacingOccurrences(of: "{error}", with: error.localizedDescription)
             isLoading = false
             #if DEBUG
             print("❌ ログインエラー: \(error)")

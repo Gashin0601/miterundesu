@@ -280,7 +280,7 @@ class LocalizationManager: ObservableObject {
         "press_login_error_expired": "アカウントの有効期限が切れています",
         "press_login_error_deactivated": "このアカウントは無効化されています",
         "press_login_error_invalid": "アカウントが無効です",
-        "press_login_error_failed": "ログインに失敗しました: {error}",
+        "press_login_error_failed": "ログインに失敗しました。お手数ですが info@miterundesu.jp まで直接ご連絡ください。",
 
         // Camera Preview Accessibility
         "zoom_reset_camera_hint": "カメラのズームを1倍に戻します",
@@ -545,7 +545,7 @@ class LocalizationManager: ObservableObject {
         "press_login_error_expired": "Account has expired",
         "press_login_error_deactivated": "This account has been deactivated",
         "press_login_error_invalid": "Account is invalid",
-        "press_login_error_failed": "Login failed: {error}",
+        "press_login_error_failed": "Login failed. Please contact info@miterundesu.jp directly.",
 
         // Camera Preview Accessibility
         "zoom_reset_camera_hint": "Reset camera zoom to 1x",
