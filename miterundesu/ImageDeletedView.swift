@@ -22,40 +22,32 @@ struct ImageDeletedView: View {
             Color("MainGreen")
                 .ignoresSafeArea()
 
-            VStack(spacing: 50) {
+            VStack(spacing: 40) {
                 Spacer()
 
-                // タイマーアイコン（チュートリアル完了画面と同じスタイル）
-                ZStack {
-                    Circle()
-                        .fill(.white.opacity(0.2))
-                        .frame(width: 140, height: 140)
-
-                    Circle()
-                        .fill(.white)
-                        .frame(width: 120, height: 120)
-
+                // アイコンとメッセージ
+                VStack(spacing: 32) {
+                    // タイマーアイコン（ウェルカム画面のロゴと同じサイズ感）
                     Image(systemName: "timer")
-                        .font(.system(size: 50, weight: .medium))
-                        .foregroundColor(Color("MainGreen"))
-                }
-                .accessibilityHidden(true)
-
-                // メッセージ
-                VStack(spacing: 20) {
-                    Text(settingsManager.localizationManager.localizedString("image_deleted_title"))
-                        .font(.system(size: 28, weight: .bold, design: .rounded))
+                        .font(.system(size: 120, weight: .light))
                         .foregroundColor(.white)
-                        .multilineTextAlignment(.center)
+                        .accessibilityHidden(true)
 
-                    Text(settingsManager.localizationManager.localizedString("image_deleted_reason"))
-                        .font(.system(size: 16, weight: .medium))
-                        .foregroundColor(.white.opacity(0.9))
-                        .multilineTextAlignment(.center)
-                        .lineSpacing(6)
-                        .padding(.horizontal, 40)
+                    // メッセージ
+                    VStack(spacing: 16) {
+                        Text(settingsManager.localizationManager.localizedString("image_deleted_title"))
+                            .font(.system(size: 36, weight: .bold, design: .rounded))
+                            .foregroundColor(.white)
+
+                        Text(settingsManager.localizationManager.localizedString("image_deleted_reason"))
+                            .font(.system(size: 18, weight: .medium))
+                            .foregroundColor(.white.opacity(0.9))
+                            .multilineTextAlignment(.center)
+                            .lineSpacing(6)
+                            .padding(.horizontal, 40)
+                    }
+                    .accessibilityElement(children: .combine)
                 }
-                .accessibilityElement(children: .combine)
 
                 Spacer()
 
