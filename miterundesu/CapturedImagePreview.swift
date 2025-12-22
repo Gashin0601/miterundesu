@@ -33,6 +33,8 @@ struct CapturedImagePreview: View {
     @State private var wasInBackground = false
     @State private var resetButtonTimer: Timer? = nil
     @State private var isLongPressingResetButton = false
+    @GestureState private var isDragging: Bool = false
+    @GestureState private var isPinching: Bool = false
 
     let timer = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
 
@@ -79,6 +81,9 @@ struct CapturedImagePreview: View {
                             .clipped()
                             .highPriorityGesture(
                                 MagnifyGesture(minimumScaleDelta: 0)
+                                    .updating($isPinching) { _, state, _ in
+                                        state = true
+                                    }
                                     .onChanged { value in
                                         let delta = value.magnification / lastScale
                                         lastScale = value.magnification
@@ -117,6 +122,9 @@ struct CapturedImagePreview: View {
                             )
                             .simultaneousGesture(
                                 DragGesture(minimumDistance: scale > 1.0 ? 0 : 10)
+                                    .updating($isDragging) { _, state, _ in
+                                        state = true
+                                    }
                                     .onChanged { value in
                                         if scale > 1.0 {
                                             let newOffset = CGSize(
@@ -142,6 +150,32 @@ struct CapturedImagePreview: View {
                                         }
                                     }
                             )
+                            .onChange(of: isDragging) { oldValue, newValue in
+                                if oldValue && !newValue && scale > 1.0 {
+                                    // ドラッグ終了時に境界内に戻す
+                                    let bounded = boundedOffset(offset, scale: scale, imageSize: capturedImage.image.size, viewSize: geometry.size)
+                                    if bounded != offset {
+                                        withAnimation(.easeOut(duration: 0.2)) {
+                                            offset = bounded
+                                            lastOffset = bounded
+                                        }
+                                    } else {
+                                        lastOffset = offset
+                                    }
+                                }
+                            }
+                            .onChange(of: isPinching) { oldValue, newValue in
+                                if oldValue && !newValue && scale > 1.0 {
+                                    // ピンチ終了時に境界内に戻す
+                                    let bounded = boundedOffset(offset, scale: scale, imageSize: capturedImage.image.size, viewSize: geometry.size)
+                                    if bounded != offset {
+                                        withAnimation(.easeOut(duration: 0.2)) {
+                                            offset = bounded
+                                            lastOffset = bounded
+                                        }
+                                    }
+                                }
+                            }
                             .onTapGesture(count: 2) {
                                 withAnimation(.easeInOut(duration: 0.3)) {
                                     scale = 1.0

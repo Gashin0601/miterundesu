@@ -802,6 +802,8 @@ struct ZoomableImageView: View {
 
     @State private var lastScale: CGFloat = 1.0
     @State private var lastOffset: CGSize = .zero
+    @GestureState private var isDragging: Bool = false
+    @GestureState private var isPinching: Bool = false
 
     private var imageAccessibilityLabel: String {
         let capturedPhoto = settingsManager.localizationManager.localizedString("captured_photo")
@@ -833,6 +835,9 @@ struct ZoomableImageView: View {
                     .clipped()
                     .highPriorityGesture(
                         MagnifyGesture(minimumScaleDelta: 0)
+                            .updating($isPinching) { _, state, _ in
+                                state = true
+                            }
                             .onChanged { value in
                                 isZooming = true
                                 let delta = value.magnification / lastScale
@@ -900,6 +905,9 @@ struct ZoomableImageView: View {
                     .allowsHitTesting(scale > 1.0)
                     .simultaneousGesture(
                         DragGesture(minimumDistance: 1)
+                            .updating($isDragging) { _, state, _ in
+                                state = true
+                            }
                             .onChanged { value in
                                 guard scale > 1.0 else { return }
                                 isZooming = true
@@ -926,6 +934,9 @@ struct ZoomableImageView: View {
                     )
                     .simultaneousGesture(
                         MagnifyGesture(minimumScaleDelta: 0)
+                            .updating($isPinching) { _, state, _ in
+                                state = true
+                            }
                             .onChanged { value in
                                 guard scale > 1.0 else { return }
                                 let delta = value.magnification / lastScale
@@ -974,10 +985,35 @@ struct ZoomableImageView: View {
                     isZooming = true
                 } else {
                     isZooming = false
-                    offset = .zero
-                    lastOffset = .zero
+                    // offset のリセットは呼び出し元でアニメーション付きで行うため、ここでは行わない
                 }
             }
+            // ジェスチャー終了時（キャンセル含む）に境界内に戻す
+            .onChange(of: isDragging) { oldValue, newValue in
+                if oldValue && !newValue {
+                    // ドラッグ終了
+                    snapToBoundsIfNeeded(viewSize: geometry.size)
+                }
+            }
+            .onChange(of: isPinching) { oldValue, newValue in
+                if oldValue && !newValue {
+                    // ピンチ終了
+                    snapToBoundsIfNeeded(viewSize: geometry.size)
+                }
+            }
+        }
+    }
+
+    private func snapToBoundsIfNeeded(viewSize: CGSize) {
+        guard scale > 1.0 else { return }
+        let bounded = boundedOffset(offset, scale: scale, imageSize: capturedImage.image.size, viewSize: viewSize)
+        if bounded != offset {
+            withAnimation(.easeOut(duration: 0.2)) {
+                offset = bounded
+                lastOffset = bounded
+            }
+        } else {
+            lastOffset = offset
         }
     }
 
