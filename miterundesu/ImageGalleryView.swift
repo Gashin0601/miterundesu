@@ -578,22 +578,47 @@ struct ImageGalleryView: View {
 
     private func zoomIn() {
         guard let id = currentImageID else { return }
+        let oldScale = imageScales[id] ?? 1.0
+        let newScale = min(oldScale * 1.5, CGFloat(settingsManager.maxZoomFactor))
+        let scaleDiff = newScale / oldScale
+
+        // 現在見ている部分を維持するためにオフセットも拡大
+        let oldOffset = imageOffsets[id] ?? .zero
+        let newOffset = CGSize(
+            width: oldOffset.width * scaleDiff,
+            height: oldOffset.height * scaleDiff
+        )
+
         withAnimation(.easeInOut(duration: 0.2)) {
-            let currentScale = imageScales[id] ?? 1.0
-            imageScales[id] = min(currentScale * 1.5, CGFloat(settingsManager.maxZoomFactor))
+            imageScales[id] = newScale
+            imageOffsets[id] = newOffset
         }
-        isZooming = (imageScales[id] ?? 1.0) > 1.0
+        isZooming = newScale > 1.0
         announceZoomChange()
     }
 
     private func zoomOut() {
         guard let id = currentImageID else { return }
-        withAnimation(.easeInOut(duration: 0.2)) {
-            let currentScale = imageScales[id] ?? 1.0
-            imageScales[id] = max(currentScale / 1.5, 1.0)
-            if imageScales[id] == 1.0 {
+        let oldScale = imageScales[id] ?? 1.0
+        let newScale = max(oldScale / 1.5, 1.0)
+
+        if newScale <= 1.0 {
+            withAnimation(.easeInOut(duration: 0.2)) {
+                imageScales[id] = 1.0
                 imageOffsets[id] = .zero
-                isZooming = false
+            }
+            isZooming = false
+        } else {
+            let scaleDiff = newScale / oldScale
+            let oldOffset = imageOffsets[id] ?? .zero
+            let newOffset = CGSize(
+                width: oldOffset.width * scaleDiff,
+                height: oldOffset.height * scaleDiff
+            )
+
+            withAnimation(.easeInOut(duration: 0.2)) {
+                imageScales[id] = newScale
+                imageOffsets[id] = newOffset
             }
         }
         announceZoomChange()
@@ -602,7 +627,7 @@ struct ImageGalleryView: View {
     private func resetZoom() {
         guard let id = currentImageID else { return }
         stopContinuousZoom()
-        withAnimation {
+        withAnimation(.easeOut(duration: 0.2)) {
             imageScales[id] = 1.0
             imageOffsets[id] = .zero
         }
@@ -630,7 +655,7 @@ struct ImageGalleryView: View {
 
         // カメラプレビューと同じ間隔（0.03秒）でスムーズに
         zoomTimer = Timer.scheduledTimer(withTimeInterval: 0.03, repeats: true) { _ in
-            let currentScale = imageScales[id] ?? 1.0
+            let oldScale = imageScales[id] ?? 1.0
 
             // 経過時間を計算
             let elapsedTime = Date().timeIntervalSince(zoomStartTime ?? Date())
@@ -642,20 +667,32 @@ struct ImageGalleryView: View {
             let timeAcceleration = 1.0 + pow(min(elapsedTime / 2.0, 1.0), 1.5) * 3.0
 
             // 現在の倍率に応じた速度調整（カメラプレビューと同じ計算）
-            let zoomMultiplier = max(1.0, sqrt(currentScale / 10.0))
+            let zoomMultiplier = max(1.0, sqrt(oldScale / 10.0))
 
             // 最終的なステップサイズ
             let step = baseStep * timeAcceleration * zoomMultiplier
 
             switch direction {
             case .in:
-                imageScales[id] = min(currentScale + step, CGFloat(settingsManager.maxZoomFactor))
+                let newScale = min(oldScale + step, CGFloat(settingsManager.maxZoomFactor))
+                let scaleDiff = newScale / oldScale
+                imageScales[id] = newScale
+                // 現在見ている部分を維持
+                let oldOffset = imageOffsets[id] ?? .zero
+                imageOffsets[id] = CGSize(width: oldOffset.width * scaleDiff, height: oldOffset.height * scaleDiff)
             case .out:
                 // ズームアウトは少し遅めに（70%）
                 let outStep = step * 0.7
-                imageScales[id] = max(currentScale - outStep, 1.0)
-                if imageScales[id] == 1.0 {
+                let newScale = max(oldScale - outStep, 1.0)
+                if newScale <= 1.0 {
+                    imageScales[id] = 1.0
                     imageOffsets[id] = .zero
+                } else {
+                    let scaleDiff = newScale / oldScale
+                    imageScales[id] = newScale
+                    // 現在見ている部分を維持
+                    let oldOffset = imageOffsets[id] ?? .zero
+                    imageOffsets[id] = CGSize(width: oldOffset.width * scaleDiff, height: oldOffset.height * scaleDiff)
                 }
             }
 

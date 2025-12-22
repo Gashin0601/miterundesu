@@ -128,16 +128,6 @@ struct CapturedImagePreview: View {
                                     lastOffset = .zero
                                 }
                             }
-                            .onChange(of: scale) { oldValue, newValue in
-                                if newValue <= 1.0 {
-                                    offset = .zero
-                                    lastOffset = .zero
-                                } else {
-                                    // スケール変更時にオフセットを境界内に調整
-                                    offset = boundedOffset(offset, scale: newValue, imageSize: capturedImage.image.size, viewSize: geometry.size)
-                                    lastOffset = offset
-                                }
-                            }
                     }
                     .blur(radius: securityManager.isScreenRecording ? 50 : 0)
                     }
@@ -466,17 +456,44 @@ struct CapturedImagePreview: View {
     }
 
     private func zoomIn() {
+        let newScale = min(scale * 1.5, CGFloat(settingsManager.maxZoomFactor))
+        let scaleDiff = newScale / scale
+
+        // 現在見ている部分を維持するためにオフセットも拡大
+        let newOffset = CGSize(
+            width: offset.width * scaleDiff,
+            height: offset.height * scaleDiff
+        )
+
         withAnimation(.easeInOut(duration: 0.2)) {
-            scale = min(scale * 1.5, CGFloat(settingsManager.maxZoomFactor))
+            scale = newScale
+            offset = newOffset
+            lastOffset = newOffset
         }
     }
 
     private func zoomOut() {
-        withAnimation(.easeInOut(duration: 0.2)) {
-            scale = max(scale / 1.5, 1.0)
-            if scale == 1.0 {
+        let newScale = max(scale / 1.5, 1.0)
+
+        if newScale <= 1.0 {
+            withAnimation(.easeInOut(duration: 0.2)) {
+                scale = 1.0
                 offset = .zero
                 lastOffset = .zero
+            }
+        } else {
+            let scaleDiff = newScale / scale
+
+            // 現在見ている部分を維持するためにオフセットも縮小
+            let newOffset = CGSize(
+                width: offset.width * scaleDiff,
+                height: offset.height * scaleDiff
+            )
+
+            withAnimation(.easeInOut(duration: 0.2)) {
+                scale = newScale
+                offset = newOffset
+                lastOffset = newOffset
             }
         }
     }
@@ -509,16 +526,30 @@ struct CapturedImagePreview: View {
             // 最終的なステップサイズ
             let step = baseStep * timeAcceleration * zoomMultiplier
 
+            let oldScale = scale
+
             switch direction {
             case .in:
-                scale = min(scale + step, CGFloat(settingsManager.maxZoomFactor))
+                let newScale = min(scale + step, CGFloat(settingsManager.maxZoomFactor))
+                let scaleDiff = newScale / oldScale
+                scale = newScale
+                // 現在見ている部分を維持
+                offset = CGSize(width: offset.width * scaleDiff, height: offset.height * scaleDiff)
+                lastOffset = offset
             case .out:
                 // ズームアウトは少し遅めに（70%）
                 let outStep = step * 0.7
-                scale = max(scale - outStep, 1.0)
-                if scale == 1.0 {
+                let newScale = max(scale - outStep, 1.0)
+                if newScale <= 1.0 {
+                    scale = 1.0
                     offset = .zero
                     lastOffset = .zero
+                } else {
+                    let scaleDiff = newScale / oldScale
+                    scale = newScale
+                    // 現在見ている部分を維持
+                    offset = CGSize(width: offset.width * scaleDiff, height: offset.height * scaleDiff)
+                    lastOffset = offset
                 }
             }
 
