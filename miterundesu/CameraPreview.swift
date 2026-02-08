@@ -69,6 +69,7 @@ struct CameraPreviewWithZoom: View {
     @State private var zoomStartTime: Date?
     @State private var continuousZoomCount: Int = 0
     @State private var savedZoomBeforeReset: CGFloat? = nil
+    @State private var isLongPress1x: Bool = false
 
     var body: some View {
         GeometryReader { geometry in
@@ -175,28 +176,32 @@ struct CameraPreviewWithZoom: View {
                             .foregroundColor(.white)
                             .accessibilityHidden(true)
                     }
-                    .onTapGesture {
-                        // タップ: 完全にリセット
-                        // 長押し中の場合はsavedZoomBeforeResetをクリアしてリセット
-                        savedZoomBeforeReset = nil
-                        stopContinuousZoom()
-                        cameraManager.smoothZoom(to: 1.0, duration: 0.2)
-                    }
                     .onLongPressGesture(minimumDuration: 0.3, pressing: { pressing in
                         if pressing {
-                            // 長押し開始: 現在の倍率を保存して1倍に
+                            // 押下開始: 現在の倍率を保存、まだズームしない
                             if cameraManager.currentZoom > 1.0 {
                                 savedZoomBeforeReset = cameraManager.currentZoom
-                                cameraManager.smoothZoom(to: 1.0, duration: 0.08)
                             }
+                            isLongPress1x = false
                         } else {
-                            // 長押し終了: 保存した倍率に戻す
-                            if let savedZoom = savedZoomBeforeReset {
-                                cameraManager.smoothZoom(to: savedZoom, duration: 0.08)
-                                savedZoomBeforeReset = nil
+                            // 離した時
+                            if isLongPress1x {
+                                // 長押しだった場合: 保存した倍率に戻す
+                                if let savedZoom = savedZoomBeforeReset {
+                                    cameraManager.smoothZoom(to: savedZoom, duration: 0.08)
+                                }
+                            } else {
+                                // タップだった場合（0.3秒未満で離した）: 1倍に恒久リセット
+                                cameraManager.smoothZoom(to: 1.0, duration: 0.2)
                             }
+                            savedZoomBeforeReset = nil
+                            isLongPress1x = false
                         }
-                    }, perform: {})
+                    }, perform: {
+                        // 0.3秒到達: 長押し確定、1倍にズーム
+                        isLongPress1x = true
+                        cameraManager.smoothZoom(to: 1.0, duration: 0.08)
+                    })
                     .accessibilityElement()
                     .accessibilityLabel(LocalizationManager.shared.localizedString("zoom_reset"))
                     .accessibilityHint(LocalizationManager.shared.localizedString("zoom_reset_camera_hint"))
