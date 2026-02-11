@@ -15,6 +15,10 @@ struct ImageDeletedView: View {
 
     /// 自動消去までの時間（秒）
     private let autoDismissDelay: TimeInterval = 2.5
+    /// VoiceOver ON時の自動消去までの時間（読み上げ完了を待つ）
+    private let voiceOverDismissDelay: TimeInterval = 3.0
+    /// onCloseの二重呼び出し防止
+    @State private var hasClosed = false
 
     var body: some View {
         ZStack {
@@ -22,38 +26,46 @@ struct ImageDeletedView: View {
             Color("MainGreen")
                 .ignoresSafeArea()
 
-            VStack(spacing: 40) {
+            VStack(spacing: 50) {
                 Spacer()
 
-                // アイコンとメッセージ
-                VStack(spacing: 32) {
-                    // タイマーアイコン（ウェルカム画面のロゴと同じサイズ感）
-                    Image(systemName: "timer")
-                        .font(.system(size: 120, weight: .light))
-                        .foregroundColor(.white)
-                        .accessibilityHidden(true)
+                // ゴミ箱アイコン（TutorialCompletionViewと同じサークルパターン）
+                ZStack {
+                    Circle()
+                        .fill(.white.opacity(0.2))
+                        .frame(width: 140, height: 140)
 
-                    // メッセージ
-                    VStack(spacing: 16) {
-                        Text(settingsManager.localizationManager.localizedString("image_deleted_title"))
-                            .font(.system(size: 36, weight: .bold, design: .rounded))
-                            .foregroundColor(.white)
+                    Circle()
+                        .fill(.white)
+                        .frame(width: 120, height: 120)
 
-                        Text(settingsManager.localizationManager.localizedString("image_deleted_reason"))
-                            .font(.system(size: 18, weight: .medium))
-                            .foregroundColor(.white.opacity(0.9))
-                            .multilineTextAlignment(.center)
-                            .lineSpacing(6)
-                            .padding(.horizontal, 40)
-                    }
-                    .accessibilityElement(children: .combine)
+                    Image(systemName: "trash")
+                        .font(.system(size: 60, weight: .bold))
+                        .foregroundColor(Color("MainGreen"))
                 }
+                .accessibilityHidden(true)
+
+                // メッセージ
+                VStack(spacing: 20) {
+                    Text(settingsManager.localizationManager.localizedString("image_deleted_title"))
+                        .font(.system(size: 32, weight: .bold, design: .rounded))
+                        .foregroundColor(.white)
+                        .multilineTextAlignment(.center)
+
+                    Text(settingsManager.localizationManager.localizedString("image_deleted_reason"))
+                        .font(.system(size: 18, weight: .medium))
+                        .foregroundColor(.white.opacity(0.9))
+                        .multilineTextAlignment(.center)
+                        .lineSpacing(6)
+                        .padding(.horizontal, 40)
+                }
+                .accessibilityElement(children: .combine)
 
                 Spacer()
 
                 // 閉じるボタン（VoiceOver有効時のみ表示）
                 if UIAccessibility.isVoiceOverRunning {
-                    Button(action: onClose) {
+                    Button(action: { closeSafely() }) {
                         HStack(spacing: 12) {
                             Text(settingsManager.localizationManager.localizedString("close"))
                                 .font(.system(size: 20, weight: .bold))
@@ -79,12 +91,31 @@ struct ImageDeletedView: View {
         }
         .preferredColorScheme(.dark)
         .onAppear {
-            // VoiceOverが無効の場合のみ自動消去
-            if !UIAccessibility.isVoiceOverRunning {
+            // 触覚フィードバック（警告）
+            UINotificationFeedbackGenerator().notificationOccurred(.warning)
+
+            if UIAccessibility.isVoiceOverRunning {
+                // VoiceOverアナウンス
+                let announcement = settingsManager.localizationManager.localizedString("image_deleted_title")
+                UIAccessibility.post(notification: .announcement, argument: announcement)
+
+                // 読み上げ完了後に自動消去
+                DispatchQueue.main.asyncAfter(deadline: .now() + voiceOverDismissDelay) {
+                    closeSafely()
+                }
+            } else {
+                // VoiceOFF: 2.5秒後に自動消去
                 DispatchQueue.main.asyncAfter(deadline: .now() + autoDismissDelay) {
-                    onClose()
+                    closeSafely()
                 }
             }
         }
+    }
+
+    /// onCloseを一度だけ呼び出す
+    private func closeSafely() {
+        guard !hasClosed else { return }
+        hasClosed = true
+        onClose()
     }
 }
