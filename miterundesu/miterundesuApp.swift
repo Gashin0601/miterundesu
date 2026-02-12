@@ -28,6 +28,12 @@ struct miterundesuApp: App {
         WindowGroup {
             ContentView()
                 .environmentObject(pressModeManager)
+                .onOpenURL { url in
+                    // ウィジェット/コントロールセンターからの起動を処理
+                    #if DEBUG
+                    print("🔗 URL受信: \(url)")
+                    #endif
+                }
         }
         .onChange(of: scenePhase) { oldPhase, newPhase in
             switch newPhase {

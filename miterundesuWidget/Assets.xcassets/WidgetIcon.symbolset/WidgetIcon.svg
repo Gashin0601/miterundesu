@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--Custom Symbol for Miterundesu-->
+<svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="3300" height="2200">
+  <g id="Notes">
+    <rect height="1" id="artboard" style="fill:white;opacity:1" width="1" x="0" y="0"/>
+    <text style="font-family:Helvetica;font-size:12" transform="matrix(1 0 0 1 30 44)">template-version:5.0</text>
+  </g>
+  <g id="Guides">
+    <line id="Baseline-S" style="fill:none;stroke:#27AAE1;opacity:1;stroke-width:0.5" x1="1240" x2="2060" y1="1556" y2="1556"/>
+    <line id="Capline-S" style="fill:none;stroke:#27AAE1;opacity:1;stroke-width:0.5" x1="1240" x2="2060" y1="644" y2="644"/>
+    <line id="Baseline-M" style="fill:none;stroke:#27AAE1;opacity:1;stroke-width:0.5" x1="1240" x2="2060" y1="1556" y2="1556"/>
+    <line id="Capline-M" style="fill:none;stroke:#27AAE1;opacity:1;stroke-width:0.5" x1="1240" x2="2060" y1="644" y2="644"/>
+    <line id="Baseline-L" style="fill:none;stroke:#27AAE1;opacity:1;stroke-width:0.5" x1="1240" x2="2060" y1="1556" y2="1556"/>
+    <line id="Capline-L" style="fill:none;stroke:#27AAE1;opacity:1;stroke-width:0.5" x1="1240" x2="2060" y1="644" y2="644"/>
+    <line id="left-margin-Regular-M" style="fill:none;stroke:#00AEEF;opacity:1;stroke-width:0.5" x1="1240" x2="1240" y1="644" y2="1556"/>
+    <line id="right-margin-Regular-M" style="fill:none;stroke:#00AEEF;opacity:1;stroke-width:0.5" x1="2060" x2="2060" y1="644" y2="1556"/>
+  </g>
+  <g id="Symbols">
+    <g id="Regular-M" transform="matrix(1 0 0 1 0 0)">
+      <path d="M 1650.000,720.163 C 1859.779,720.163 2029.840,890.221 2029.840,1100.000 C 2029.840,1309.779 1859.779,1479.840 1650.000,1479.840 C 1440.221,1479.840 1270.163,1309.779 1270.163,1100.000 C 1270.163,890.225 1440.221,720.163 1650.000,720.163 Z M 1521.746,825.070 C 1614.375,825.070 1689.471,900.158 1689.471,992.787 C 1689.471,1085.419 1614.375,1160.511 1521.746,1160.511 C 1429.117,1160.511 1354.029,1085.419 1354.026,992.787 C 1354.026,900.158 1429.117,825.070 1521.746,825.070 Z" fill="black"/>
+    </g>
+    <g id="Ultralight-S" transform="matrix(1 0 0 1 0 0)">
+      <path d="M 1650.000,720.163 C 1859.779,720.163 2029.840,890.221 2029.840,1100.000 C 2029.840,1309.779 1859.779,1479.840 1650.000,1479.840 C 1440.221,1479.840 1270.163,1309.779 1270.163,1100.000 C 1270.163,890.225 1440.221,720.163 1650.000,720.163 Z M 1521.746,825.070 C 1614.375,825.070 1689.471,900.158 1689.471,992.787 C 1689.471,1085.419 1614.375,1160.511 1521.746,1160.511 C 1429.117,1160.511 1354.029,1085.419 1354.026,992.787 C 1354.026,900.158 1429.117,825.070 1521.746,825.070 Z" fill="black"/>
+    </g>
+    <g id="Black-S" transform="matrix(1 0 0 1 0 0)">
+      <path d="M 1650.000,720.163 C 1859.779,720.163 2029.840,890.221 2029.840,1100.000 C 2029.840,1309.779 1859.779,1479.840 1650.000,1479.840 C 1440.221,1479.840 1270.163,1309.779 1270.163,1100.000 C 1270.163,890.225 1440.221,720.163 1650.000,720.163 Z M 1521.746,825.070 C 1614.375,825.070 1689.471,900.158 1689.471,992.787 C 1689.471,1085.419 1614.375,1160.511 1521.746,1160.511 C 1429.117,1160.511 1354.029,1085.419 1354.026,992.787 C 1354.026,900.158 1429.117,825.070 1521.746,825.070 Z" fill="black"/>
+    </g>
+  </g>
+</svg>

@@ -13,6 +13,7 @@
 		9B2347202EC4E3A2006E7632 /* Realtime in Frameworks */ = {isa = PBXBuildFile; productRef = 9B23471F2EC4E3A2006E7632 /* Realtime */; };
 		9B2347222EC4E3A2006E7632 /* Storage in Frameworks */ = {isa = PBXBuildFile; productRef = 9B2347212EC4E3A2006E7632 /* Storage */; };
 		9BBEB1BB2EC4EB4E00B32001 /* Supabase in Frameworks */ = {isa = PBXBuildFile; productRef = 9BBEB1BA2EC4EB4E00B32001 /* Supabase */; };
+		CC00000100000001000CC00D /* miterundesuWidgetExtension.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = CC00000100000001000CC001 /* miterundesuWidgetExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -30,12 +31,34 @@
 			remoteGlobalIDString = 9B2346552EC06063006E7632;
 			remoteInfo = miterundesu;
 		};
+		CC00000100000001000CC008 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 9B23464E2EC06063006E7632 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = CC00000100000001000CC007;
+			remoteInfo = miterundesuWidgetExtension;
+		};
 /* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		CC00000100000001000CC006 /* Embed App Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				CC00000100000001000CC00D /* miterundesuWidgetExtension.appex in Embed App Extensions */,
+			);
+			name = "Embed App Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
 		9B2346562EC06063006E7632 /* miterundesu.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = miterundesu.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		9B23466D2EC06064006E7632 /* miterundesuTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = miterundesuTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		9B2346772EC06064006E7632 /* miterundesuUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = miterundesuUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		CC00000100000001000CC001 /* miterundesuWidgetExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = miterundesuWidgetExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -45,6 +68,13 @@
 				Info.plist,
 			);
 			target = 9B2346552EC06063006E7632 /* miterundesu */;
+		};
+		CC00000100000001000CC00E /* Exceptions for "miterundesuWidget" folder in "miterundesuWidgetExtension" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = CC00000100000001000CC007 /* miterundesuWidgetExtension */;
 		};
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
@@ -65,6 +95,14 @@
 		9B23467A2EC06064006E7632 /* miterundesuUITests */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			path = miterundesuUITests;
+			sourceTree = "<group>";
+		};
+		CC00000100000001000CC002 /* miterundesuWidget */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				CC00000100000001000CC00E /* Exceptions for "miterundesuWidget" folder in "miterundesuWidgetExtension" target */,
+			);
+			path = miterundesuWidget;
 			sourceTree = "<group>";
 		};
 /* End PBXFileSystemSynchronizedRootGroup section */
@@ -97,6 +135,13 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		CC00000100000001000CC004 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
@@ -104,6 +149,7 @@
 			isa = PBXGroup;
 			children = (
 				9B2346582EC06063006E7632 /* miterundesu */,
+				CC00000100000001000CC002 /* miterundesuWidget */,
 				9B2346702EC06064006E7632 /* miterundesuTests */,
 				9B23467A2EC06064006E7632 /* miterundesuUITests */,
 				9BBEB1B92EC4EB4E00B32001 /* Frameworks */,
@@ -117,6 +163,7 @@
 				9B2346562EC06063006E7632 /* miterundesu.app */,
 				9B23466D2EC06064006E7632 /* miterundesuTests.xctest */,
 				9B2346772EC06064006E7632 /* miterundesuUITests.xctest */,
+				CC00000100000001000CC001 /* miterundesuWidgetExtension.appex */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -138,10 +185,12 @@
 				9B2346522EC06063006E7632 /* Sources */,
 				9B2346532EC06063006E7632 /* Frameworks */,
 				9B2346542EC06063006E7632 /* Resources */,
+				CC00000100000001000CC006 /* Embed App Extensions */,
 			);
 			buildRules = (
 			);
 			dependencies = (
+				CC00000100000001000CC009 /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
 				9B2346582EC06063006E7632 /* miterundesu */,
@@ -205,6 +254,28 @@
 			productReference = 9B2346772EC06064006E7632 /* miterundesuUITests.xctest */;
 			productType = "com.apple.product-type.bundle.ui-testing";
 		};
+		CC00000100000001000CC007 /* miterundesuWidgetExtension */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = CC00000100000001000CC00C /* Build configuration list for PBXNativeTarget "miterundesuWidgetExtension" */;
+			buildPhases = (
+				CC00000100000001000CC003 /* Sources */,
+				CC00000100000001000CC004 /* Frameworks */,
+				CC00000100000001000CC005 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				CC00000100000001000CC002 /* miterundesuWidget */,
+			);
+			name = miterundesuWidgetExtension;
+			packageProductDependencies = (
+			);
+			productName = miterundesuWidgetExtension;
+			productReference = CC00000100000001000CC001 /* miterundesuWidgetExtension.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -225,6 +296,9 @@
 					9B2346762EC06064006E7632 = {
 						CreatedOnToolsVersion = 16.2;
 						TestTargetID = 9B2346552EC06063006E7632;
+					};
+					CC00000100000001000CC007 = {
+						CreatedOnToolsVersion = 16.2;
 					};
 				};
 			};
@@ -250,6 +324,7 @@
 				9B2346552EC06063006E7632 /* miterundesu */,
 				9B23466C2EC06064006E7632 /* miterundesuTests */,
 				9B2346762EC06064006E7632 /* miterundesuUITests */,
+				CC00000100000001000CC007 /* miterundesuWidgetExtension */,
 			);
 		};
 /* End PBXProject section */
@@ -270,6 +345,13 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 		9B2346752EC06064006E7632 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		CC00000100000001000CC005 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -300,6 +382,13 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		CC00000100000001000CC003 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
@@ -313,6 +402,11 @@
 			target = 9B2346552EC06063006E7632 /* miterundesu */;
 			targetProxy = 9B2346782EC06064006E7632 /* PBXContainerItemProxy */;
 		};
+		CC00000100000001000CC009 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = CC00000100000001000CC007 /* miterundesuWidgetExtension */;
+			targetProxy = CC00000100000001000CC008 /* PBXContainerItemProxy */;
+		};
 /* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
@@ -324,7 +418,7 @@
 				CODE_SIGN_ENTITLEMENTS = miterundesu/miterundesu.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 3;
+				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"miterundesu/Preview Content\"";
 				DEVELOPMENT_TEAM = QKL495VRXU;
 				ENABLE_PREVIEWS = YES;
@@ -343,7 +437,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.1.1;
+				MARKETING_VERSION = 1.1.2;
 				PRODUCT_BUNDLE_IDENTIFIER = "jp-mieruwa.miterundesu";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
@@ -361,7 +455,7 @@
 				CODE_SIGN_ENTITLEMENTS = miterundesu/miterundesu.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 3;
+				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"miterundesu/Preview Content\"";
 				DEVELOPMENT_TEAM = QKL495VRXU;
 				ENABLE_PREVIEWS = YES;
@@ -380,7 +474,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.1.1;
+				MARKETING_VERSION = 1.1.2;
 				PRODUCT_BUNDLE_IDENTIFIER = "jp-mieruwa.miterundesu";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
@@ -518,11 +612,11 @@
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 3;
+				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = BF827V744Q;
 				GENERATE_INFOPLIST_FILE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 18.2;
-				MARKETING_VERSION = 1.1.1;
+				MARKETING_VERSION = 1.1.2;
 				PRODUCT_BUNDLE_IDENTIFIER = mieruwa.miterundesuTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = NO;
@@ -537,11 +631,11 @@
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 3;
+				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = BF827V744Q;
 				GENERATE_INFOPLIST_FILE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 18.2;
-				MARKETING_VERSION = 1.1.1;
+				MARKETING_VERSION = 1.1.2;
 				PRODUCT_BUNDLE_IDENTIFIER = mieruwa.miterundesuTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = NO;
@@ -555,10 +649,10 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 3;
+				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = BF827V744Q;
 				GENERATE_INFOPLIST_FILE = YES;
-				MARKETING_VERSION = 1.1.1;
+				MARKETING_VERSION = 1.1.2;
 				PRODUCT_BUNDLE_IDENTIFIER = mieruwa.miterundesuUITests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = NO;
@@ -572,16 +666,70 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 3;
+				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = BF827V744Q;
 				GENERATE_INFOPLIST_FILE = YES;
-				MARKETING_VERSION = 1.1.1;
+				MARKETING_VERSION = 1.1.2;
 				PRODUCT_BUNDLE_IDENTIFIER = mieruwa.miterundesuUITests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = NO;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = 1;
 				TEST_TARGET_NAME = miterundesu;
+			};
+			name = Release;
+		};
+		CC00000100000001000CC00A /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = QKL495VRXU;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = miterundesuWidget/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = "ミテルンデス";
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.1.2;
+				PRODUCT_BUNDLE_IDENTIFIER = "jp-mieruwa.miterundesu.widget";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 1;
+			};
+			name = Debug;
+		};
+		CC00000100000001000CC00B /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = QKL495VRXU;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = miterundesuWidget/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = "ミテルンデス";
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.1.2;
+				PRODUCT_BUNDLE_IDENTIFIER = "jp-mieruwa.miterundesu.widget";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 1;
 			};
 			name = Release;
 		};
@@ -620,6 +768,15 @@
 			buildConfigurations = (
 				9B2346892EC06064006E7632 /* Debug */,
 				9B23468A2EC06064006E7632 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		CC00000100000001000CC00C /* Build configuration list for PBXNativeTarget "miterundesuWidgetExtension" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				CC00000100000001000CC00A /* Debug */,
+				CC00000100000001000CC00B /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
