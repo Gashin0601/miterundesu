@@ -6,7 +6,7 @@ struct MiterundesuControlWidget: ControlWidget {
     var body: some ControlWidgetConfiguration {
         StaticControlConfiguration(kind: "jp-mieruwa.miterundesu.LaunchControl") {
             ControlWidgetButton(action: LaunchMiterundesuIntent()) {
-                Label("ミテルンデス", systemImage: "eye")
+                Label("ミテルンデス", image: "WidgetIcon")
             }
         }
         .displayName("ミテルンデスを開く")
